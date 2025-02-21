@@ -23,6 +23,9 @@ public:
 	int get_health() {
 		return(health);
 	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
 };
 
 class tank {
