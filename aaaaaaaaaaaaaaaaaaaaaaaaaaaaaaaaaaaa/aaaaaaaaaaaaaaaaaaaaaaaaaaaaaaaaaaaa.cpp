@@ -3,15 +3,14 @@
 using namespace std;
 using namespace sf;
 
-const int size_window = 1000;
+const int size_window_x = 2000;
+const int size_window_y = 1000;
 const int size_field_x = 80;
 const int size_field_y = 40;
 const int max_zoom = 4;
 const int min_zoom = 1;
-const int start_x_camera = size_window / 2;
-const int start_y_camera = size_window / 2;
 const int size_cell = 30;
-RenderWindow window(VideoMode(size_window, size_window), "shiiit");
+RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 class construction {
 private:
@@ -238,8 +237,11 @@ public:
 };
 
 void paint_feeld(int x_camera, int y_camera, int zoom) {
-	VertexArray line_x(Lines, 2);
+	/*VertexArray line_x(Lines, 2);
 	VertexArray line_y(Lines, 2);
+	line_y[0].position = sf::Vector2f(5000, 5000);
+	line_y[1].position = sf::Vector2f(5000, 5000);
+	window.draw(line_y);*/
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
@@ -251,9 +253,6 @@ void paint_feeld(int x_camera, int y_camera, int zoom) {
 				rectangle.setFillColor(sf::Color(i * 3, 0, j * 5));
 			}
 			window.draw(rectangle);
-			/*line_y[0].position = sf::Vector2f(0, i * size_cell * zoom + y_camera);
-			line_y[1].position = sf::Vector2f(size_window, i * size_cell * zoom + y_camera);
-			window.draw(line_y);*/
 		}
 		
 	}
@@ -264,8 +263,21 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_cam
 	mousePos = Mouse::getPosition(window);
 	step.x = -old_mousePos.x + mousePos.x;
 	step.y = -old_mousePos.y + mousePos.y;
-	x_camera = (x_camera + step.x) % (size_window * zoom);
-	y_camera = (y_camera + step.y) % (size_window * zoom);
+	x_camera = (x_camera + step.x) % (size_window_x * zoom);
+	y_camera = (y_camera + step.y) % (size_window_y * zoom);
+	if (x_camera > 0) {
+		x_camera = 0;
+	}
+	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
+		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
+	}
+	if (y_camera > 0) {
+		y_camera = 0;
+	}
+	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y)) {
+		y_camera = -(size_cell * size_field_y * zoom - size_window_y);
+	}
+
 }
 
 void change_zoom(Event event, int &zoom) {
