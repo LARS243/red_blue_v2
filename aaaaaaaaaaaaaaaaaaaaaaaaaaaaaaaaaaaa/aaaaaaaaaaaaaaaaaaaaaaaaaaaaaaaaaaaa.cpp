@@ -11,7 +11,9 @@ const int min_zoom = 1;
 const int start_x_camera = size_window / 2;
 const int start_y_camera = size_window / 2;
 const int size_cell = 30;
+const int why = 154;
 RenderWindow window(VideoMode(size_window, size_window), "shiiit");
+
 
 void paint_feeld(int x_camera, int y_camera, int zoom) {
 	VertexArray line_x(Lines, 2);
@@ -26,7 +28,6 @@ void paint_feeld(int x_camera, int y_camera, int zoom) {
 			else {
 				rectangle.setFillColor(sf::Color(125, 0, 0));
 			}
-			
 			window.draw(rectangle);
 			/*line_y[0].position = sf::Vector2f(0, i * size_cell * zoom + y_camera);
 			line_y[1].position = sf::Vector2f(size_window, i * size_cell * zoom + y_camera);
@@ -53,9 +54,8 @@ void change_zoom(Event event, int &zoom) {
 		zoom--;
 }
 
-int main()
-{
-	
+
+void game() {
 	int x_camera = 0;
 	int y_camera = 0;
 	int zoom = 4;
@@ -65,17 +65,17 @@ int main()
 	{
 		window.clear();
 		Event event;
-		
+
 		while (window.pollEvent(event))
 		{
-			
-			if (Mouse::isButtonPressed(Mouse::Middle)){
+
+			if (Mouse::isButtonPressed(Mouse::Middle)) {
 				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
-				}
-			if(sf::Event::MouseWheelMoved) {
+			}
+			if (sf::Event::MouseWheelMoved) {
 				change_zoom(event, zoom);
 			}
-				
+
 			if (event.type == Event::Closed)
 				window.close();
 			old_mousePos = Mouse::getPosition(window);
@@ -83,6 +83,10 @@ int main()
 		paint_feeld(x_camera, y_camera, zoom);
 		window.display();
 	}
+}
 
+int main()
+{
+	game();
 	return 0;
 }
