@@ -13,6 +13,226 @@ const int start_y_camera = size_window / 2;
 const int size_cell = 30;
 RenderWindow window(VideoMode(size_window, size_window), "shiiit");
 
+class construction {
+private:
+	int health;
+public:
+	construction() {
+		health = 100;
+	}
+	int get_health() {
+		return(health);
+	}
+};
+
+class tank {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply;
+public:
+	tank() {
+		health = 100;
+		damage_to_living_force = 10;
+		damage_to_war_machine = 20;
+		mobility = 10;
+		supply = 50;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply = new_supply;
+	}
+};
+
+class anti_tank {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply;
+
+public:
+	anti_tank() {
+		health = 100;
+		damage_to_living_force = 10;
+		damage_to_war_machine = 20;
+		mobility = 10;
+		supply = 50;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply = new_supply;
+	}
+};
+
+class infantry {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply;
+
+public:
+	infantry() {
+		health = 100;
+		damage_to_living_force = 10;
+		damage_to_war_machine = 2;
+		mobility = 10;
+		supply = 50;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply = new_supply;
+	}
+};
+
+class motorised_infantry {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply;
+
+public:
+	motorised_infantry() {
+		health = 100;
+		damage_to_living_force = 10;
+		damage_to_war_machine = 5;
+		mobility = 10;
+		supply = 50;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply = new_supply;
+	}
+};
+
+class supply_car {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply_for_supply;
+
+public:
+	supply_car() {
+		health = 10000;
+		damage_to_living_force = 1000;
+		damage_to_war_machine = 3000;
+		mobility = 4000;
+		supply_for_supply = 2147483647;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply_for_supply);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply_for_supply = new_supply;
+	}
+};
 
 void paint_feeld(int x_camera, int y_camera, int zoom) {
 	VertexArray line_x(Lines, 2);
