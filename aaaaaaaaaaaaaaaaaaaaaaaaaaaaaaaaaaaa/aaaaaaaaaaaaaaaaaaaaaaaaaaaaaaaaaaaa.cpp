@@ -3,7 +3,7 @@
 using namespace std;
 using namespace sf;
 
-const int size_window = 1500;
+const int size_window = 1000;
 const int size_field_x = 80;
 const int size_field_y = 40;
 const int max_zoom = 4;
@@ -11,7 +11,6 @@ const int min_zoom = 1;
 const int start_x_camera = size_window / 2;
 const int start_y_camera = size_window / 2;
 const int size_cell = 30;
-const int why = 154;
 RenderWindow window(VideoMode(size_window, size_window), "shiiit");
 
 
@@ -23,10 +22,10 @@ void paint_feeld(int x_camera, int y_camera, int zoom) {
 			RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 			if ((i + j) % 2 == 0) {
-				rectangle.setFillColor(sf::Color(0, 0, 125));
+				rectangle.setFillColor(sf::Color(i * 3, 0, j * 5));
 			}
 			else {
-				rectangle.setFillColor(sf::Color(125, 0, 0));
+				rectangle.setFillColor(sf::Color(i * 3, 0, j * 5));
 			}
 			window.draw(rectangle);
 			/*line_y[0].position = sf::Vector2f(0, i * size_cell * zoom + y_camera);
