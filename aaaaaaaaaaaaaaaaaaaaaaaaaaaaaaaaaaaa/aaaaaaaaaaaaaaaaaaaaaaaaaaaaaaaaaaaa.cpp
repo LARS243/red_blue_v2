@@ -5,6 +5,14 @@
 using namespace std;
 using namespace sf;
 
+const int ID_black_hole = 0;
+const int ID_construction = 1;
+const int ID_tank = 2;
+const int ID_anti_tank = 3;
+const int ID_infantry = 4;
+const int ID_motorised_infantry = 5;
+const int ID_supply_car = 6;
+
 const int size_window_x = 2000;
 const int size_window_y = 1000;
 const int size_field_x = 80;
@@ -20,21 +28,33 @@ const int mount = 2;
 Color field_color = { 40, 140, 0 };
 Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
+Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
 
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 int matrix_relief[size_field_x][size_field_y];
+int matrix_units[size_field_x][size_field_y];
 
 class construction {
 private:
 	int health;
+	int armor;
+	int ID;
 public:
 	construction() {
 		health = 100;
+		armor = 50;
+		ID = ID_construction;
 	}
 	int get_health() {
 		return(health);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_health(int new_health) {
 		health = new_health;
@@ -48,6 +68,8 @@ private:
 	int damage_to_war_machine;
 	int mobility;
 	int supply;
+	int armor = 50;
+	int ID;
 public:
 	tank() {
 		health = 100;
@@ -55,6 +77,8 @@ public:
 		damage_to_war_machine = 20;
 		mobility = 10;
 		supply = 50;
+		armor = 50;
+		ID = ID_tank;
 	}
 	int get_health() {
 		return(health);
@@ -70,6 +94,12 @@ public:
 	}
 	int get_supply() {
 		return(supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -89,6 +119,8 @@ private:
 	int damage_to_war_machine;
 	int mobility;
 	int supply;
+	int armor;
+	int ID;
 
 public:
 	anti_tank() {
@@ -97,6 +129,8 @@ public:
 		damage_to_war_machine = 20;
 		mobility = 10;
 		supply = 50;
+		armor = 50;
+		ID = ID_anti_tank;
 	}
 	int get_health() {
 		return(health);
@@ -112,6 +146,12 @@ public:
 	}
 	int get_supply() {
 		return(supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -131,6 +171,8 @@ private:
 	int damage_to_war_machine;
 	int mobility;
 	int supply;
+	int armor;
+	int ID;
 
 public:
 	infantry() {
@@ -139,6 +181,8 @@ public:
 		damage_to_war_machine = 2;
 		mobility = 10;
 		supply = 50;
+		armor = 50;
+		ID_infantry;
 	}
 	int get_health() {
 		return(health);
@@ -154,6 +198,12 @@ public:
 	}
 	int get_supply() {
 		return(supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -173,6 +223,8 @@ private:
 	int damage_to_war_machine;
 	int mobility;
 	int supply;
+	int armor;
+	int ID;
 
 public:
 	motorised_infantry() {
@@ -181,6 +233,8 @@ public:
 		damage_to_war_machine = 5;
 		mobility = 10;
 		supply = 50;
+		armor = 50;
+		ID = ID_motorised_infantry;
 	}
 	int get_health() {
 		return(health);
@@ -196,6 +250,12 @@ public:
 	}
 	int get_supply() {
 		return(supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -215,6 +275,8 @@ private:
 	int damage_to_war_machine;
 	int mobility;
 	int supply_for_supply;
+	int armor;
+	int ID;
 
 public:
 	supply_car() {
@@ -223,6 +285,8 @@ public:
 		damage_to_war_machine = 3000;
 		mobility = 4000;
 		supply_for_supply = 2147483647;
+		armor = 50;
+		ID = ID_supply_car;
 	}
 	int get_health() {
 		return(health);
@@ -238,6 +302,12 @@ public:
 	}
 	int get_supply() {
 		return(supply_for_supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -367,6 +437,16 @@ Color get_color(int color) {
 	}
 }
 
+void matrix_unit_to_zero() {
+	for (int i = 0; i < size_field_x; i++)
+	{
+		for (int j = 0; j < size_field_y; j++)
+		{
+			matrix_units[i][j] = ID_black_hole;
+		}
+	}
+}
+
 void paint_feeld(int x_camera, int y_camera, int zoom) {
 	/*VertexArray line_x(Lines, 2);
 	VertexArray line_y(Lines, 2);
@@ -381,6 +461,48 @@ void paint_feeld(int x_camera, int y_camera, int zoom) {
 			window.draw(rectangle);
 		}
 		
+	}
+}
+
+void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
+	int type_units;
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			type_units = matrix_units[i][j];
+			if (type_units != 0) {
+				RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				switch (type_units) {
+				case 1:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case 2:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case 3:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case 4:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case 5:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case 6:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
 	}
 }
 
@@ -442,12 +564,14 @@ void game() {
 			old_mousePos = Mouse::getPosition(window);
 		}
 		paint_feeld(x_camera, y_camera, zoom);
+		paint_units(x_camera, y_camera, zoom);
 		window.display();
 	}
 }
 
 int main()
 {
+	matrix_unit_to_zero();
 	game();
 	return 0;
 }
