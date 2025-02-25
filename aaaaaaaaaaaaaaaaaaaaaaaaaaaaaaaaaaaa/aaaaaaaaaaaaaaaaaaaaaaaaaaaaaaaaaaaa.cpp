@@ -1,5 +1,7 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
+#include <ctime>
 using namespace std;
 using namespace sf;
 
@@ -10,7 +12,19 @@ const int size_field_y = 40;
 const int max_zoom = 4;
 const int min_zoom = 1;
 const int size_cell = 30;
+
+const int field = 0;
+const int forest = 1;
+const int mount = 2;
+
+Color field_color = { 40, 140, 0 };
+Color forest_color = { 0,69,36 };
+Color mount_color = { 150, 150, 150 };
+
+
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
+
+int matrix_relief[size_field_x][size_field_y];
 
 class construction {
 private:
@@ -236,6 +250,123 @@ public:
 	}
 };
 
+void generate_relief() {
+	srand(time(0));
+	int rand_element;
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			rand_element = rand() % 4;
+			if (i == 0 and j == 0) {
+				matrix_relief[i][j] = 0;
+			}
+			else if (i == 0) {
+				if (matrix_relief[i][j - 1] == field) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = field;
+					}
+				}
+				else if (matrix_relief[i][j - 1] == forest) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = mount;
+					}
+					else if (rand_element == 0) {
+						matrix_relief[i][j] = field;
+					}
+					else {
+						matrix_relief[i][j] = forest;
+					}
+				}
+				else {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = mount;
+					}
+				}
+			}
+			else if (j == 0) {
+				if (matrix_relief[i - 1][j] == field) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = field;
+					}
+				}
+				else if (matrix_relief[i - 1][j] == forest) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = mount;
+					}
+					else if (rand_element == 0) {
+						matrix_relief[i][j] = field;
+					}
+					else {
+						matrix_relief[i][j] = forest;
+					}
+				}
+				else {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = mount;
+					}
+				}
+			}
+			else {
+				int average = (matrix_relief[i-1][j] + matrix_relief[i][j-1]) / 2;
+				if (average == field) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = field;
+					}
+				}
+				else if (average == forest) {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = mount;
+					}
+					else if (rand_element == 0) {
+						matrix_relief[i][j] = field;
+					}
+					else {
+						matrix_relief[i][j] = forest;
+					}
+				}
+				else {
+					if (rand_element == 3) {
+						matrix_relief[i][j] = forest;
+					}
+					else {
+						matrix_relief[i][j] = mount;
+					}
+				}
+
+			}
+		}
+
+	}
+
+
+}
+
+Color get_color(int color) {
+	if (color == field) {
+		return field_color;
+	}
+	else if (color == forest) {
+		return forest_color;
+	}
+	else {
+		return mount_color;
+	}
+}
+
 void paint_feeld(int x_camera, int y_camera, int zoom) {
 	/*VertexArray line_x(Lines, 2);
 	VertexArray line_y(Lines, 2);
@@ -246,12 +377,7 @@ void paint_feeld(int x_camera, int y_camera, int zoom) {
 		for (int j = 0; j < size_field_y; j++) {
 			RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-			if ((i + j) % 2 == 0) {
-				rectangle.setFillColor(sf::Color(i * 3, 0, j * 5));
-			}
-			else {
-				rectangle.setFillColor(sf::Color(i * 3, 0, j * 5));
-			}
+			rectangle.setFillColor(get_color(matrix_relief[i][j]));
 			window.draw(rectangle);
 		}
 		
@@ -290,6 +416,7 @@ void change_zoom(Event event, int &zoom) {
 
 
 void game() {
+	generate_relief();
 	int x_camera = 0;
 	int y_camera = 0;
 	int zoom = 4;
