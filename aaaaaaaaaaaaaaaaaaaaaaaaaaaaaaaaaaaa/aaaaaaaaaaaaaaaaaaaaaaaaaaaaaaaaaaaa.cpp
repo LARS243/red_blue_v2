@@ -250,6 +250,100 @@ public:
 	}
 };
 
+void print(int matrix[size_field_x][size_field_y]) {
+	for (int j = 0; j < size_field_y; j++) {
+		for (int i = 0; i < size_field_x; i++) {
+			cout << matrix[i][j] << " ";
+		}
+		cout << "\n";
+	}
+}
+
+void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (i < size_field_y / 2) {
+				matrix[size_field_x - i - 1][size_field_y - j - 1] = matrix[i][j];
+			}
+		}
+	}
+	
+	for (int j = 0; j < size_field_y; j++) {
+		for (int i = 0; i < size_field_y - j - 1; i++) {
+			matrix[size_field_y + size_field_y / 2 - i - 1][size_field_y - j - 1] = matrix[size_field_y / 2 + i][j];
+		}
+		
+		
+	}
+	
+	
+}
+
+void clear_field(int matrix[size_field_x][size_field_y]) {
+	int rand_element;
+	int matrix_elements[3];
+	
+	for (int i = 1; i < size_field_x - 1; i++) {
+		for (int j = 1; j < size_field_y - 1; j++) {
+
+			matrix_elements[field] = 0;
+			matrix_elements[forest] = 0;
+			matrix_elements[mount] = 0;
+
+			matrix_elements[matrix[i][j + 1]]++;
+			matrix_elements[matrix[i + 1][j]]++;
+			matrix_elements[matrix[i - 1][j]]++;
+			matrix_elements[matrix[i][j - 1]]++;
+
+			if (matrix_elements[matrix[i][j]] == 0) {
+				if (matrix[i][j] == field) {
+					if (matrix_elements[forest] == 4) {
+						matrix[i][j] = forest;
+					}
+					else if (matrix_elements[mount] == 4) {
+						matrix[i][j] = mount;
+					}
+					else {
+						matrix[i][j] = rand() % 2 + 1;
+					}
+				}
+				else if (matrix[i][j] == forest) {
+					if (matrix_elements[field] == 4) {
+						matrix[i][j] = field;
+					}
+					else if (matrix_elements[mount] == 4) {
+						matrix[i][j] = mount;
+					}
+					else {
+						rand_element = rand() % 2;
+						if (rand_element) {
+							matrix[i][j] = field;
+						}
+						else {
+							matrix[i][j] = mount;
+						}
+						
+					}
+				}
+				else {
+					if (matrix_elements[forest] == 4) {
+						matrix[i][j] = forest;
+					}
+					else if (matrix_elements[field] == 4) {
+						matrix[i][j] = field;
+					}
+					else {
+						matrix[i][j] = rand() % 2;
+					}
+				}
+			}
+		}
+		
+		
+	}
+	
+}
+
 void generate_relief() {
 	srand(time(0));
 	int rand_element;
@@ -351,8 +445,8 @@ void generate_relief() {
 		}
 
 	}
-
-
+	reflect_reliesf(matrix_relief);
+	clear_field(matrix_relief);
 }
 
 Color get_color(int color) {
@@ -368,11 +462,6 @@ Color get_color(int color) {
 }
 
 void paint_feeld(int x_camera, int y_camera, int zoom) {
-	/*VertexArray line_x(Lines, 2);
-	VertexArray line_y(Lines, 2);
-	line_y[0].position = sf::Vector2f(5000, 5000);
-	line_y[1].position = sf::Vector2f(5000, 5000);
-	window.draw(line_y);*/
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
