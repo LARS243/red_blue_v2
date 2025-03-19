@@ -27,7 +27,7 @@ const int field = 0;
 const int forest = 1;
 const int mount = 2;
 
-vector<Sprite> field_sprits;
+vector<vector<Texture>> textures;
 
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
@@ -546,25 +546,10 @@ void matrix_unit_to_zero() {
 	}
 }
 
-void load_sprites() {
-
-}
-
-void paint_relief(int x_camera, int y_camera, int zoom) {
-	Sprite sprite_field_30px;
-	Sprite sprite_field_60px;
-	Sprite sprite_field_90px;
-	Sprite sprite_field_120px;
-
-	Sprite sprite_forest_30px;
-	Sprite sprite_forest_60px;
-	Sprite sprite_forest_90px;
-	Sprite sprite_forest_120px;
-
-	Sprite sprite_mount_30px;
-	Sprite sprite_mount_60px;
-	Sprite sprite_mount_90px;
-	Sprite sprite_mount_120px;
+void load_texture() {
+	vector<Texture> field_textures;
+	vector<Texture> forest_textures;
+	vector<Texture> mount_textures;
 
 	Image image_field_30;
 	Texture texture_field_30;
@@ -595,128 +580,83 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 
 	image_field_30.loadFromFile("field_30px.png");
 	texture_field_30.loadFromImage(image_field_30);
-	sprite_field_30px.setTexture(texture_field_30);
 	image_field_60.loadFromFile("field_60px.png");
 	texture_field_60.loadFromImage(image_field_60);
-	sprite_field_60px.setTexture(texture_field_60);
 	image_field_90.loadFromFile("field_90px.png");
 	texture_field_90.loadFromImage(image_field_90);
-	sprite_field_90px.setTexture(texture_field_90);
 	image_field_120.loadFromFile("field_120px.png");
 	texture_field_120.loadFromImage(image_field_120);
-	sprite_field_120px.setTexture(texture_field_120);
+	field_textures.push_back(texture_field_30);
+	field_textures.push_back(texture_field_60);
+	field_textures.push_back(texture_field_90);
+	field_textures.push_back(texture_field_120);
 
 	image_forets_30.loadFromFile("forest_30px.png");
 	texture_forets_30.loadFromImage(image_forets_30);
-	sprite_forest_30px.setTexture(texture_forets_30);
 	image_forets_60.loadFromFile("forest_60px.png");
 	texture_forets_60.loadFromImage(image_forets_60);
-	sprite_forest_60px.setTexture(texture_forets_60);
 	image_forets_90.loadFromFile("forest_90px.png");
 	texture_forets_90.loadFromImage(image_forets_90);
-	sprite_forest_90px.setTexture(texture_forets_90);
 	image_forets_120.loadFromFile("forest_120px.png");
 	texture_forets_120.loadFromImage(image_forets_120);
-	sprite_forest_120px.setTexture(texture_forets_120);
+	forest_textures.push_back(texture_forets_30);
+	forest_textures.push_back(texture_forets_60);
+	forest_textures.push_back(texture_forets_90);
+	forest_textures.push_back(texture_forets_120);
 
 	image_mount_30.loadFromFile("mount_30px.png");
 	texture_mount_30.loadFromImage(image_mount_30);
-	sprite_mount_30px.setTexture(texture_mount_30);
 	image_mount_60.loadFromFile("mount_60px.png");
 	texture_mount_60.loadFromImage(image_mount_60);
-	sprite_mount_60px.setTexture(texture_mount_60);
 	image_mount_90.loadFromFile("mount_90px.png");
 	texture_mount_90.loadFromImage(image_mount_90);
-	sprite_mount_90px.setTexture(texture_mount_90);
 	image_mount_120.loadFromFile("mount_120px.png");
 	texture_mount_120.loadFromImage(image_mount_120);
-	sprite_mount_120px.setTexture(texture_mount_120);
+	mount_textures.push_back(texture_mount_30);
+	mount_textures.push_back(texture_mount_60);
+	mount_textures.push_back(texture_mount_90);
+	mount_textures.push_back(texture_mount_120);
+
+	textures.push_back(field_textures);
+	textures.push_back(forest_textures);
+	textures.push_back(mount_textures);
+}
+
+void paint_relief(int x_camera, int y_camera, int zoom) {
+	
+	Sprite sprite_field;
+	Sprite sprite_forest;
+	Sprite sprite_mount;
+
+	sprite_field.setTexture(textures[field][zoom-1]);
+	sprite_forest.setTexture(textures[forest][zoom - 1]);
+	sprite_mount.setTexture(textures[mount][zoom - 1]);
+
+	
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
-			
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 			rectangle.setFillColor(get_color(matrix_relief[i][j]));
 			window.draw(rectangle);
-			if (zoom == 1) {
-				if (matrix_relief[i][j] == field) {
-					sprite_field_30px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_30px);
+			if (matrix_relief[i][j] == field) {
+				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_field);
 					
-				}
-				else if (matrix_relief[i][j] == forest) {
-					sprite_field_30px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_30px);
-					sprite_forest_30px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_forest_30px);
-					
-				}
-				else {
-					sprite_mount_30px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_mount_30px);
-					
-				}
 			}
-			else if (zoom == 2) {
-				if (matrix_relief[i][j] == field) {
-					sprite_field_60px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_60px);
-
-				}
-				else if (matrix_relief[i][j] == forest) {
-					sprite_field_60px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_60px);
-					sprite_forest_60px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_forest_60px);
-
-				}
-				else {
-					sprite_mount_60px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_mount_60px);
-
-				}
-			}
-			else if (zoom == 3) {
-				if (matrix_relief[i][j] == field) {
-					sprite_field_90px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_90px);
-
-				}
-				else if (matrix_relief[i][j] == forest) {
-					sprite_field_90px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_90px);
-					sprite_forest_90px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_forest_90px);
-
-				}
-				else {
-					sprite_mount_90px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_mount_90px);
-
-				}
+			else if (matrix_relief[i][j] == forest) {
+				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_field);
+				sprite_forest.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_forest);
+					
 			}
 			else {
-				if (matrix_relief[i][j] == field) {
-					sprite_field_120px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_120px);
-
-				}
-				else if (matrix_relief[i][j] == forest) {
-					sprite_field_120px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_field_120px);
-					sprite_forest_120px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_forest_120px);
-
-				}
-				else {
-					sprite_mount_120px.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_mount_120px);
-
-				}
+				sprite_mount.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_mount);	
 			}
 			
 		}
-		
 	}
 }
 
@@ -809,6 +749,7 @@ void select_element(Event event, int& zoom) {//Костыль
 
 
 void game() {
+	load_texture();
 	generate_relief();
 	int x_camera = 0;
 	int y_camera = 0;
