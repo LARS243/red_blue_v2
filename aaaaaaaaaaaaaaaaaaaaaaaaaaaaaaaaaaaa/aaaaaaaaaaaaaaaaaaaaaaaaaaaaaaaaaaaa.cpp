@@ -26,25 +26,14 @@ const int field = 0;
 const int forest = 1;
 const int mount = 2;
 
+vector<Sprite> field_sprits;
+
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
 Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
 
-Sprite sprite_field_30px;
-Sprite sprite_field_60px;
-Sprite sprite_field_90px;
-Sprite sprite_field_120px;
 
-Sprite sprite_forest_30px;
-Sprite sprite_forest_60px;
-Sprite sprite_forest_90px;
-Sprite sprite_forest_120px;
-
-Sprite sprite_mount_30px;
-Sprite sprite_mount_60px;
-Sprite sprite_mount_90px;
-Sprite sprite_mount_120px;
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
@@ -556,7 +545,25 @@ void matrix_unit_to_zero() {
 	}
 }
 
+void load_sprites() {
+
+}
+
 void paint_relief(int x_camera, int y_camera, int zoom) {
+	Sprite sprite_field_30px;
+	Sprite sprite_field_60px;
+	Sprite sprite_field_90px;
+	Sprite sprite_field_120px;
+
+	Sprite sprite_forest_30px;
+	Sprite sprite_forest_60px;
+	Sprite sprite_forest_90px;
+	Sprite sprite_forest_120px;
+
+	Sprite sprite_mount_30px;
+	Sprite sprite_mount_60px;
+	Sprite sprite_mount_90px;
+	Sprite sprite_mount_120px;
 
 	Image image_field_30;
 	Texture texture_field_30;
@@ -623,10 +630,10 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 	image_mount_120.loadFromFile("mount_120px.png");
 	texture_mount_120.loadFromImage(image_mount_120);
 	sprite_mount_120px.setTexture(texture_mount_120);
-
+	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
-			RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+			
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 			rectangle.setFillColor(get_color(matrix_relief[i][j]));
 			window.draw(rectangle);
@@ -718,11 +725,12 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
+	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			type_units = matrix_units[i][j];
 			if (type_units != 0) {
-				RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+				
 				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				switch (type_units) {
 				case 1:
