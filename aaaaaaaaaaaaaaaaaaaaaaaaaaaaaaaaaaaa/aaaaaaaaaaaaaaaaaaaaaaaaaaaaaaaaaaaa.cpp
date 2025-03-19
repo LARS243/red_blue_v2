@@ -1,5 +1,6 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Window/Event.hpp>
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -792,6 +793,12 @@ void change_zoom(Event event, int &zoom) {
 		zoom--;
 }
 
+void select_element(Event event, int& zoom) {//Костыль
+	Vector2i mousePos;
+	mousePos = Mouse::getPosition(window);
+	cout << mousePos.x << " " << mousePos.y << endl;
+}
+
 
 void game() {
 	generate_relief();
@@ -800,11 +807,10 @@ void game() {
 	int zoom = 4;
 	Vector2i old_mousePos;
 	Vector2i step;
-
+	Event event;
 	while (window.isOpen())
 	{
 		window.clear();
-		Event event;
 
 		while (window.pollEvent(event))
 		{
@@ -814,6 +820,9 @@ void game() {
 			}
 			if (sf::Event::MouseWheelMoved) {
 				change_zoom(event, zoom);
+			}
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {//Костыль
+				select_element(event, zoom);
 			}
 
 			if (event.type == Event::Closed)
