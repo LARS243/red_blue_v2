@@ -27,7 +27,7 @@ const int field = 0;
 const int forest = 1;
 const int mount = 2;
 
-vector<vector<Texture>> textures;
+vector<vector<Texture>> textures_relief;
 
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
@@ -617,9 +617,9 @@ void load_texture() {
 	mount_textures.push_back(texture_mount_90);
 	mount_textures.push_back(texture_mount_120);
 
-	textures.push_back(field_textures);
-	textures.push_back(forest_textures);
-	textures.push_back(mount_textures);
+	textures_relief.push_back(field_textures);
+	textures_relief.push_back(forest_textures);
+	textures_relief.push_back(mount_textures);
 }
 
 void paint_relief(int x_camera, int y_camera, int zoom) {
@@ -628,9 +628,9 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 	Sprite sprite_forest;
 	Sprite sprite_mount;
 
-	sprite_field.setTexture(textures[field][zoom-1]);
-	sprite_forest.setTexture(textures[forest][zoom - 1]);
-	sprite_mount.setTexture(textures[mount][zoom - 1]);
+	sprite_field.setTexture(textures_relief[field][zoom-1]);
+	sprite_forest.setTexture(textures_relief[forest][zoom - 1]);
+	sprite_mount.setTexture(textures_relief[mount][zoom - 1]);
 
 	
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
@@ -733,12 +733,18 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_cam
 	}
 }
 
-void change_zoom(Event event, int &zoom) {
+void change_zoom(Event event, int &zoom, int& x_camera, int& y_camera) {
 	if (event.mouseWheel.delta == 1 and zoom < max_zoom) {
 		zoom++;
 	}
 	else if (event.mouseWheel.delta == -1 and zoom > min_zoom)
 		zoom--;
+	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
+		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
+	}
+	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y)) {
+		y_camera = -(size_cell * size_field_y * zoom - size_window_y);
+	}
 }
 
 void select_element(Event event, int& zoom) {//Костыль
@@ -768,7 +774,7 @@ void game() {
 				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
 			}
 			if (sf::Event::MouseWheelMoved) {
-				change_zoom(event, zoom);
+				change_zoom(event, zoom, x_camera, y_camera);
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {//Костыль
 				select_element(event, zoom);
