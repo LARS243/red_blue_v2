@@ -713,6 +713,7 @@ void paint_game(int x_camera, int y_camera, int zoom) {
 }
 
 void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_camera, int &y_camera, int zoom) {
+	
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
 	step.x = -old_mousePos.x + mousePos.x;
@@ -734,11 +735,15 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_cam
 }
 
 void change_zoom(Event event, int &zoom, int& x_camera, int& y_camera) {
-	if (event.mouseWheel.delta == 1 and zoom < max_zoom) {
+	
+	if (event.mouseWheelScroll.delta == 1 and zoom < max_zoom) {
 		zoom++;
 	}
-	else if (event.mouseWheel.delta == -1 and zoom > min_zoom)
+	if (event.mouseWheelScroll.delta == -1 and zoom > min_zoom) {
+		
 		zoom--;
+	}
+		
 	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
 		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
 	}
@@ -771,18 +776,22 @@ void game() {
 		{
 
 			if (Mouse::isButtonPressed(Mouse::Middle)) {
+				
 				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
 			}
-			if (sf::Event::MouseWheelMoved) {
+			if (sf::Event::MouseWheelScrolled) {
+
 				change_zoom(event, zoom, x_camera, y_camera);
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {//Костыль
 				select_element(event, zoom);
 			}
-
+			
 			if (event.type == Event::Closed)
 				window.close();
+			
 			old_mousePos = Mouse::getPosition(window);
+			
 		}
 		paint_game(x_camera, y_camera, zoom);
 		window.display();
