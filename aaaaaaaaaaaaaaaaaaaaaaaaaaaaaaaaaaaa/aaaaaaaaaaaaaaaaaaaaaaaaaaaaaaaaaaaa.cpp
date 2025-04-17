@@ -525,6 +525,7 @@ void generate_relief() {
 }
 
 Color get_color(int color) {
+	//s
 	if (color == field) {
 		return field_color;
 	}
