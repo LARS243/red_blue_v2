@@ -36,7 +36,7 @@ const int iron = 1;
 const int coal = 2;
 const int null = 3;
 
-vector<vector<Texture>> textures_relief;
+vector<Texture> textures_relief;
 
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
@@ -608,83 +608,30 @@ void matrix_unit_to_zero() {
 	}
 }
 void load_texture() {
-	vector<Texture> field_textures;
-	vector<Texture> forest_textures;
-	vector<Texture> mount_textures;
-
 	vector<Texture> oil_textures;
 	vector<Texture> iron_textures;
 	vector<Texture> coal_textures;
 	
-	Image image_field_30;
-	Texture texture_field_30;
-	Image image_field_60;
-	Texture texture_field_60;
-	Image image_field_90;
-	Texture texture_field_90;
-	Image image_field_120;
-	Texture texture_field_120;
+	Image image_field;
+	Texture texture_field;
 
-	Image image_forets_30;
-	Texture texture_forets_30;
-	Image image_forets_60;
-	Texture texture_forets_60;
-	Image image_forets_90;
-	Texture texture_forets_90;
-	Image image_forets_120;
-	Texture texture_forets_120;
+	Image image_forets;
+	Texture texture_forets;
 
-	Image image_mount_30;
-	Texture texture_mount_30;
-	Image image_mount_60;
-	Texture texture_mount_60;
-	Image image_mount_90;
-	Texture texture_mount_90;
-	Image image_mount_120;
-	Texture texture_mount_120;
+	Image image_mount;
+	Texture texture_mount;
 
-	image_field_30.loadFromFile("field_30px.png");
-	texture_field_30.loadFromImage(image_field_30);
-	image_field_60.loadFromFile("field_60px.png");
-	texture_field_60.loadFromImage(image_field_60);
-	image_field_90.loadFromFile("field_90px.png");
-	texture_field_90.loadFromImage(image_field_90);
-	image_field_120.loadFromFile("field_120px.png");
-	texture_field_120.loadFromImage(image_field_120);
-	field_textures.push_back(texture_field_30);
-	field_textures.push_back(texture_field_60);
-	field_textures.push_back(texture_field_90);
-	field_textures.push_back(texture_field_120);
+	image_field.loadFromFile("field_30px.png");
+	texture_field.loadFromImage(image_field);
+	textures_relief.push_back(texture_field);
 
-	image_forets_30.loadFromFile("forest_30px.png");
-	texture_forets_30.loadFromImage(image_forets_30);
-	image_forets_60.loadFromFile("forest_60px.png");
-	texture_forets_60.loadFromImage(image_forets_60);
-	image_forets_90.loadFromFile("forest_90px.png");
-	texture_forets_90.loadFromImage(image_forets_90);
-	image_forets_120.loadFromFile("forest_120px.png");
-	texture_forets_120.loadFromImage(image_forets_120);
-	forest_textures.push_back(texture_forets_30);
-	forest_textures.push_back(texture_forets_60);
-	forest_textures.push_back(texture_forets_90);
-	forest_textures.push_back(texture_forets_120);
+	image_forets.loadFromFile("forest_30px.png");
+	texture_forets.loadFromImage(image_forets);
+	textures_relief.push_back(texture_forets);
 
-	image_mount_30.loadFromFile("mount_30px.png");
-	texture_mount_30.loadFromImage(image_mount_30);
-	image_mount_60.loadFromFile("mount_60px.png");
-	texture_mount_60.loadFromImage(image_mount_60);
-	image_mount_90.loadFromFile("mount_90px.png");
-	texture_mount_90.loadFromImage(image_mount_90);
-	image_mount_120.loadFromFile("mount_120px.png");
-	texture_mount_120.loadFromImage(image_mount_120);
-	mount_textures.push_back(texture_mount_30);
-	mount_textures.push_back(texture_mount_60);
-	mount_textures.push_back(texture_mount_90);
-	mount_textures.push_back(texture_mount_120);
-
-	textures_relief.push_back(field_textures);
-	textures_relief.push_back(forest_textures);
-	textures_relief.push_back(mount_textures);
+	image_mount.loadFromFile("mount_30px.png");
+	texture_mount.loadFromImage(image_mount);
+	textures_relief.push_back(texture_mount);
 
 }
 
@@ -706,21 +653,19 @@ Vector2f zoom_to_scale(int zoom) {
 }
 
 void paint_relief(int x_camera, int y_camera, int zoom) {
-	Image image_oil_30;
-	Texture texture_oil_30;
-	Sprite sprite_oil;
-	image_oil_30.loadFromFile("oil_30px.png");
-	texture_oil_30.loadFromImage(image_oil_30);
-	sprite_oil.setTexture(texture_oil_30);
+
 	Vector2f scale = zoom_to_scale(zoom);
-	sprite_oil.setScale(scale);
+
 	Sprite sprite_field;
 	Sprite sprite_forest;
 	Sprite sprite_mount;
 
-	sprite_field.setTexture(textures_relief[field][zoom - 1]);
-	sprite_forest.setTexture(textures_relief[forest][zoom - 1]);
-	sprite_mount.setTexture(textures_relief[mount][zoom - 1]);
+	sprite_field.setTexture(textures_relief[field]);
+	sprite_field.setScale(scale);
+	sprite_forest.setTexture(textures_relief[forest]);
+	sprite_forest.setScale(scale);
+	sprite_mount.setTexture(textures_relief[mount]);
+	sprite_mount.setScale(scale);
 
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
@@ -728,12 +673,7 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 			rectangle.setFillColor(get_color(matrix_relief[i][j]));
 			window.draw(rectangle);
-			if (i == 0 and j == 0) {
-				sprite_oil.setScale(scale);
-				sprite_oil.setPosition(0, 0);
-				window.draw(sprite_oil);
-			}
-			else if (matrix_relief[i][j] == field) {
+			if (matrix_relief[i][j] == field) {
 				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_field);
 
@@ -756,7 +696,7 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 }
 
 void paint_resource(int x_camera, int y_camera, int zoom) {
-
+	cout << "s";
 }
 
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
