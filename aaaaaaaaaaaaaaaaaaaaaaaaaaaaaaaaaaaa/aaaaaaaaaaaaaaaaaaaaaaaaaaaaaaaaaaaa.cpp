@@ -798,7 +798,7 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 	coord.push_back((mousePos.x - x_camera) / (size_cell * zoom));
 	coord.push_back((mousePos.y - y_camera) / (size_cell * zoom));
 	return coord;
-
+	//
 }
 
 void game() {
