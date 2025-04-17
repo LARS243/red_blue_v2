@@ -545,7 +545,6 @@ void matrix_unit_to_zero() {
 		}
 	}
 }
-
 void load_texture() {
 	vector<Texture> field_textures;
 	vector<Texture> forest_textures;
@@ -622,24 +621,52 @@ void load_texture() {
 	textures_relief.push_back(mount_textures);
 }
 
+Vector2f zoom_to_scale(int zoom) {
+	Vector2f scale;
+	if (zoom == 1) {
+		scale = { 1.f, 1.f };
+	}
+	else if (zoom == 2) {
+		scale = { 2.f, 2.f };
+	}
+	else if (zoom == 3) {
+		scale = { 3.f, 3.f };
+	}
+	else {
+		scale = { 4.f, 4.f };
+	}
+	return (scale);
+}
+
 void paint_relief(int x_camera, int y_camera, int zoom) {
-	
+	Image image_oil_30;
+	Texture texture_oil_30;
+	Sprite sprite_oil;
+	image_oil_30.loadFromFile("oil_30px.png");
+	texture_oil_30.loadFromImage(image_oil_30);
+	sprite_oil.setTexture(texture_oil_30);
+	Vector2f scale = zoom_to_scale(zoom);
+	sprite_oil.setScale(scale);
 	Sprite sprite_field;
 	Sprite sprite_forest;
 	Sprite sprite_mount;
-
+	
 	sprite_field.setTexture(textures_relief[field][zoom-1]);
 	sprite_forest.setTexture(textures_relief[forest][zoom - 1]);
 	sprite_mount.setTexture(textures_relief[mount][zoom - 1]);
 
-	
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 			rectangle.setFillColor(get_color(matrix_relief[i][j]));
 			window.draw(rectangle);
-			if (matrix_relief[i][j] == field) {
+			if (i == 0 and j == 0) {
+				sprite_oil.setScale(scale);
+				sprite_oil.setPosition(0, 0);
+				window.draw(sprite_oil);
+			}
+			else if (matrix_relief[i][j] == field) {
 				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_field);
 					
@@ -656,13 +683,10 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 				window.draw(sprite_mount);	
 			}
 			
+			
 		}
 	}
 }
-
-//vector<Texture> open_images() {
-//	return 0;
-//}
 
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
@@ -758,7 +782,6 @@ void select_element(Event event, int& zoom) {//Костыль
 	cout << mousePos.x << " " << mousePos.y << endl;
 }
 
-
 void game() {
 	load_texture();
 	generate_relief();
@@ -800,7 +823,6 @@ void game() {
 
 int main()
 {
-	cout << "s";
 	matrix_unit_to_zero();
 	game();
 	return 0;
