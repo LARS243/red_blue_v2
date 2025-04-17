@@ -800,6 +800,7 @@ void game() {
 
 int main()
 {
+	cout << "s";
 	matrix_unit_to_zero();
 	game();
 	return 0;
