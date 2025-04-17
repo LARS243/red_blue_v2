@@ -791,10 +791,14 @@ void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
 	}
 }
 
-void select_element(Event event, int& zoom) {//Костыль
+vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera) {//Костыль
+	vector<int> coord;
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
-	cout << mousePos.x << " " << mousePos.y << endl;
+	coord.push_back((mousePos.x - x_camera) / (size_cell * zoom));
+	coord.push_back((mousePos.y - y_camera) / (size_cell * zoom));
+	return coord;
+
 }
 
 void game() {
@@ -822,7 +826,7 @@ void game() {
 				change_zoom(event, zoom, x_camera, y_camera);
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {//Костыль
-				select_element(event, zoom);
+				select_element(event, zoom, x_camera, y_camera);
 			}
 
 			if (event.type == Event::Closed)
