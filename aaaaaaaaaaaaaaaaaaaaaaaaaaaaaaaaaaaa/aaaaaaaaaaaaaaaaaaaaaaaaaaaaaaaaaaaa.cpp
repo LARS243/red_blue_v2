@@ -342,22 +342,22 @@ void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
 			}
 		}
 	}
-	
+
 	for (int j = 0; j < size_field_y; j++) {
 		for (int i = 0; i < size_field_y - j - 1; i++) {
 			matrix[size_field_y + size_field_y / 2 - i - 1][size_field_y - j - 1] = matrix[size_field_y / 2 + i][j];
 		}
-		
-		
+
+
 	}
-	
-	
+
+
 }
 
 void clear_field(int matrix[size_field_x][size_field_y]) {
 	int rand_element;
 	int matrix_elements[3];
-	
+
 	for (int i = 1; i < size_field_x - 1; i++) {
 		for (int j = 1; j < size_field_y - 1; j++) {
 
@@ -397,7 +397,7 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 						else {
 							matrix[i][j] = mount;
 						}
-						
+
 					}
 				}
 				else {
@@ -413,10 +413,10 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 				}
 			}
 		}
-		
-		
+
+
 	}
-	
+
 }
 
 void generate_relief() {
@@ -487,7 +487,7 @@ void generate_relief() {
 				}
 			}
 			else {
-				int average = (matrix_relief[i-1][j] + matrix_relief[i][j-1]) / 2;
+				int average = (matrix_relief[i - 1][j] + matrix_relief[i][j - 1]) / 2;
 				if (average == field) {
 					if (rand_element == 3) {
 						matrix_relief[i][j] = forest;
@@ -650,8 +650,8 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 	Sprite sprite_field;
 	Sprite sprite_forest;
 	Sprite sprite_mount;
-	
-	sprite_field.setTexture(textures_relief[field][zoom-1]);
+
+	sprite_field.setTexture(textures_relief[field][zoom - 1]);
 	sprite_forest.setTexture(textures_relief[forest][zoom - 1]);
 	sprite_mount.setTexture(textures_relief[mount][zoom - 1]);
 
@@ -669,21 +669,21 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 			else if (matrix_relief[i][j] == field) {
 				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_field);
-					
+
 			}
 			else if (matrix_relief[i][j] == forest) {
 				sprite_field.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_field);
 				sprite_forest.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_forest);
-					
+
 			}
 			else {
 				sprite_mount.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_mount);	
+				window.draw(sprite_mount);
 			}
-			
-			
+
+
 		}
 	}
 }
@@ -695,7 +695,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 		for (int j = 0; j < size_field_y; j++) {
 			type_units = matrix_units[i][j];
 			if (type_units != 0) {
-				
+
 				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				switch (type_units) {
 				case 1:
@@ -736,8 +736,8 @@ void paint_game(int x_camera, int y_camera, int zoom) {
 	paint_units(x_camera, y_camera, zoom);
 }
 
-void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_camera, int &y_camera, int zoom) {
-	
+void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_camera, int& y_camera, int zoom) {
+
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
 	step.x = -old_mousePos.x + mousePos.x;
@@ -758,16 +758,16 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int &x_cam
 	}
 }
 
-void change_zoom(Event event, int &zoom, int& x_camera, int& y_camera) {
-	
+void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
+
 	if (event.mouseWheelScroll.delta == 1 and zoom < max_zoom) {
 		zoom++;
 	}
 	if (event.mouseWheelScroll.delta == -1 and zoom > min_zoom) {
-		
+
 		zoom--;
 	}
-		
+
 	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
 		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
 	}
@@ -799,7 +799,7 @@ void game() {
 		{
 
 			if (Mouse::isButtonPressed(Mouse::Middle)) {
-				
+
 				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
 			}
 			if (sf::Event::MouseWheelScrolled) {
@@ -809,12 +809,12 @@ void game() {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {//Костыль
 				select_element(event, zoom);
 			}
-			
+
 			if (event.type == Event::Closed)
 				window.close();
-			
+
 			old_mousePos = Mouse::getPosition(window);
-			
+
 		}
 		paint_game(x_camera, y_camera, zoom);
 		window.display();
