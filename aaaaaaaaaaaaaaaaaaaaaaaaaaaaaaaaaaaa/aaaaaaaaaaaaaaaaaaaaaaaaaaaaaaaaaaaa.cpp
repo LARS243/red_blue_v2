@@ -910,7 +910,7 @@ int main()
 {
 	genetate_resource();
 	print(matrix_resources);
-	//matrix_unit_to_zero();
-	//game();
+	matrix_unit_to_zero();
+	game();
 	return 0;
 }
