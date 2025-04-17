@@ -37,6 +37,7 @@ const int coal = 2;
 const int null = 3;
 
 vector<Texture> textures_relief;
+vector<Texture> textures_resources;
 
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
@@ -377,7 +378,6 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 			matrix_elements[matrix[i + 1][j]]++;
 			matrix_elements[matrix[i - 1][j]]++;
 			matrix_elements[matrix[i][j - 1]]++;
-
 			if (matrix_elements[matrix[i][j]] == 0) {
 				if (matrix[i][j] == field) {
 					if (matrix_elements[forest] == 4) {
@@ -426,7 +426,17 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 	}
 
 }
-
+void clear_resurce() {
+	for (int i = 1; i < size_field_x-1;i++) {
+		for (int j = 1; j < size_field_y-1; j++) {
+			if (matrix_resources[i][j] != null ){
+				if (matrix_resources[i - 1][j] == null and matrix_resources[i + 1][j] == null and matrix_resources[i][j - 1] == null and matrix_resources[i][j + 1] == null) {
+					matrix_resources[i][j] = null;
+				}
+			}
+		}
+	}
+}
 void generate_relief() {
 	srand(time(0));
 	int rand_element;
@@ -535,8 +545,8 @@ void generate_relief() {
 void genetate_resource() {
 	srand(time(0));
 	int rand_element;
-	int claster_size_spawn_rate = 6;
-	int claster_spawn_rate = 1;
+	int claster_size_spawn_rate = 5;
+	int claster_spawn_rate = 2;
 	int new_element;
 	int new_res;
 	for (int i = 0; i < size_field_x; i++) {
@@ -545,7 +555,7 @@ void genetate_resource() {
 				matrix_resources[i][j] = null;
 			}
 			else {
-				new_element = rand() % 16;
+				new_element = rand() % 32;
 				if (matrix_resources[i - 1][j] != null) {
 					if (new_element <= claster_size_spawn_rate) {
 						matrix_resources[i][j] = matrix_resources[i - 1][j];
@@ -584,6 +594,7 @@ void genetate_resource() {
 		}
 	}
 	reflect_reliesf(matrix_resources);
+	clear_resurce();
 }
 
 Color get_color(int color) {
@@ -608,10 +619,15 @@ void matrix_unit_to_zero() {
 	}
 }
 void load_texture() {
-	vector<Texture> oil_textures;
-	vector<Texture> iron_textures;
-	vector<Texture> coal_textures;
-	
+	Image image_oil;
+	Texture oil_textures;
+
+	Image image_iron;
+	Texture texture_iron;
+
+	Image image_coal;
+	Texture texture_coal;
+
 	Image image_field;
 	Texture texture_field;
 
@@ -632,6 +648,20 @@ void load_texture() {
 	image_mount.loadFromFile("mount_30px.png");
 	texture_mount.loadFromImage(image_mount);
 	textures_relief.push_back(texture_mount);
+
+	textures_resources;
+
+	image_oil.loadFromFile("oil.png");
+	oil_textures.loadFromImage(image_oil);
+	textures_resources.push_back(oil_textures);
+
+	image_iron.loadFromFile("iron.png");
+	texture_iron.loadFromImage(image_iron);
+	textures_resources.push_back(texture_iron);
+
+	image_coal.loadFromFile("coal.png");
+	texture_coal.loadFromImage(image_coal);
+	textures_resources.push_back(texture_coal);
 
 }
 
@@ -696,7 +726,40 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 }
 
 void paint_resource(int x_camera, int y_camera, int zoom) {
-	cout << "s";
+	Vector2f scale = zoom_to_scale(zoom);
+
+	Sprite sprite_oil;
+	Sprite sprite_iron;
+	Sprite sprite_coal;
+
+	sprite_oil.setTexture(textures_resources[oil]);
+	sprite_oil.setScale(scale);
+	sprite_iron.setTexture(textures_resources[iron]);
+	sprite_iron.setScale(scale);
+	sprite_coal.setTexture(textures_resources[coal]);
+	sprite_coal.setScale(scale);
+
+	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_resources[i][j] == oil) {
+				sprite_oil.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_oil);
+
+			}
+			else if (matrix_resources[i][j] == iron) {
+				sprite_iron.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_iron);
+
+			}
+			else if (matrix_resources[i][j] == coal){
+				sprite_coal.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_coal);
+			}
+
+
+		}
+	}
 }
 
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
@@ -756,6 +819,7 @@ void paint_player_bar() {
 
 void paint_game(int x_camera, int y_camera, int zoom) {
 	paint_relief(x_camera, y_camera, zoom);
+	paint_resource(x_camera, y_camera, zoom);
 	paint_player_bar();
 	paint_units(x_camera, y_camera, zoom);
 }
@@ -849,7 +913,6 @@ void game() {
 int main()
 {
 	genetate_resource();
-	print(matrix_resources);
 	matrix_unit_to_zero();
 	game();
 	return 0;
