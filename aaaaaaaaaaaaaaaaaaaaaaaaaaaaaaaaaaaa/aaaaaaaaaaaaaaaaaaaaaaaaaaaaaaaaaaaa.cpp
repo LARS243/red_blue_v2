@@ -31,6 +31,11 @@ const int field = 0;
 const int forest = 1;
 const int mount = 2;
 
+const int oil = 0;
+const int iron = 1;
+const int coal = 2;
+const int null = 3;
+
 vector<vector<Texture>> textures_relief;
 
 Color field_color = { 40, 100, 0 };
@@ -38,12 +43,11 @@ Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
 Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
 
-
-
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 int matrix_relief[size_field_x][size_field_y];
 int matrix_units[size_field_x][size_field_y];
+int matrix_resources[size_field_x][size_field_y];
 
 class construction {
 private:
@@ -528,6 +532,60 @@ void generate_relief() {
 	clear_field(matrix_relief);
 }
 
+void genetate_resource() {
+	srand(time(0));
+	int rand_element;
+	int claster_size_spawn_rate = 6;
+	int claster_spawn_rate = 1;
+	int new_element;
+	int new_res;
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (i == 0 or j == 0) {
+				matrix_resources[i][j] = null;
+			}
+			else {
+				new_element = rand() % 16;
+				if (matrix_resources[i - 1][j] != null) {
+					if (new_element <= claster_size_spawn_rate) {
+						matrix_resources[i][j] = matrix_resources[i - 1][j];
+					}
+					else {
+						matrix_resources[i][j] = null;
+					}
+				}
+				else if (matrix_resources[i][j - 1] != null) {
+					if (new_element <= claster_size_spawn_rate) {
+						matrix_resources[i][j] = matrix_resources[i][j - 1];
+					}
+					else {
+						matrix_resources[i][j] = null;
+					}
+				}
+				else {
+					if (new_element <= claster_spawn_rate) {
+						new_res = rand() % null;
+						if (new_res == oil) {
+							matrix_resources[i][j] = oil;
+						}
+						else if (new_res == coal) {
+							matrix_resources[i][j] = coal;
+						}
+						else {
+							matrix_resources[i][j] = iron;
+						}
+
+					}
+					else {
+						matrix_resources[i][j] = null;
+					}
+				}
+			}
+		}
+	}
+	reflect_reliesf(matrix_resources);
+}
+
 Color get_color(int color) {
 	if (color == field) {
 		return field_color;
@@ -554,6 +612,10 @@ void load_texture() {
 	vector<Texture> forest_textures;
 	vector<Texture> mount_textures;
 
+	vector<Texture> oil_textures;
+	vector<Texture> iron_textures;
+	vector<Texture> coal_textures;
+	
 	Image image_field_30;
 	Texture texture_field_30;
 	Image image_field_60;
@@ -623,6 +685,7 @@ void load_texture() {
 	textures_relief.push_back(field_textures);
 	textures_relief.push_back(forest_textures);
 	textures_relief.push_back(mount_textures);
+
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -690,6 +753,10 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 
 		}
 	}
+}
+
+void paint_resource(int x_camera, int y_camera, int zoom) {
+
 }
 
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
@@ -841,7 +908,9 @@ void game() {
 
 int main()
 {
-	matrix_unit_to_zero();
-	game();
+	genetate_resource();
+	print(matrix_resources);
+	//matrix_unit_to_zero();
+	//game();
 	return 0;
 }
