@@ -639,6 +639,7 @@ Vector2f zoom_to_scale(int zoom) {
 }
 
 void paint_relief(int x_camera, int y_camera, int zoom) {
+	cout << "s";
 	Image image_oil_30;
 	Texture texture_oil_30;
 	Sprite sprite_oil;
