@@ -17,6 +17,10 @@ const int ID_supply_car = 6;
 
 const int size_window_x = 2000;
 const int size_window_y = 1000;
+
+const int player_bar_size_y = 200;
+const int player_bar_size_x = 300;
+
 const int size_field_x = 80;
 const int size_field_y = 40;
 const int max_zoom = 4;
@@ -731,8 +735,21 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	}
 }
 
+void paint_player_bar() {
+	RectangleShape rectangle(Vector2f(size_window_x, player_bar_size_y));
+	rectangle.setFillColor({ 100, 100 ,100 });
+	rectangle.setPosition(0, size_window_y - player_bar_size_y);
+	window.draw(rectangle);
+
+	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
+	rectangle2.setFillColor({ 100, 100 ,100 });
+	rectangle2.setPosition(size_window_x - player_bar_size_x, 0);
+	window.draw(rectangle2);
+}
+
 void paint_game(int x_camera, int y_camera, int zoom) {
 	paint_relief(x_camera, y_camera, zoom);
+	paint_player_bar();
 	paint_units(x_camera, y_camera, zoom);
 }
 
@@ -745,34 +762,32 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_cam
 	x_camera = (x_camera + step.x) % (size_window_x * zoom);
 	y_camera = (y_camera + step.y) % (size_window_y * zoom);
 	if (x_camera > 0) {
+		
 		x_camera = 0;
 	}
-	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
-		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
+	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x + player_bar_size_x)) {
+		x_camera = -(size_cell * size_field_x * zoom - size_window_x + player_bar_size_x);
 	}
 	if (y_camera > 0) {
 		y_camera = 0;
 	}
-	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y)) {
-		y_camera = -(size_cell * size_field_y * zoom - size_window_y);
+	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y + player_bar_size_y)) {
+		y_camera = -(size_cell * size_field_y * zoom - size_window_y + player_bar_size_y);
 	}
 }
 
 void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
-
 	if (event.mouseWheelScroll.delta == 1 and zoom < max_zoom) {
 		zoom++;
 	}
 	if (event.mouseWheelScroll.delta == -1 and zoom > min_zoom) {
-
 		zoom--;
 	}
-
-	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x)) {
-		x_camera = -(size_cell * size_field_x * zoom - size_window_x);
+	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x + player_bar_size_x)) {
+		x_camera = -(size_cell * size_field_x * zoom - size_window_x + player_bar_size_x);
 	}
-	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y)) {
-		y_camera = -(size_cell * size_field_y * zoom - size_window_y);
+	if (y_camera < -(size_cell * size_field_y * zoom - size_window_y + player_bar_size_y)) {
+		y_camera = -(size_cell * size_field_y * zoom - size_window_y + player_bar_size_y);
 	}
 }
 
