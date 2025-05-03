@@ -1,10 +1,9 @@
-﻿#include <SFML/Graphics.hpp>
+﻿﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
 #include <vector>
 #include <ctime>
-
 using namespace std;
 using namespace sf;
 
@@ -50,6 +49,10 @@ const int neutral = 0;
 const int red = 1;
 const int blue = 2;
 
+//const int infantry = 0;
+const int jaeger = 1;
+const int mount_infantry = 2;
+
 vector<Texture> textures_relief;
 vector<Texture> textures_resources;
 vector<Texture> textures_blue_units;
@@ -59,7 +62,7 @@ Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
 Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
 Color red_color = { 255,0,0, 100 };
-Color blue_color = { 0, 0, 255 , 100};
+Color blue_color = { 0, 0, 255 , 100 };
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
@@ -637,7 +640,7 @@ public:
 	}
 };
 
-buffer*  matrix_units_points[size_field_x][size_field_y];//Массив юнитов
+buffer* matrix_units_points[size_field_x][size_field_y];//Массив юнитов
 
 void print(int matrix[size_field_x][size_field_y]) {
 	for (int j = 0; j < size_field_y; j++) {
@@ -649,8 +652,8 @@ void print(int matrix[size_field_x][size_field_y]) {
 }
 
 void create_matrix_control() {
-	for (int i = 0; i < size_field_x;i++) {
-		for (int j = 0; j < size_field_y;j++) {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
 			matrix_control[i][j] = neutral;
 		}
 	}
@@ -659,7 +662,7 @@ void create_matrix_control() {
 	matrix_control[0][1] = red;
 	matrix_control[1][1] = red;
 
-	matrix_control[size_field_x-1][size_field_y-1] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 1] = blue;
 	matrix_control[size_field_x - 2][size_field_y - 1] = blue;
 	matrix_control[size_field_x - 1][size_field_y - 2] = blue;
 	matrix_control[size_field_x - 2][size_field_y - 2] = blue;
@@ -756,9 +759,9 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 }
 
 void clear_resurce() {
-	for (int i = 1; i < size_field_x-1;i++) {
-		for (int j = 1; j < size_field_y-1; j++) {
-			if (matrix_resources[i][j] != null ){
+	for (int i = 1; i < size_field_x - 1; i++) {
+		for (int j = 1; j < size_field_y - 1; j++) {
+			if (matrix_resources[i][j] != null) {
 				if (matrix_resources[i - 1][j] == null and matrix_resources[i + 1][j] == null and matrix_resources[i][j - 1] == null and matrix_resources[i][j + 1] == null) {
 					matrix_resources[i][j] = null;
 				}
@@ -1092,7 +1095,7 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 				window.draw(sprite_iron);
 
 			}
-			else if (matrix_resources[i][j] == coal){
+			else if (matrix_resources[i][j] == coal) {
 				sprite_coal.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_coal);
 			}
@@ -1107,10 +1110,10 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	Vector2f scale = zoom_to_scale(zoom);
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	Sprite test;
-	test.setTexture(textures_blue_units[0]);
+	test.setTexture(textures_blue_units[mount_infantry]);
 	test.setScale(scale);
 	test.setPosition(0, 0);
-	
+
 	window.draw(test);
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
@@ -1218,7 +1221,7 @@ void paint_game(int x_camera, int y_camera, int zoom) {
 	}
 	paint_map_mode();
 	paint_player_bar();
-	
+
 }
 
 void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_camera, int& y_camera, int zoom) {
@@ -1229,7 +1232,7 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_cam
 	x_camera = (x_camera + step.x) % (size_window_x * zoom);
 	y_camera = (y_camera + step.y) % (size_window_y * zoom);
 	if (x_camera > 0) {
-		
+
 		x_camera = 0;
 	}
 	if (x_camera < -(size_cell * size_field_x * zoom - size_window_x + player_bar_size_x)) {
