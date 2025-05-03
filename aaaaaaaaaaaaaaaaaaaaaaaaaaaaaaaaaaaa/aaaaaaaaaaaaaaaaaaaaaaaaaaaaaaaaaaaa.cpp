@@ -36,6 +36,10 @@ const int iron = 1;
 const int coal = 2;
 const int null = 3;
 
+const int neutral = 0;
+const int red = 1;
+const int blue = 2;
+
 vector<Texture> textures_relief;
 vector<Texture> textures_resources;
 
@@ -43,573 +47,576 @@ Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
 Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
+Color red_color = { 255,0,0, 100 };
+Color blue_color = { 0, 0, 255 , 100};
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 int matrix_relief[size_field_x][size_field_y];
 int matrix_units[size_field_x][size_field_y];
 int matrix_resources[size_field_x][size_field_y];
+int matrix_control[size_field_x][size_field_y];
 
-class buffer {
-private:
-	int index;
-	construction* construction_point = nullptr;
-	tank* tank_point = nullptr;
-	anti_tank* anti_tank_point = nullptr;
-	infantry* infantry_point = nullptr;
-	motorised_infantry* motorised_infantry_point = nullptr;
-	supply_car* supply_car_point = nullptr;
-
-public:
-	buffer(int new_index) {
-		switch (new_index) {
-		case 1:
-			construction_point = new construction();
-			index = new_index;
-			break;
-		case 2:
-			tank_point = new tank();
-			index = new_index;
-			break;
-		case 3:
-			anti_tank_point = new anti_tank();
-			index = new_index;
-			break;
-		case 4:
-			infantry_point = new infantry();
-			index = new_index;
-			break;
-		case 5:
-			motorised_infantry_point = new motorised_infantry();
-			index = new_index;
-			break;
-		case 6:
-			supply_car_point = new supply_car();
-			index = new_index;
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_health(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_health());
-			break;
-		case 2:
-			return (tank_point->get_health());
-			break;
-		case 3:
-			return (anti_tank_point->get_health());
-			break;
-		case 4:
-			return (infantry_point->get_health());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_health());
-			break;
-		case 6:
-			return (supply_car_point->get_health());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_living_force(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_living_force());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_living_force());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_living_force());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_living_force());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_living_force());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_war_machine(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_war_machine());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_war_machine());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_war_machine());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_war_machine());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_war_machine());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_mobility(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_mobility());
-			break;
-		case 3:
-			return (anti_tank_point->get_mobility());
-			break;
-		case 4:
-			return (infantry_point->get_mobility());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_mobility());
-			break;
-		case 6:
-			return (supply_car_point->get_mobility());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_supply(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_supply());
-			break;
-		case 3:
-			return (anti_tank_point->get_supply());
-			break;
-		case 4:
-			return (infantry_point->get_supply());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_supply());
-			break;
-		case 6:
-			return (supply_car_point->get_supply());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_armor(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_armor());;
-			break;
-		case 2:
-			return (tank_point->get_armor());
-			break;
-		case 3:
-			return (anti_tank_point->get_armor());
-			break;
-		case 4:
-			return (infantry_point->get_armor());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_armor());
-			break;
-		case 6:
-			return (supply_car_point->get_armor());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_ID(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_ID());;
-			break;
-		case 2:
-			return (tank_point->get_ID());
-			break;
-		case 3:
-			return (anti_tank_point->get_ID());
-			break;
-		case 4:
-			return (infantry_point->get_ID());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_ID());
-			break;
-		case 6:
-			return (supply_car_point->get_ID());
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_mobility(int new_index, int new_mobility) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_mobility(new_mobility);
-			break;
-		case 3:
-			anti_tank_point->set_mobility(new_mobility);
-			break;
-		case 4:
-			infantry_point->set_mobility(new_mobility);
-			break;
-		case 5:
-			motorised_infantry_point->set_mobility(new_mobility);
-			break;
-		case 6:
-			supply_car_point->set_mobility(new_mobility);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_health(int new_index, int new_health) {
-		switch (new_index) {
-		case 1:
-			construction_point->set_health(new_health);
-			break;
-		case 2:
-			tank_point->set_health(new_health);
-			break;
-		case 3:
-			anti_tank_point->set_health(new_health);
-			break;
-		case 4:
-			infantry_point->set_health(new_health);
-			break;
-		case 5:
-			motorised_infantry_point->set_health(new_health);
-			break;
-		case 6:
-			supply_car_point->set_health(new_health);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_supply(int new_index, int new_supply) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_supply(new_supply);
-			break;
-		case 3:
-			anti_tank_point->set_supply(new_supply);
-			break;
-		case 4:
-			infantry_point->set_supply(new_supply);
-			break;
-		case 5:
-			motorised_infantry_point->set_supply(new_supply);
-			break;
-		case 6:
-			supply_car_point->set_supply(new_supply);
-			break;
-		default:
-			break;
-		}
-	}
-};
-
-class construction {
-private:
-	int health;
-	int armor;
-	int ID;
-public:
-	construction() {
-		health = 100;
-		armor = 50;
-		ID = ID_construction;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-};
-
-class tank {
-private:
-	int health;
-	int damage_to_living_force;
-	int damage_to_war_machine;
-	int mobility;
-	int supply;
-	int armor;
-	int ID;
-public:
-	tank() {
-		health = 100;
-		damage_to_living_force = 10;
-		damage_to_war_machine = 20;
-		mobility = 10;
-		supply = 50;
-		armor = 50;
-		ID = ID_tank;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_damage_to_living_force() {
-		return(damage_to_living_force);
-	}
-	int get_damage_to_war_machine() {
-		return(damage_to_war_machine);
-	}
-	int get_mobility() {
-		return(mobility);
-	}
-	int get_supply() {
-		return(supply);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_mobility(int new_mobility) {
-		mobility = new_mobility;
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-	void set_supply(int new_supply) {
-		supply = new_supply;
-	}
-};
-
-class anti_tank {
-private:
-	int health;
-	int damage_to_living_force;
-	int damage_to_war_machine;
-	int mobility;
-	int supply;
-	int armor;
-	int ID;
-
-public:
-	anti_tank() {
-		health = 100;
-		damage_to_living_force = 10;
-		damage_to_war_machine = 20;
-		mobility = 10;
-		supply = 50;
-		armor = 50;
-		ID = ID_anti_tank;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_damage_to_living_force() {
-		return(damage_to_living_force);
-	}
-	int get_damage_to_war_machine() {
-		return(damage_to_war_machine);
-	}
-	int get_mobility() {
-		return(mobility);
-	}
-	int get_supply() {
-		return(supply);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_mobility(int new_mobility) {
-		mobility = new_mobility;
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-	void set_supply(int new_supply) {
-		supply = new_supply;
-	}
-};
-
-class infantry {
-private:
-	int health;
-	int damage_to_living_force;
-	int damage_to_war_machine;
-	int mobility;
-	int supply;
-	int armor;
-	int ID;
-
-public:
-	infantry() {
-		health = 100;
-		damage_to_living_force = 10;
-		damage_to_war_machine = 2;
-		mobility = 10;
-		supply = 50;
-		armor = 50;
-		ID_infantry;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_damage_to_living_force() {
-		return(damage_to_living_force);
-	}
-	int get_damage_to_war_machine() {
-		return(damage_to_war_machine);
-	}
-	int get_mobility() {
-		return(mobility);
-	}
-	int get_supply() {
-		return(supply);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_mobility(int new_mobility) {
-		mobility = new_mobility;
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-	void set_supply(int new_supply) {
-		supply = new_supply;
-	}
-};
-
-class motorised_infantry {
-private:
-	int health;
-	int damage_to_living_force;
-	int damage_to_war_machine;
-	int mobility;
-	int supply;
-	int armor;
-	int ID;
-
-public:
-	motorised_infantry() {
-		health = 100;
-		damage_to_living_force = 10;
-		damage_to_war_machine = 5;
-		mobility = 10;
-		supply = 50;
-		armor = 50;
-		ID = ID_motorised_infantry;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_damage_to_living_force() {
-		return(damage_to_living_force);
-	}
-	int get_damage_to_war_machine() {
-		return(damage_to_war_machine);
-	}
-	int get_mobility() {
-		return(mobility);
-	}
-	int get_supply() {
-		return(supply);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_mobility(int new_mobility) {
-		mobility = new_mobility;
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-	void set_supply(int new_supply) {
-		supply = new_supply;
-	}
-};
-
-class supply_car {
-private:
-	int health;
-	int damage_to_living_force;
-	int damage_to_war_machine;
-	int mobility;
-	int supply_for_supply;
-	int armor;
-	int ID;
-
-public:
-	supply_car() {
-		health = 10000;
-		damage_to_living_force = 1000;
-		damage_to_war_machine = 3000;
-		mobility = 4000;
-		supply_for_supply = 2147483647;
-		armor = 50;
-		ID = ID_supply_car;
-	}
-	int get_health() {
-		return(health);
-	}
-	int get_damage_to_living_force() {
-		return(damage_to_living_force);
-	}
-	int get_damage_to_war_machine() {
-		return(damage_to_war_machine);
-	}
-	int get_mobility() {
-		return(mobility);
-	}
-	int get_supply() {
-		return(supply_for_supply);
-	}
-	int get_armor() {
-		return(armor);
-	}
-	int get_ID() {
-		return(ID);
-	}
-	void set_mobility(int new_mobility) {
-		mobility = new_mobility;
-	}
-	void set_health(int new_health) {
-		health = new_health;
-	}
-	void set_supply(int new_supply) {
-		supply_for_supply = new_supply;
-	}
-};
-
-buffer*  matrix_units_points[size_field_x][size_field_y];//Массив юнитов
+//class buffer {
+//private:
+//	int index;
+//	construction* construction_point = nullptr;
+//	tank* tank_point = nullptr;
+//	anti_tank* anti_tank_point = nullptr;
+//	infantry* infantry_point = nullptr;
+//	motorised_infantry* motorised_infantry_point = nullptr;
+//	supply_car* supply_car_point = nullptr;
+//
+//public:
+//	buffer(int new_index) {
+//		switch (new_index) {
+//		case 1:
+//			construction_point = new construction();
+//			index = new_index;
+//			break;
+//		case 2:
+//			tank_point = new tank();
+//			index = new_index;
+//			break;
+//		case 3:
+//			anti_tank_point = new anti_tank();
+//			index = new_index;
+//			break;
+//		case 4:
+//			infantry_point = new infantry();
+//			index = new_index;
+//			break;
+//		case 5:
+//			motorised_infantry_point = new motorised_infantry();
+//			index = new_index;
+//			break;
+//		case 6:
+//			supply_car_point = new supply_car();
+//			index = new_index;
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_health(int new_index) {
+//		switch (new_index) {
+//		case 1:
+//			return (construction_point->get_health());
+//			break;
+//		case 2:
+//			return (tank_point->get_health());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_health());
+//			break;
+//		case 4:
+//			return (infantry_point->get_health());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_health());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_health());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_damage_to_living_force(int new_index) {
+//		switch (new_index) {
+//		case 2:
+//			return (tank_point->get_damage_to_living_force());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_damage_to_living_force());
+//			break;
+//		case 4:
+//			return (infantry_point->get_damage_to_living_force());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_damage_to_living_force());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_damage_to_living_force());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_damage_to_war_machine(int new_index) {
+//		switch (new_index) {
+//		case 2:
+//			return (tank_point->get_damage_to_war_machine());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_damage_to_war_machine());
+//			break;
+//		case 4:
+//			return (infantry_point->get_damage_to_war_machine());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_damage_to_war_machine());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_damage_to_war_machine());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_mobility(int new_index) {
+//		switch (new_index) {
+//		case 2:
+//			return (tank_point->get_mobility());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_mobility());
+//			break;
+//		case 4:
+//			return (infantry_point->get_mobility());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_mobility());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_mobility());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_supply(int new_index) {
+//		switch (new_index) {
+//		case 2:
+//			return (tank_point->get_supply());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_supply());
+//			break;
+//		case 4:
+//			return (infantry_point->get_supply());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_supply());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_supply());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_armor(int new_index) {
+//		switch (new_index) {
+//		case 1:
+//			return (construction_point->get_armor());;
+//			break;
+//		case 2:
+//			return (tank_point->get_armor());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_armor());
+//			break;
+//		case 4:
+//			return (infantry_point->get_armor());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_armor());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_armor());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	int get_ID(int new_index) {
+//		switch (new_index) {
+//		case 1:
+//			return (construction_point->get_ID());;
+//			break;
+//		case 2:
+//			return (tank_point->get_ID());
+//			break;
+//		case 3:
+//			return (anti_tank_point->get_ID());
+//			break;
+//		case 4:
+//			return (infantry_point->get_ID());
+//			break;
+//		case 5:
+//			return (motorised_infantry_point->get_ID());
+//			break;
+//		case 6:
+//			return (supply_car_point->get_ID());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	void set_mobility(int new_index, int new_mobility) {
+//		switch (new_index) {
+//		case 2:
+//			tank_point->set_mobility(new_mobility);
+//			break;
+//		case 3:
+//			anti_tank_point->set_mobility(new_mobility);
+//			break;
+//		case 4:
+//			infantry_point->set_mobility(new_mobility);
+//			break;
+//		case 5:
+//			motorised_infantry_point->set_mobility(new_mobility);
+//			break;
+//		case 6:
+//			supply_car_point->set_mobility(new_mobility);
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	void set_health(int new_index, int new_health) {
+//		switch (new_index) {
+//		case 1:
+//			construction_point->set_health(new_health);
+//			break;
+//		case 2:
+//			tank_point->set_health(new_health);
+//			break;
+//		case 3:
+//			anti_tank_point->set_health(new_health);
+//			break;
+//		case 4:
+//			infantry_point->set_health(new_health);
+//			break;
+//		case 5:
+//			motorised_infantry_point->set_health(new_health);
+//			break;
+//		case 6:
+//			supply_car_point->set_health(new_health);
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	void set_supply(int new_index, int new_supply) {
+//		switch (new_index) {
+//		case 2:
+//			tank_point->set_supply(new_supply);
+//			break;
+//		case 3:
+//			anti_tank_point->set_supply(new_supply);
+//			break;
+//		case 4:
+//			infantry_point->set_supply(new_supply);
+//			break;
+//		case 5:
+//			motorised_infantry_point->set_supply(new_supply);
+//			break;
+//		case 6:
+//			supply_car_point->set_supply(new_supply);
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//};
+//
+//class construction {
+//private:
+//	int health;
+//	int armor;
+//	int ID;
+//public:
+//	construction() {
+//		health = 100;
+//		armor = 50;
+//		ID = ID_construction;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//};
+//
+//class tank {
+//private:
+//	int health;
+//	int damage_to_living_force;
+//	int damage_to_war_machine;
+//	int mobility;
+//	int supply;
+//	int armor;
+//	int ID;
+//public:
+//	tank() {
+//		health = 100;
+//		damage_to_living_force = 10;
+//		damage_to_war_machine = 20;
+//		mobility = 10;
+//		supply = 50;
+//		armor = 50;
+//		ID = ID_tank;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_damage_to_living_force() {
+//		return(damage_to_living_force);
+//	}
+//	int get_damage_to_war_machine() {
+//		return(damage_to_war_machine);
+//	}
+//	int get_mobility() {
+//		return(mobility);
+//	}
+//	int get_supply() {
+//		return(supply);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_mobility(int new_mobility) {
+//		mobility = new_mobility;
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//	void set_supply(int new_supply) {
+//		supply = new_supply;
+//	}
+//};
+//
+//class anti_tank {
+//private:
+//	int health;
+//	int damage_to_living_force;
+//	int damage_to_war_machine;
+//	int mobility;
+//	int supply;
+//	int armor;
+//	int ID;
+//
+//public:
+//	anti_tank() {
+//		health = 100;
+//		damage_to_living_force = 10;
+//		damage_to_war_machine = 20;
+//		mobility = 10;
+//		supply = 50;
+//		armor = 50;
+//		ID = ID_anti_tank;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_damage_to_living_force() {
+//		return(damage_to_living_force);
+//	}
+//	int get_damage_to_war_machine() {
+//		return(damage_to_war_machine);
+//	}
+//	int get_mobility() {
+//		return(mobility);
+//	}
+//	int get_supply() {
+//		return(supply);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_mobility(int new_mobility) {
+//		mobility = new_mobility;
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//	void set_supply(int new_supply) {
+//		supply = new_supply;
+//	}
+//};
+//
+//class infantry {
+//private:
+//	int health;
+//	int damage_to_living_force;
+//	int damage_to_war_machine;
+//	int mobility;
+//	int supply;
+//	int armor;
+//	int ID;
+//
+//public:
+//	infantry() {
+//		health = 100;
+//		damage_to_living_force = 10;
+//		damage_to_war_machine = 2;
+//		mobility = 10;
+//		supply = 50;
+//		armor = 50;
+//		ID_infantry;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_damage_to_living_force() {
+//		return(damage_to_living_force);
+//	}
+//	int get_damage_to_war_machine() {
+//		return(damage_to_war_machine);
+//	}
+//	int get_mobility() {
+//		return(mobility);
+//	}
+//	int get_supply() {
+//		return(supply);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_mobility(int new_mobility) {
+//		mobility = new_mobility;
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//	void set_supply(int new_supply) {
+//		supply = new_supply;
+//	}
+//};
+//
+//class motorised_infantry {
+//private:
+//	int health;
+//	int damage_to_living_force;
+//	int damage_to_war_machine;
+//	int mobility;
+//	int supply;
+//	int armor;
+//	int ID;
+//
+//public:
+//	motorised_infantry() {
+//		health = 100;
+//		damage_to_living_force = 10;
+//		damage_to_war_machine = 5;
+//		mobility = 10;
+//		supply = 50;
+//		armor = 50;
+//		ID = ID_motorised_infantry;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_damage_to_living_force() {
+//		return(damage_to_living_force);
+//	}
+//	int get_damage_to_war_machine() {
+//		return(damage_to_war_machine);
+//	}
+//	int get_mobility() {
+//		return(mobility);
+//	}
+//	int get_supply() {
+//		return(supply);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_mobility(int new_mobility) {
+//		mobility = new_mobility;
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//	void set_supply(int new_supply) {
+//		supply = new_supply;
+//	}
+//};
+//
+//class supply_car {
+//private:
+//	int health;
+//	int damage_to_living_force;
+//	int damage_to_war_machine;
+//	int mobility;
+//	int supply_for_supply;
+//	int armor;
+//	int ID;
+//
+//public:
+//	supply_car() {
+//		health = 10000;
+//		damage_to_living_force = 1000;
+//		damage_to_war_machine = 3000;
+//		mobility = 4000;
+//		supply_for_supply = 2147483647;
+//		armor = 50;
+//		ID = ID_supply_car;
+//	}
+//	int get_health() {
+//		return(health);
+//	}
+//	int get_damage_to_living_force() {
+//		return(damage_to_living_force);
+//	}
+//	int get_damage_to_war_machine() {
+//		return(damage_to_war_machine);
+//	}
+//	int get_mobility() {
+//		return(mobility);
+//	}
+//	int get_supply() {
+//		return(supply_for_supply);
+//	}
+//	int get_armor() {
+//		return(armor);
+//	}
+//	int get_ID() {
+//		return(ID);
+//	}
+//	void set_mobility(int new_mobility) {
+//		mobility = new_mobility;
+//	}
+//	void set_health(int new_health) {
+//		health = new_health;
+//	}
+//	void set_supply(int new_supply) {
+//		supply_for_supply = new_supply;
+//	}
+//};
+//
+//buffer*  matrix_units_points[size_field_x][size_field_y];//Массив юнитов
 
 void print(int matrix[size_field_x][size_field_y]) {
 	for (int j = 0; j < size_field_y; j++) {
@@ -618,6 +625,23 @@ void print(int matrix[size_field_x][size_field_y]) {
 		}
 		cout << "\n";
 	}
+}
+
+void create_matrix_control() {
+	for (int i = 0; i < size_field_x;i++) {
+		for (int j = 0; j < size_field_y;j++) {
+			matrix_control[i][j] = neutral;
+		}
+	}
+	matrix_control[0][0] = red;
+	matrix_control[1][0] = red;
+	matrix_control[0][1] = red;
+	matrix_control[1][1] = red;
+
+	matrix_control[size_field_x-1][size_field_y-1] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 1] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 2] = blue;
 }
 
 void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
@@ -703,6 +727,7 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 	}
 
 }
+
 void clear_resurce() {
 	for (int i = 1; i < size_field_x-1;i++) {
 		for (int j = 1; j < size_field_y-1; j++) {
@@ -714,6 +739,7 @@ void clear_resurce() {
 		}
 	}
 }
+
 void generate_relief() {
 	srand(time(0));
 	int rand_element;
@@ -1083,6 +1109,28 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	}
 }
 
+void paint_control(int x_camera, int y_camera, int zoom) {
+	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_control[i][j] == red) {
+				rectangle.setFillColor(red_color);
+				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(rectangle);
+
+			}
+			else if (matrix_control[i][j] == blue) {
+				rectangle.setFillColor(blue_color);
+				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(rectangle);
+
+			}
+
+
+		}
+	}
+}
+
 void paint_player_bar() {
 	RectangleShape rectangle(Vector2f(size_window_x, player_bar_size_y));
 	rectangle.setFillColor({ 100, 100 ,100 });
@@ -1098,12 +1146,12 @@ void paint_player_bar() {
 void paint_game(int x_camera, int y_camera, int zoom) {
 	paint_relief(x_camera, y_camera, zoom);
 	paint_resource(x_camera, y_camera, zoom);
+	paint_control(x_camera, y_camera, zoom);
 	paint_player_bar();
 	paint_units(x_camera, y_camera, zoom);
 }
 
 void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_camera, int& y_camera, int zoom) {
-
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
 	step.x = -old_mousePos.x + mousePos.x;
@@ -1127,6 +1175,10 @@ void change_camera(Event event, Vector2i old_mousePos, Vector2i step, int& x_cam
 
 void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
 	if (event.mouseWheelScroll.delta == 1 and zoom < max_zoom) {
+		Vector2i mousePos;
+		mousePos = Mouse::getPosition(window);
+		x_camera -= mousePos.x;
+		y_camera -= mousePos.y;
 		zoom++;
 	}
 	if (event.mouseWheelScroll.delta == -1 and zoom > min_zoom) {
@@ -1191,7 +1243,9 @@ void game() {
 int main()
 {
 	genetate_resource();
+	create_matrix_control();
 	matrix_unit_to_zero();
+
 	game();
 	return 0;
 }
