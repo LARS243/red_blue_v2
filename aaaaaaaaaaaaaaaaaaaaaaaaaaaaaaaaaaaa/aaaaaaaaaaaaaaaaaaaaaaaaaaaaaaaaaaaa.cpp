@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+
 using namespace std;
 using namespace sf;
 
@@ -48,10 +49,6 @@ const int null = 3;
 const int neutral = 0;
 const int red = 1;
 const int blue = 2;
-
-const int infantry = 0;
-const int jaeger = 1;
-const int mount_infantry = 2;
 
 vector<Texture> textures_relief;
 vector<Texture> textures_resources;
@@ -1110,7 +1107,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	Vector2f scale = zoom_to_scale(zoom);
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	Sprite test;
-	test.setTexture(textures_blue_units[mount_infantry]);
+	test.setTexture(textures_blue_units[0]);
 	test.setScale(scale);
 	test.setPosition(0, 0);
 	
