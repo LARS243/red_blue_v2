@@ -49,7 +49,7 @@ const int neutral = 0;
 const int red = 1;
 const int blue = 2;
 
-const int infantry = 0;
+//const int infantry = 0;
 const int jaeger = 1;
 const int mount_infantry = 2;
 
