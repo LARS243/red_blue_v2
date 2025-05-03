@@ -1,4 +1,5 @@
-﻿﻿#include <SFML/Graphics.hpp>
+﻿//﻿#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
@@ -80,282 +81,6 @@ anti_tank
 motorised_infantry
 supply_car
 */
-
-class buffer {
-private:
-	int index;
-	construction* construction_point = nullptr;
-	tank* tank_point = nullptr;
-	anti_tank* anti_tank_point = nullptr;
-	infantry* infantry_point = nullptr;
-	motorised_infantry* motorised_infantry_point = nullptr;
-	supply_car* supply_car_point = nullptr;
-
-public:
-	buffer(int new_index) {
-		switch (new_index) {
-		case 1:
-			construction_point = new construction();
-			index = new_index;
-			break;
-		case 2:
-			tank_point = new tank();
-			index = new_index;
-			break;
-		case 3:
-			anti_tank_point = new anti_tank();
-			index = new_index;
-			break;
-		case 4:
-			infantry_point = new infantry();
-			index = new_index;
-			break;
-		case 5:
-			motorised_infantry_point = new motorised_infantry();
-			index = new_index;
-			break;
-		case 6:
-			supply_car_point = new supply_car();
-			index = new_index;
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_health(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_health());
-			break;
-		case 2:
-			return (tank_point->get_health());
-			break;
-		case 3:
-			return (anti_tank_point->get_health());
-			break;
-		case 4:
-			return (infantry_point->get_health());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_health());
-			break;
-		case 6:
-			return (supply_car_point->get_health());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_living_force(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_living_force());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_living_force());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_living_force());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_living_force());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_living_force());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_war_machine(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_war_machine());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_war_machine());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_war_machine());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_war_machine());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_war_machine());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_mobility(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_mobility());
-			break;
-		case 3:
-			return (anti_tank_point->get_mobility());
-			break;
-		case 4:
-			return (infantry_point->get_mobility());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_mobility());
-			break;
-		case 6:
-			return (supply_car_point->get_mobility());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_supply(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_supply());
-			break;
-		case 3:
-			return (anti_tank_point->get_supply());
-			break;
-		case 4:
-			return (infantry_point->get_supply());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_supply());
-			break;
-		case 6:
-			return (supply_car_point->get_supply());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_armor(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_armor());;
-			break;
-		case 2:
-			return (tank_point->get_armor());
-			break;
-		case 3:
-			return (anti_tank_point->get_armor());
-			break;
-		case 4:
-			return (infantry_point->get_armor());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_armor());
-			break;
-		case 6:
-			return (supply_car_point->get_armor());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_ID(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_ID());;
-			break;
-		case 2:
-			return (tank_point->get_ID());
-			break;
-		case 3:
-			return (anti_tank_point->get_ID());
-			break;
-		case 4:
-			return (infantry_point->get_ID());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_ID());
-			break;
-		case 6:
-			return (supply_car_point->get_ID());
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_mobility(int new_index, int new_mobility) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_mobility(new_mobility);
-			break;
-		case 3:
-			anti_tank_point->set_mobility(new_mobility);
-			break;
-		case 4:
-			infantry_point->set_mobility(new_mobility);
-			break;
-		case 5:
-			motorised_infantry_point->set_mobility(new_mobility);
-			break;
-		case 6:
-			supply_car_point->set_mobility(new_mobility);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_health(int new_index, int new_health) {
-		switch (new_index) {
-		case 1:
-			construction_point->set_health(new_health);
-			break;
-		case 2:
-			tank_point->set_health(new_health);
-			break;
-		case 3:
-			anti_tank_point->set_health(new_health);
-			break;
-		case 4:
-			infantry_point->set_health(new_health);
-			break;
-		case 5:
-			motorised_infantry_point->set_health(new_health);
-			break;
-		case 6:
-			supply_car_point->set_health(new_health);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_supply(int new_index, int new_supply) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_supply(new_supply);
-			break;
-		case 3:
-			anti_tank_point->set_supply(new_supply);
-			break;
-		case 4:
-			infantry_point->set_supply(new_supply);
-			break;
-		case 5:
-			motorised_infantry_point->set_supply(new_supply);
-			break;
-		case 6:
-			supply_car_point->set_supply(new_supply);
-			break;
-		default:
-			break;
-		}
-	}
-};
-
 class construction {
 private:
 	int health;
@@ -637,6 +362,281 @@ public:
 	}
 	void set_supply(int new_supply) {
 		supply_for_supply = new_supply;
+	}
+};
+
+class buffer {
+private:
+	int index;
+	construction* construction_point = nullptr;
+	tank* tank_point = nullptr;
+	anti_tank* anti_tank_point = nullptr;
+	infantry* infantry_point = nullptr;
+	motorised_infantry* motorised_infantry_point = nullptr;
+	supply_car* supply_car_point = nullptr;
+
+public:
+	buffer(int new_index) {
+		switch (new_index) {
+		case 1:
+			construction_point = new construction();
+			index = new_index;
+			break;
+		case 2:
+			tank_point = new tank();
+			index = new_index;
+			break;
+		case 3:
+			anti_tank_point = new anti_tank();
+			index = new_index;
+			break;
+		case 4:
+			infantry_point = new infantry();
+			index = new_index;
+			break;
+		case 5:
+			motorised_infantry_point = new motorised_infantry();
+			index = new_index;
+			break;
+		case 6:
+			supply_car_point = new supply_car();
+			index = new_index;
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_health(int new_index) {
+		switch (new_index) {
+		case 1:
+			return (construction_point->get_health());
+			break;
+		case 2:
+			return (tank_point->get_health());
+			break;
+		case 3:
+			return (anti_tank_point->get_health());
+			break;
+		case 4:
+			return (infantry_point->get_health());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_health());
+			break;
+		case 6:
+			return (supply_car_point->get_health());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_damage_to_living_force(int new_index) {
+		switch (new_index) {
+		case 2:
+			return (tank_point->get_damage_to_living_force());
+			break;
+		case 3:
+			return (anti_tank_point->get_damage_to_living_force());
+			break;
+		case 4:
+			return (infantry_point->get_damage_to_living_force());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_damage_to_living_force());
+			break;
+		case 6:
+			return (supply_car_point->get_damage_to_living_force());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_damage_to_war_machine(int new_index) {
+		switch (new_index) {
+		case 2:
+			return (tank_point->get_damage_to_war_machine());
+			break;
+		case 3:
+			return (anti_tank_point->get_damage_to_war_machine());
+			break;
+		case 4:
+			return (infantry_point->get_damage_to_war_machine());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_damage_to_war_machine());
+			break;
+		case 6:
+			return (supply_car_point->get_damage_to_war_machine());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_mobility(int new_index) {
+		switch (new_index) {
+		case 2:
+			return (tank_point->get_mobility());
+			break;
+		case 3:
+			return (anti_tank_point->get_mobility());
+			break;
+		case 4:
+			return (infantry_point->get_mobility());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_mobility());
+			break;
+		case 6:
+			return (supply_car_point->get_mobility());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_supply(int new_index) {
+		switch (new_index) {
+		case 2:
+			return (tank_point->get_supply());
+			break;
+		case 3:
+			return (anti_tank_point->get_supply());
+			break;
+		case 4:
+			return (infantry_point->get_supply());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_supply());
+			break;
+		case 6:
+			return (supply_car_point->get_supply());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_armor(int new_index) {
+		switch (new_index) {
+		case 1:
+			return (construction_point->get_armor());;
+			break;
+		case 2:
+			return (tank_point->get_armor());
+			break;
+		case 3:
+			return (anti_tank_point->get_armor());
+			break;
+		case 4:
+			return (infantry_point->get_armor());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_armor());
+			break;
+		case 6:
+			return (supply_car_point->get_armor());
+			break;
+		default:
+			break;
+		}
+	}
+
+	int get_ID(int new_index) {
+		switch (new_index) {
+		case 1:
+			return (construction_point->get_ID());;
+			break;
+		case 2:
+			return (tank_point->get_ID());
+			break;
+		case 3:
+			return (anti_tank_point->get_ID());
+			break;
+		case 4:
+			return (infantry_point->get_ID());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_ID());
+			break;
+		case 6:
+			return (supply_car_point->get_ID());
+			break;
+		default:
+			break;
+		}
+	}
+
+	void set_mobility(int new_index, int new_mobility) {
+		switch (new_index) {
+		case 2:
+			tank_point->set_mobility(new_mobility);
+			break;
+		case 3:
+			anti_tank_point->set_mobility(new_mobility);
+			break;
+		case 4:
+			infantry_point->set_mobility(new_mobility);
+			break;
+		case 5:
+			motorised_infantry_point->set_mobility(new_mobility);
+			break;
+		case 6:
+			supply_car_point->set_mobility(new_mobility);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void set_health(int new_index, int new_health) {
+		switch (new_index) {
+		case 1:
+			construction_point->set_health(new_health);
+			break;
+		case 2:
+			tank_point->set_health(new_health);
+			break;
+		case 3:
+			anti_tank_point->set_health(new_health);
+			break;
+		case 4:
+			infantry_point->set_health(new_health);
+			break;
+		case 5:
+			motorised_infantry_point->set_health(new_health);
+			break;
+		case 6:
+			supply_car_point->set_health(new_health);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void set_supply(int new_index, int new_supply) {
+		switch (new_index) {
+		case 2:
+			tank_point->set_supply(new_supply);
+			break;
+		case 3:
+			anti_tank_point->set_supply(new_supply);
+			break;
+		case 4:
+			infantry_point->set_supply(new_supply);
+			break;
+		case 5:
+			motorised_infantry_point->set_supply(new_supply);
+			break;
+		case 6:
+			supply_car_point->set_supply(new_supply);
+			break;
+		default:
+			break;
+		}
 	}
 };
 
