@@ -1,5 +1,4 @@
-﻿//﻿#include <SFML/Graphics.hpp>
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
@@ -68,7 +67,7 @@ Color blue_color = { 0, 0, 255 , 100 };
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 int matrix_relief[size_field_x][size_field_y];
-int matrix_units[size_field_x][size_field_y];
+int matrix_units_id[size_field_x][size_field_y];
 int matrix_resources[size_field_x][size_field_y];
 int matrix_control[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
@@ -363,281 +362,6 @@ public:
 	}
 	void set_supply(int new_supply) {
 		supply_for_supply = new_supply;
-	}
-};
-
-class buffer {
-private:
-	int index;
-	construction* construction_point = nullptr;
-	tank* tank_point = nullptr;
-	anti_tank* anti_tank_point = nullptr;
-	infantry* infantry_point = nullptr;
-	motorised_infantry* motorised_infantry_point = nullptr;
-	supply_car* supply_car_point = nullptr;
-
-public:
-	buffer(int new_index) {
-		switch (new_index) {
-		case 1:
-			construction_point = new construction();
-			index = new_index;
-			break;
-		case 2:
-			tank_point = new tank();
-			index = new_index;
-			break;
-		case 3:
-			anti_tank_point = new anti_tank();
-			index = new_index;
-			break;
-		case 4:
-			infantry_point = new infantry();
-			index = new_index;
-			break;
-		case 5:
-			motorised_infantry_point = new motorised_infantry();
-			index = new_index;
-			break;
-		case 6:
-			supply_car_point = new supply_car();
-			index = new_index;
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_health(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_health());
-			break;
-		case 2:
-			return (tank_point->get_health());
-			break;
-		case 3:
-			return (anti_tank_point->get_health());
-			break;
-		case 4:
-			return (infantry_point->get_health());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_health());
-			break;
-		case 6:
-			return (supply_car_point->get_health());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_living_force(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_living_force());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_living_force());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_living_force());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_living_force());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_living_force());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_damage_to_war_machine(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_damage_to_war_machine());
-			break;
-		case 3:
-			return (anti_tank_point->get_damage_to_war_machine());
-			break;
-		case 4:
-			return (infantry_point->get_damage_to_war_machine());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_damage_to_war_machine());
-			break;
-		case 6:
-			return (supply_car_point->get_damage_to_war_machine());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_mobility(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_mobility());
-			break;
-		case 3:
-			return (anti_tank_point->get_mobility());
-			break;
-		case 4:
-			return (infantry_point->get_mobility());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_mobility());
-			break;
-		case 6:
-			return (supply_car_point->get_mobility());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_supply(int new_index) {
-		switch (new_index) {
-		case 2:
-			return (tank_point->get_supply());
-			break;
-		case 3:
-			return (anti_tank_point->get_supply());
-			break;
-		case 4:
-			return (infantry_point->get_supply());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_supply());
-			break;
-		case 6:
-			return (supply_car_point->get_supply());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_armor(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_armor());;
-			break;
-		case 2:
-			return (tank_point->get_armor());
-			break;
-		case 3:
-			return (anti_tank_point->get_armor());
-			break;
-		case 4:
-			return (infantry_point->get_armor());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_armor());
-			break;
-		case 6:
-			return (supply_car_point->get_armor());
-			break;
-		default:
-			break;
-		}
-	}
-
-	int get_ID(int new_index) {
-		switch (new_index) {
-		case 1:
-			return (construction_point->get_ID());;
-			break;
-		case 2:
-			return (tank_point->get_ID());
-			break;
-		case 3:
-			return (anti_tank_point->get_ID());
-			break;
-		case 4:
-			return (infantry_point->get_ID());
-			break;
-		case 5:
-			return (motorised_infantry_point->get_ID());
-			break;
-		case 6:
-			return (supply_car_point->get_ID());
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_mobility(int new_index, int new_mobility) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_mobility(new_mobility);
-			break;
-		case 3:
-			anti_tank_point->set_mobility(new_mobility);
-			break;
-		case 4:
-			infantry_point->set_mobility(new_mobility);
-			break;
-		case 5:
-			motorised_infantry_point->set_mobility(new_mobility);
-			break;
-		case 6:
-			supply_car_point->set_mobility(new_mobility);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_health(int new_index, int new_health) {
-		switch (new_index) {
-		case 1:
-			construction_point->set_health(new_health);
-			break;
-		case 2:
-			tank_point->set_health(new_health);
-			break;
-		case 3:
-			anti_tank_point->set_health(new_health);
-			break;
-		case 4:
-			infantry_point->set_health(new_health);
-			break;
-		case 5:
-			motorised_infantry_point->set_health(new_health);
-			break;
-		case 6:
-			supply_car_point->set_health(new_health);
-			break;
-		default:
-			break;
-		}
-	}
-
-	void set_supply(int new_index, int new_supply) {
-		switch (new_index) {
-		case 2:
-			tank_point->set_supply(new_supply);
-			break;
-		case 3:
-			anti_tank_point->set_supply(new_supply);
-			break;
-		case 4:
-			infantry_point->set_supply(new_supply);
-			break;
-		case 5:
-			motorised_infantry_point->set_supply(new_supply);
-			break;
-		case 6:
-			supply_car_point->set_supply(new_supply);
-			break;
-		default:
-			break;
-		}
 	}
 };
 
@@ -1223,7 +947,7 @@ void matrix_unit_to_zero() {
 	{
 		for (int j = 0; j < size_field_y; j++)
 		{
-			matrix_units[i][j] = ID_black_hole;
+			matrix_units_id[i][j] = ID_black_hole;
 		}
 	}
 }
@@ -1380,7 +1104,7 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-
+// Костыль отрисовки юнитов
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
 	Vector2f scale = zoom_to_scale(zoom);
@@ -1393,7 +1117,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	window.draw(test);
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
-			type_units = matrix_units[i][j];
+			type_units = matrix_units_id[i][j];
 			if (type_units != 0) {
 
 				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
@@ -1551,8 +1275,8 @@ void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
 		x_camera = 0;
 	}
 }
-
-vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera) {//Костыль
+// Костыль выбора юнитов после нажатия левой кнопки
+vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera) {
 	vector<int> coord;
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
@@ -1560,7 +1284,7 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 	coord.push_back((mousePos.y - y_camera) / (size_cell * zoom));
 	return coord;
 }
-
+// Костыль нажатия левой кнопки для выбора юнита
 void game() {
 
 	string last_bind = "none";
