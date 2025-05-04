@@ -21,8 +21,8 @@ const int size_window_y = 1000;
 const int player_bar_size_y = 200;
 const int player_bar_size_x = 300;
 
-const int size_field_x = 80;
-const int size_field_y = 40;
+const int size_field_x = 60;
+const int size_field_y = 30;
 const int max_zoom = 4;
 const int min_zoom = 1;
 const int size_cell = 30;
@@ -35,6 +35,7 @@ const int grid_mode = 2;
 const int resources_mode = 3;
 const int builds_mode = 4;
 const int unit_mode = 5;
+const int size_step_mode = 300;
 
 const int field = 0;
 const int forest = 1;
@@ -57,12 +58,15 @@ vector<Texture> textures_relief;
 vector<Texture> textures_resources;
 vector<Texture> textures_blue_units;
 
+vector<Texture> textures_modes;
+
 Color field_color = { 40, 100, 0 };
 Color forest_color = { 0,69,36 };
 Color mount_color = { 150, 150, 150 };
 Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
 Color red_color = { 255,0,0, 100 };
 Color blue_color = { 0, 0, 255 , 100 };
+Color green_color = { 0,169,36 };
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
@@ -1006,6 +1010,42 @@ void load_texture() {
 	image_mount_infantry.loadFromFile("blue_mount_infantry.png");
 	texture_mount_infantry.loadFromImage(image_mount_infantry);
 	textures_blue_units.push_back(texture_mount_infantry);
+
+	Image image_control_mode;
+	Texture texture_control_mode;
+	image_control_mode.loadFromFile("control_mode.png");
+	texture_control_mode.loadFromImage(image_control_mode);
+	textures_modes.push_back(texture_control_mode);
+
+	Image image_supply_mode;
+	Texture texture_supply_mode;
+	image_supply_mode.loadFromFile("supply_mode.png");
+	texture_supply_mode.loadFromImage(image_supply_mode);
+	textures_modes.push_back(texture_supply_mode);
+
+	Image image_grid_mode;
+	Texture texture_grid_mode;
+	image_grid_mode.loadFromFile("grid_mode.png");
+	texture_grid_mode.loadFromImage(image_grid_mode);
+	textures_modes.push_back(texture_grid_mode);
+
+	Image image_resources_mode;
+	Texture texture_resources_mode;
+	image_resources_mode.loadFromFile("resources_mode.png");
+	texture_resources_mode.loadFromImage(image_resources_mode);
+	textures_modes.push_back(texture_resources_mode);
+
+	Image image_builds_mode;
+	Texture texture_builds_mode;
+	image_builds_mode.loadFromFile("builds_mode.png");
+	texture_builds_mode.loadFromImage(image_builds_mode);
+	textures_modes.push_back(texture_builds_mode);
+
+	Image image_unit_mode;
+	Texture texture_unit_mode;
+	image_unit_mode.loadFromFile("unit_mode.png");
+	texture_unit_mode.loadFromImage(image_unit_mode);
+	textures_modes.push_back(texture_unit_mode);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1192,12 +1232,31 @@ void paint_grid(int x_camera, int y_camera, int zoom) {
 }
 
 void paint_map_mode() {
+	const int size_rectangle_mode_on = 200;
+	
+	Sprite sprite_mode;
+
 	RectangleShape rectangle(Vector2f(size_window_x, player_bar_size_y));
 	rectangle.setFillColor({ 100, 100 ,100 });
 	rectangle.setPosition(0, size_window_y - player_bar_size_y);
 	window.draw(rectangle);
-}
 
+	RectangleShape rectangle_mode_on(Vector2f(size_rectangle_mode_on, size_rectangle_mode_on));
+	rectangle_mode_on.setFillColor(green_color);
+
+	for (int i = 0; i < count_mode; i++) {
+		if (matrix_mode[i]) {
+			rectangle_mode_on.setPosition((size_step_mode)*i, size_window_y - player_bar_size_y);
+			window.draw(rectangle_mode_on);
+		}
+		sprite_mode.setTexture(textures_modes[i]);
+		sprite_mode.setPosition(11 + (size_step_mode)*i, size_window_y - player_bar_size_y + 11);
+		window.draw(sprite_mode);
+		
+	}
+	
+
+}
 void paint_player_bar() {
 	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
 	rectangle2.setFillColor({ 100, 100 ,100 });
@@ -1312,7 +1371,14 @@ void game() {
 				change_zoom(event, zoom, x_camera, y_camera);
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
-				select_element(event, zoom, x_camera, y_camera);
+				Vector2i mousePos = Mouse::getPosition(window);
+				if (mousePos.y < size_window_y - player_bar_size_y) {
+					select_element(event, zoom, x_camera, y_camera);
+				}
+				else {
+					matrix_mode[(mousePos.x - 11) / size_step_mode] = not matrix_mode[(mousePos.x - 11) / size_step_mode];
+				}
+				
 				last_bind = "left";
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) and last_bind != "control_mode")
@@ -1320,17 +1386,27 @@ void game() {
 				matrix_mode[control_mode] = not matrix_mode[control_mode];
 				last_bind = "control_mode";
 			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) and last_bind != "grid_mode")
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) and last_bind != "supply_mode")
+			{
+				matrix_mode[supply_mode] = not matrix_mode[supply_mode];
+				last_bind = "supply_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) and last_bind != "grid_mode")
 			{
 				matrix_mode[grid_mode] = not matrix_mode[grid_mode];
 				last_bind = "grid_mode";
 			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) and last_bind != "resources_mode")
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) and last_bind != "resources_mode")
 			{
 				matrix_mode[resources_mode] = not matrix_mode[resources_mode];
 				last_bind = "resources_mode";
 			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) and last_bind != "unit_mode")
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5) and last_bind != "builds_mode")
+			{
+				matrix_mode[builds_mode] = not matrix_mode[builds_mode];
+				last_bind = "builds_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6) and last_bind != "unit_mode")
 			{
 				matrix_mode[unit_mode] = not matrix_mode[unit_mode];
 				last_bind = "unit_mode";
@@ -1339,7 +1415,6 @@ void game() {
 				window.close();
 
 			old_mousePos = Mouse::getPosition(window);
-
 		}
 		paint_game(x_camera, y_camera, zoom);
 		window.display();
