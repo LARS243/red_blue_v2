@@ -44,7 +44,12 @@ const int mount = 2;
 const int oil = 0;
 const int iron = 1;
 const int coal = 2;
-const int null = 3;
+const int null_res = 3;
+
+const int null = -1;
+const int town = 0;
+
+const int rail_road = 0;
 
 const int neutral = 0;
 const int red = 1;
@@ -54,26 +59,29 @@ const int blue = 2;
 const int jaeger = 1;
 const int mount_infantry = 2;
 
+const Color field_color = { 40, 100, 0 };
+const Color forest_color = { 0,69,36 };
+const Color mount_color = { 150, 150, 150 };
+const Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
+const Color red_color = { 255,0,0, 100 };
+const Color blue_color = { 0, 0, 255 , 100 };
+const Color green_color = { 0,169,36 };
+
+RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
+
 vector<Texture> textures_relief;
 vector<Texture> textures_resources;
 vector<Texture> textures_blue_units;
-
 vector<Texture> textures_modes;
-
-Color field_color = { 40, 100, 0 };
-Color forest_color = { 0,69,36 };
-Color mount_color = { 150, 150, 150 };
-Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
-Color red_color = { 255,0,0, 100 };
-Color blue_color = { 0, 0, 255 , 100 };
-Color green_color = { 0,169,36 };
-
-RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
+vector<Texture> textures_builds;
+vector<Texture> textures_roads;
 
 int matrix_relief[size_field_x][size_field_y];
 int matrix_units_id[size_field_x][size_field_y];
 int matrix_resources[size_field_x][size_field_y];
 int matrix_control[size_field_x][size_field_y];
+int matrix_builds[size_field_x][size_field_y];
+int matrix_roads[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
 
 /*
@@ -662,20 +670,58 @@ void create_matrix_control() {
 		}
 	}
 	matrix_control[0][0] = red;
-	matrix_control[1][0] = red;
 	matrix_control[0][1] = red;
+	matrix_control[0][2] = red;
+
+	matrix_control[1][0] = red;
 	matrix_control[1][1] = red;
+	matrix_control[1][2] = red;
+
+	matrix_control[2][2] = red;
+	matrix_control[2][0] = red;
+	matrix_control[2][1] = red;
 
 	matrix_control[size_field_x - 1][size_field_y - 1] = blue;
 	matrix_control[size_field_x - 2][size_field_y - 1] = blue;
 	matrix_control[size_field_x - 1][size_field_y - 2] = blue;
 	matrix_control[size_field_x - 2][size_field_y - 2] = blue;
+
+	matrix_control[size_field_x - 3][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 3][size_field_y - 3] = blue;
+
+	matrix_control[size_field_x - 3][size_field_y - 1] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 3] = blue;
 }
 
 void create_matrix_mode() {
 	for (int i = 0; i < count_mode; i++) {
 		matrix_mode[i] = 0;
 	}
+}
+
+void create_matrix_roads() {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_roads[i][j] = null;
+		}
+		
+	}
+	matrix_roads[5][3] = rail_road;
+	matrix_roads[5][4] = rail_road;
+	matrix_roads[5][5] = rail_road;
+
+	matrix_roads[5][10] = rail_road;
+	matrix_roads[4][10] = rail_road;
+	matrix_roads[3][10] = rail_road;
+
+	matrix_roads[2][1] = rail_road;
+	matrix_roads[1][2] = rail_road;
+	matrix_roads[2][2] = rail_road;
+	matrix_roads[2][3] = rail_road;
+	matrix_roads[3][2] = rail_road;
+	matrix_roads[3][3] = rail_road;
+	matrix_roads[3][4] = rail_road;
 }
 
 void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
@@ -765,9 +811,9 @@ void clear_field(int matrix[size_field_x][size_field_y]) {
 void clear_resurce() {
 	for (int i = 1; i < size_field_x - 1; i++) {
 		for (int j = 1; j < size_field_y - 1; j++) {
-			if (matrix_resources[i][j] != null) {
-				if (matrix_resources[i - 1][j] == null and matrix_resources[i + 1][j] == null and matrix_resources[i][j - 1] == null and matrix_resources[i][j + 1] == null) {
-					matrix_resources[i][j] = null;
+			if (matrix_resources[i][j] != null_res) {
+				if (matrix_resources[i - 1][j] == null_res and matrix_resources[i + 1][j] == null_res and matrix_resources[i][j - 1] == null_res and matrix_resources[i][j + 1] == null_res) {
+					matrix_resources[i][j] = null_res;
 				}
 			}
 		}
@@ -889,29 +935,29 @@ void genetate_resource() {
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			if (i == 0 or j == 0) {
-				matrix_resources[i][j] = null;
+				matrix_resources[i][j] = null_res;
 			}
 			else {
 				new_element = rand() % 32;
-				if (matrix_resources[i - 1][j] != null) {
+				if (matrix_resources[i - 1][j] != null_res) {
 					if (new_element <= claster_size_spawn_rate) {
 						matrix_resources[i][j] = matrix_resources[i - 1][j];
 					}
 					else {
-						matrix_resources[i][j] = null;
+						matrix_resources[i][j] = null_res;
 					}
 				}
-				else if (matrix_resources[i][j - 1] != null) {
+				else if (matrix_resources[i][j - 1] != null_res) {
 					if (new_element <= claster_size_spawn_rate) {
 						matrix_resources[i][j] = matrix_resources[i][j - 1];
 					}
 					else {
-						matrix_resources[i][j] = null;
+						matrix_resources[i][j] = null_res;
 					}
 				}
 				else {
 					if (new_element <= claster_spawn_rate) {
-						new_res = rand() % null;
+						new_res = rand() % null_res;
 						if (new_res == oil) {
 							matrix_resources[i][j] = oil;
 						}
@@ -924,7 +970,7 @@ void genetate_resource() {
 
 					}
 					else {
-						matrix_resources[i][j] = null;
+						matrix_resources[i][j] = null_res;
 					}
 				}
 			}
@@ -932,6 +978,28 @@ void genetate_resource() {
 	}
 	reflect_reliesf(matrix_resources);
 	clear_resurce();
+}
+
+void generate_towns() {
+	int rand_element;
+	int spawn_rate = 128;
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (i > 1 and j > 1 and i < size_field_x - 2 and j < size_field_y - 2) {
+				rand_element = rand() % spawn_rate;
+				if (rand_element == town) {
+					matrix_builds[i][j] = town;
+				}
+				else {
+					matrix_builds[i][j] = null;
+				}
+			}
+			else {
+				matrix_builds[i][j] = null;
+			}
+		}
+	}
+	reflect_reliesf(matrix_builds);
 }
 
 Color get_color(int color) {
@@ -1046,6 +1114,25 @@ void load_texture() {
 	image_unit_mode.loadFromFile("unit_mode.png");
 	texture_unit_mode.loadFromImage(image_unit_mode);
 	textures_modes.push_back(texture_unit_mode);
+
+	Image image_town;
+	Texture town_textures;
+	image_town.loadFromFile("town.png");
+	town_textures.loadFromImage(image_town);
+	textures_builds.push_back(town_textures);
+
+	Image image_road_1;
+	Texture road_1_textures;
+	image_road_1.loadFromFile("road_1.png");
+	road_1_textures.loadFromImage(image_road_1);
+	textures_roads.push_back(road_1_textures);
+
+	Image image_road_2;
+	Texture road_2_textures;
+	image_road_2.loadFromFile("road_2.png");
+	road_2_textures.loadFromImage(image_road_2);
+	textures_roads.push_back(road_2_textures);
+
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1108,6 +1195,126 @@ void paint_relief(int x_camera, int y_camera, int zoom) {
 	}
 }
 
+void paint_control(int x_camera, int y_camera, int zoom) {
+	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_control[i][j] == red) {
+				rectangle.setFillColor(red_color);
+				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(rectangle);
+
+			}
+			else if (matrix_control[i][j] == blue) {
+				rectangle.setFillColor(blue_color);
+				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(rectangle);
+
+			}
+
+
+		}
+	}
+}
+
+//заглушка
+void paint_supply(int x_camera, int y_camera, int zoom) {
+	const int road_1 = 0;
+	const int road_2 = 1;
+	const int angle = 90;
+	const int zero_angle = 0;
+	const int left = -1;
+	const int right = 1;
+	const int up = -1;
+	const int down = 1;
+	Vector2f scale = zoom_to_scale(zoom);
+
+	Sprite sprite_road_1;
+	Sprite sprite_road_2;
+
+	sprite_road_1.setTexture(textures_roads[road_1]);
+	sprite_road_1.setScale(scale);
+
+	sprite_road_2.setTexture(textures_roads[road_2]);
+	sprite_road_2.setScale(scale);
+
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_roads[i][j] == rail_road) {
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
+					matrix_roads[i + right][j] == null and matrix_roads[i  + left][j] == null){
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
+					matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
+					matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
+					matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
+					sprite_road_2.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j+down] == rail_road){
+					sprite_road_2.setRotation(angle);
+					sprite_road_2.setPosition((i+1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+					sprite_road_2.setRotation(2*angle);
+					sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, (j+1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+					sprite_road_2.setRotation(3 * angle);
+					sprite_road_2.setPosition((i) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				
+				sprite_road_1.setRotation(zero_angle);
+				sprite_road_2.setRotation(zero_angle);
+			}
+		}
+	}
+}
+
+void paint_grid(int x_camera, int y_camera, int zoom) {
+	VertexArray line(Lines, 2);
+	line[0].color = Color::Black;
+	line[1].color = Color::Black;
+	for (int i = 0; i < size_field_x; i++) {
+		line[0].position = sf::Vector2f(i * size_cell * zoom + x_camera, 0);
+		line[1].position = sf::Vector2f(i * size_cell * zoom + x_camera, size_window_y);
+		window.draw(line);
+		line[0].position = sf::Vector2f(0, i * size_cell * zoom + y_camera);
+		line[1].position = sf::Vector2f(size_window_x, i * size_cell * zoom + y_camera);
+		window.draw(line);
+	}
+}
+
 void paint_resource(int x_camera, int y_camera, int zoom) {
 	Vector2f scale = zoom_to_scale(zoom);
 
@@ -1122,7 +1329,6 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 	sprite_coal.setTexture(textures_resources[coal]);
 	sprite_coal.setScale(scale);
 
-	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			if (matrix_resources[i][j] == oil) {
@@ -1144,6 +1350,26 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
+
+//заглушка
+void paint_builds(int x_camera, int y_camera, int zoom) {
+	Vector2f scale = zoom_to_scale(zoom);
+
+	Sprite sprite_town;
+
+	sprite_town.setTexture(textures_builds[town]);
+	sprite_town.setScale(scale);
+
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_builds[i][j] == town) {
+				sprite_town.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_town);
+			}
+		}
+	}
+}
+
 // Костыль отрисовки юнитов
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
@@ -1195,42 +1421,6 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	}
 }
 
-void paint_control(int x_camera, int y_camera, int zoom) {
-	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
-	for (int i = 0; i < size_field_x; i++) {
-		for (int j = 0; j < size_field_y; j++) {
-			if (matrix_control[i][j] == red) {
-				rectangle.setFillColor(red_color);
-				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(rectangle);
-
-			}
-			else if (matrix_control[i][j] == blue) {
-				rectangle.setFillColor(blue_color);
-				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(rectangle);
-
-			}
-
-
-		}
-	}
-}
-
-void paint_grid(int x_camera, int y_camera, int zoom) {
-	VertexArray line(Lines, 2);
-	line[0].color = Color::Black;
-	line[1].color = Color::Black;
-	for (int i = 0; i < size_field_x; i++) {
-		line[0].position = sf::Vector2f(i * size_cell * zoom + x_camera, 0);
-		line[1].position = sf::Vector2f(i * size_cell * zoom + x_camera, size_window_y);
-		window.draw(line);
-		line[0].position = sf::Vector2f(0, i * size_cell * zoom + y_camera);
-		line[1].position = sf::Vector2f(size_window_x, i * size_cell * zoom + y_camera);
-		window.draw(line);
-	}
-}
-
 void paint_map_mode() {
 	const int size_rectangle_mode_on = 200;
 	
@@ -1257,6 +1447,7 @@ void paint_map_mode() {
 	
 
 }
+
 void paint_player_bar() {
 	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
 	rectangle2.setFillColor({ 100, 100 ,100 });
@@ -1269,11 +1460,17 @@ void paint_game(int x_camera, int y_camera, int zoom) {
 	if (matrix_mode[control_mode]) {
 		paint_control(x_camera, y_camera, zoom);
 	}
+	if (matrix_mode[supply_mode]) {
+		paint_supply(x_camera, y_camera, zoom);
+	}
 	if (matrix_mode[grid_mode]) {
 		paint_grid(x_camera, y_camera, zoom);
 	}
 	if (matrix_mode[resources_mode]) {
 		paint_resource(x_camera, y_camera, zoom);
+	}
+	if (matrix_mode[builds_mode]) {
+		paint_builds(x_camera, y_camera, zoom);
 	}
 	if (matrix_mode[unit_mode]) {
 		paint_units(x_camera, y_camera, zoom);
@@ -1346,8 +1543,14 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 // Костыль нажатия левой кнопки для выбора юнита
 void game() {
 	string last_bind = "none";
+	create_matrix_roads();
+	genetate_resource();
+	create_matrix_control();
+	create_matrix_mode();
+	matrix_unit_to_zero();
 	load_texture();
 	generate_relief();
+	generate_towns();
 	int x_camera = 0;
 	int y_camera = 0;
 	int zoom = 4;
@@ -1422,11 +1625,6 @@ void game() {
 
 int main()
 {
-	genetate_resource();
-	create_matrix_control();
-	create_matrix_mode();
-	matrix_unit_to_zero();
-
 	game();
 	return 0;
 }
