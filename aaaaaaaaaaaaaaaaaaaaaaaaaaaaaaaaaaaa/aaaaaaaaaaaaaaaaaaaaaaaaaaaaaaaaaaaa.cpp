@@ -715,6 +715,7 @@ void create_matrix_roads() {
 	matrix_roads[4][10] = rail_road;
 	matrix_roads[3][10] = rail_road;
 
+	matrix_roads[1][1] = rail_road;
 	matrix_roads[2][1] = rail_road;
 	matrix_roads[1][2] = rail_road;
 	matrix_roads[2][2] = rail_road;
@@ -722,6 +723,23 @@ void create_matrix_roads() {
 	matrix_roads[3][2] = rail_road;
 	matrix_roads[3][3] = rail_road;
 	matrix_roads[3][4] = rail_road;
+	matrix_roads[4][3] = rail_road;
+	matrix_roads[6][3] = rail_road;
+	matrix_roads[7][3] = rail_road;
+	matrix_roads[8][3] = rail_road;
+	matrix_roads[9][3] = rail_road;
+	matrix_roads[10][3] = rail_road;
+
+	matrix_roads[3][5] = rail_road;
+	matrix_roads[3][6] = rail_road;
+	matrix_roads[3][7] = rail_road;
+	matrix_roads[3][8] = rail_road;
+	matrix_roads[3][9] = rail_road;
+
+	matrix_roads[1][0] = rail_road;
+	matrix_roads[0][0] = rail_road;
+
+	matrix_roads[20][20] = rail_road;
 }
 
 void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
@@ -1133,6 +1151,18 @@ void load_texture() {
 	road_2_textures.loadFromImage(image_road_2);
 	textures_roads.push_back(road_2_textures);
 
+	Image image_road_3;
+	Texture road_3_textures;
+	image_road_3.loadFromFile("road_3.png");
+	road_3_textures.loadFromImage(image_road_3);
+	textures_roads.push_back(road_3_textures);
+
+	Image image_road_4;
+	Texture road_4_textures;
+	image_road_4.loadFromFile("road_4.png");
+	road_4_textures.loadFromImage(image_road_4);
+	textures_roads.push_back(road_4_textures);
+
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1221,6 +1251,8 @@ void paint_control(int x_camera, int y_camera, int zoom) {
 void paint_supply(int x_camera, int y_camera, int zoom) {
 	const int road_1 = 0;
 	const int road_2 = 1;
+	const int road_3 = 2;
+	const int road_4 = 3;
 	const int angle = 90;
 	const int zero_angle = 0;
 	const int left = -1;
@@ -1231,6 +1263,8 @@ void paint_supply(int x_camera, int y_camera, int zoom) {
 
 	Sprite sprite_road_1;
 	Sprite sprite_road_2;
+	Sprite sprite_road_3;
+	Sprite sprite_road_4;
 
 	sprite_road_1.setTexture(textures_roads[road_1]);
 	sprite_road_1.setScale(scale);
@@ -1238,65 +1272,133 @@ void paint_supply(int x_camera, int y_camera, int zoom) {
 	sprite_road_2.setTexture(textures_roads[road_2]);
 	sprite_road_2.setScale(scale);
 
+	sprite_road_3.setTexture(textures_roads[road_3]);
+	sprite_road_3.setScale(scale);
+
+	sprite_road_4.setTexture(textures_roads[road_4]);
+	sprite_road_4.setScale(scale);
+
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
-			if (matrix_roads[i][j] == rail_road) {
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
-					matrix_roads[i + right][j] == null and matrix_roads[i  + left][j] == null){
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
-					matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
-					sprite_road_1.setRotation(angle);
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
-					matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
-					sprite_road_1.setRotation(angle);
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
-					matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
-					sprite_road_1.setRotation(angle);
-					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_1);
-				}
-
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
-					sprite_road_2.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_2);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j+down] == rail_road){
-					sprite_road_2.setRotation(angle);
-					sprite_road_2.setPosition((i+1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-					window.draw(sprite_road_2);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-					sprite_road_2.setRotation(2*angle);
-					sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, (j+1) * size_cell * zoom + y_camera);
-					window.draw(sprite_road_2);
-				}
-				if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-					sprite_road_2.setRotation(3 * angle);
-					sprite_road_2.setPosition((i) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
-					window.draw(sprite_road_2);
-				}
-				
-				sprite_road_1.setRotation(zero_angle);
-				sprite_road_2.setRotation(zero_angle);
+			// 1 слой
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == null and matrix_roads[i][j + down] == null and
+				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
+				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
 			}
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + right][j] == null and matrix_roads[i  + left][j] == null){
+				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
+				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
+				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
+				sprite_road_1.setRotation(angle);
+				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
+				sprite_road_1.setRotation(angle);
+				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
+				sprite_road_1.setRotation(angle);
+				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_1);
+			}
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
+				sprite_road_2.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_2);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j+down] == rail_road){
+				sprite_road_2.setRotation(angle);
+				sprite_road_2.setPosition((i+1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_2);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_2.setRotation(2*angle);
+				sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, (j+1) * size_cell * zoom + y_camera);
+				window.draw(sprite_road_2);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_2.setRotation(3 * angle);
+				sprite_road_2.setPosition((i) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+				window.draw(sprite_road_2);
+			}
+				
+			// 2 слой
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + right][j] == null and matrix_roads[i + left][j] == null) {
+				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
+				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
+				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
+				sprite_road_3.setRotation(angle);
+				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
+				sprite_road_3.setRotation(angle);
+				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
+				matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
+				sprite_road_3.setRotation(angle);
+				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_3);
+			}
+
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
+				sprite_road_4.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_4);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
+				sprite_road_4.setRotation(angle);
+				sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_road_4);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_4.setRotation(2 * angle);
+				sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+				window.draw(sprite_road_4);
+			}
+			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
+				sprite_road_4.setRotation(3 * angle);
+				sprite_road_4.setPosition((i)*size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+				window.draw(sprite_road_4);
+			}
+
+			sprite_road_1.setRotation(zero_angle);
+			sprite_road_2.setRotation(zero_angle);
+			sprite_road_3.setRotation(zero_angle);
+			sprite_road_4.setRotation(zero_angle);
 		}
 	}
 }
