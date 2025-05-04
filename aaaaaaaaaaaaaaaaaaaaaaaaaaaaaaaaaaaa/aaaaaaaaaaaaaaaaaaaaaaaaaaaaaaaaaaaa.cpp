@@ -715,6 +715,7 @@ void create_matrix_roads() {
 	matrix_roads[4][10] = rail_road;
 	matrix_roads[3][10] = rail_road;
 
+	matrix_roads[3][1] = rail_road;
 	matrix_roads[1][1] = rail_road;
 	matrix_roads[2][1] = rail_road;
 	matrix_roads[1][2] = rail_road;
