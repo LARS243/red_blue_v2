@@ -21,8 +21,8 @@ const int size_window_y = 1000;
 const int player_bar_size_y = 200;
 const int player_bar_size_x = 300;
 
-const int size_field_x = 60;
-const int size_field_y = 30;
+const int size_field_x = 57;
+const int size_field_y = 28;
 const int max_zoom = 4;
 const int min_zoom = 1;
 const int size_cell = 30;
@@ -1345,7 +1345,6 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 }
 // Костыль нажатия левой кнопки для выбора юнита
 void game() {
-
 	string last_bind = "none";
 	load_texture();
 	generate_relief();
@@ -1413,7 +1412,6 @@ void game() {
 			}
 			if (event.type == Event::Closed)
 				window.close();
-
 			old_mousePos = Mouse::getPosition(window);
 		}
 		paint_game(x_camera, y_camera, zoom);
