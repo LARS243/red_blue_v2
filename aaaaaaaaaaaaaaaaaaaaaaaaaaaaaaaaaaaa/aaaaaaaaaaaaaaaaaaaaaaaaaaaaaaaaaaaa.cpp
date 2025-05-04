@@ -48,8 +48,22 @@ const int null_res = 3;
 
 const int null = -1;
 const int town = 0;
+const int blue_base = 1;
+const int factory_car = 2;
+const int factory_dop = 3;
+const int factory_fuel = 4;
+const int factory_rifle = 5;
+const int factory_steel = 6;
+const int factory_tank = 7;
+const int millitary_storage = 8;
+const int mine = 9;
+const int oil_tower = 10;
+const int red_base = 11;
+const int storage = 12;
+const int supply_center = 13;
 
 const int rail_road = 0;
+
 
 const int neutral = 0;
 const int red = 1;
@@ -83,6 +97,105 @@ int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
+
+class Player_res {
+private:
+	int steel_;
+	int iron_;
+	int coal_;
+	int oil_;
+	int fuel_;
+	int rifle_;
+	int dop_;
+	int car_;
+	int tank_;
+	int anti_tank_;
+	int max_res;
+	int max_eq;
+
+public:
+	Player_res() {
+		steel_ = 10;
+		iron_ = 0;
+		coal_ = 0;
+		oil_ = 0;
+		fuel_ = 0;
+		rifle_ = 0;
+		dop_ = 0;
+		car_ = 0;
+		tank_ = 0;
+		anti_tank_ = 0;
+		max_res = 20;
+		max_eq = 20;
+	}
+	int get_steel() {
+		return steel_;
+	}
+	int get_iron() {
+		return iron_;
+	}
+	int get_oil() {
+		return oil_;
+	}
+	int get_fuel() {
+		return fuel_;
+	}
+	int get_rifle() {
+		return rifle_;
+	}
+	int get_dop() {
+		return dop_;
+	}
+	int get_car() {
+		return car_;
+	}
+	int get_tank() {
+		return tank_;
+	}
+	int get_anti_tank() {
+		return anti_tank_;
+	}
+	int get_max_res() {
+		return max_res;
+	}
+	int get_max_eq() {
+		return max_eq;
+	}
+
+	void set_steel(int new_steel_) {
+		steel_ = new_steel_;
+	}
+	void set_iron(int new_iron_) {
+		iron_ = new_iron_;
+	}
+	void set_oil(int new_oil_) {
+		oil_ = new_oil_;
+	}
+	void set_fuel(int new_fuel_) {
+		fuel_ = new_fuel_;
+	}
+	void set_rifle(int new_rifle_) {
+		rifle_ = new_rifle_;
+	}
+	void set_dop(int new_dop_) {
+		 dop_ = new_dop_;
+	}
+	void set_car(int new_car_) {
+		 car_ = new_car_;
+	}
+	void set_tank(int new_tank_) {
+		 tank_ = new_tank_;
+	}
+	void set_anti_tank(int new_anti_tank_) {
+		 anti_tank_ = new_anti_tank_;
+	}
+	void set_max_res(int new_max_res) {
+		 max_res = new_max_res;
+	}
+	void set_max_eq(int new_max_eq) {
+		 max_eq = new_max_eq;
+	}
+};
 
 /*
 Не использовать имена
@@ -716,10 +829,8 @@ void create_matrix_roads() {
 	matrix_roads[3][10] = rail_road;
 
 	matrix_roads[3][1] = rail_road;
-	matrix_roads[1][1] = rail_road;
 	matrix_roads[2][1] = rail_road;
 	matrix_roads[1][2] = rail_road;
-	matrix_roads[2][2] = rail_road;
 	matrix_roads[2][3] = rail_road;
 	matrix_roads[3][2] = rail_road;
 	matrix_roads[3][3] = rail_road;
@@ -737,8 +848,6 @@ void create_matrix_roads() {
 	matrix_roads[3][8] = rail_road;
 	matrix_roads[3][9] = rail_road;
 
-	matrix_roads[1][0] = rail_road;
-	matrix_roads[0][0] = rail_road;
 
 	matrix_roads[20][20] = rail_road;
 }
@@ -1019,6 +1128,11 @@ void generate_towns() {
 		}
 	}
 	reflect_reliesf(matrix_builds);
+	matrix_builds[1][1] = red_base;
+	matrix_builds[size_field_x - 2][size_field_y - 2] = blue_base;
+	for (int i = 0; i < 14; i++) {
+		matrix_builds[20 + i][10] = i;
+	}
 }
 
 Color get_color(int color) {
@@ -1164,6 +1278,83 @@ void load_texture() {
 	road_4_textures.loadFromImage(image_road_4);
 	textures_roads.push_back(road_4_textures);
 
+	Image image_blue_base;
+	Texture blue_base_textures;
+	image_blue_base.loadFromFile("blue_base.png");
+	blue_base_textures.loadFromImage(image_blue_base);
+	textures_builds.push_back(blue_base_textures);
+
+	Image image_factory_car;
+	Texture factory_car_textures;
+	image_factory_car.loadFromFile("factory_car.png");
+	factory_car_textures.loadFromImage(image_factory_car);
+	textures_builds.push_back(factory_car_textures);
+
+	Image image_factory_dop;
+	Texture factory_dop_textures;
+	image_factory_dop.loadFromFile("factory_dop.png");
+	factory_dop_textures.loadFromImage(image_factory_dop);
+	textures_builds.push_back(factory_dop_textures);
+
+	Image image_factory_fuel;
+	Texture factory_fuel_textures;
+	image_factory_fuel.loadFromFile("factory_fuel.png");
+	factory_fuel_textures.loadFromImage(image_factory_fuel);
+	textures_builds.push_back(factory_fuel_textures);
+
+	Image image_factory_rifle;
+	Texture factory_rifle_textures;
+	image_factory_rifle.loadFromFile("factory_rifle.png");
+	factory_rifle_textures.loadFromImage(image_factory_rifle);
+	textures_builds.push_back(factory_rifle_textures);
+
+	Image image_factory_steel;
+	Texture factory_steel_textures;
+	image_factory_steel.loadFromFile("factory_steel.png");
+	factory_steel_textures.loadFromImage(image_factory_steel);
+	textures_builds.push_back(factory_steel_textures);
+
+	Image image_factory_tank;
+	Texture factory_tank_textures;
+	image_factory_tank.loadFromFile("factory_tank.png");
+	factory_tank_textures.loadFromImage(image_factory_tank);
+	textures_builds.push_back(factory_tank_textures);
+
+	Image image_millitary_storage;
+	Texture millitary_storage_textures;
+	image_millitary_storage.loadFromFile("millitary_storage.png");
+	millitary_storage_textures.loadFromImage(image_millitary_storage);
+	textures_builds.push_back(millitary_storage_textures);
+
+	Image image_mine;
+	Texture mine_textures;
+	image_mine.loadFromFile("mine.png");
+	mine_textures.loadFromImage(image_mine);
+	textures_builds.push_back(mine_textures);
+
+	Image image_oil_tower;
+	Texture oil_tower_textures;
+	image_oil_tower.loadFromFile("oil_tower.png");
+	oil_tower_textures.loadFromImage(image_oil_tower);
+	textures_builds.push_back(oil_tower_textures);
+
+	Image image_red_base;
+	Texture red_base_textures;
+	image_red_base.loadFromFile("red_base.png");
+	red_base_textures.loadFromImage(image_red_base);
+	textures_builds.push_back(red_base_textures);
+
+	Image image_storage;
+	Texture storage_textures;
+	image_storage.loadFromFile("storage.png");
+	storage_textures.loadFromImage(image_storage);
+	textures_builds.push_back(storage_textures);
+
+	Image image_supply_center;
+	Texture supply_center_textures;
+	image_supply_center.loadFromFile("supply_center.png");
+	supply_center_textures.loadFromImage(image_supply_center);
+	textures_builds.push_back(supply_center_textures);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1457,17 +1648,108 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 //заглушка
 void paint_builds(int x_camera, int y_camera, int zoom) {
 	Vector2f scale = zoom_to_scale(zoom);
-
 	Sprite sprite_town;
+	Sprite sprite_blue_base;
+	Sprite sprite_factory_car;
+	Sprite sprite_factory_dop;
+	Sprite sprite_factory_fuel;
+	Sprite sprite_factory_rifle;
+	Sprite sprite_factory_steel;
+	Sprite sprite_factory_tank;
+	Sprite sprite_millitary_storage;
+	Sprite sprite_mine;
+	Sprite sprite_oil_tower;
+	Sprite sprite_red_base;
+	Sprite sprite_storage;
+	Sprite sprite_supply_center;
 
 	sprite_town.setTexture(textures_builds[town]);
 	sprite_town.setScale(scale);
+	sprite_blue_base.setTexture(textures_builds[blue_base]);
+	sprite_blue_base.setScale(scale);
+	sprite_factory_car.setTexture(textures_builds[factory_car]);
+	sprite_factory_car.setScale(scale);
+	sprite_factory_dop.setTexture(textures_builds[factory_dop]);
+	sprite_factory_dop.setScale(scale);
+	sprite_factory_fuel.setTexture(textures_builds[factory_fuel]);
+	sprite_factory_fuel.setScale(scale);
+	sprite_factory_rifle.setTexture(textures_builds[factory_rifle]);
+	sprite_factory_rifle.setScale(scale);
+	sprite_factory_steel.setTexture(textures_builds[factory_steel]);
+	sprite_factory_steel.setScale(scale);
+	sprite_factory_tank.setTexture(textures_builds[factory_tank]);
+	sprite_factory_tank.setScale(scale);
+	sprite_millitary_storage.setTexture(textures_builds[millitary_storage]);
+	sprite_millitary_storage.setScale(scale);
+	sprite_mine.setTexture(textures_builds[mine]);
+	sprite_mine.setScale(scale);
+	sprite_oil_tower.setTexture(textures_builds[oil_tower]);
+	sprite_oil_tower.setScale(scale);
+	sprite_red_base.setTexture(textures_builds[red_base]);
+	sprite_red_base.setScale(scale);
+	sprite_storage.setTexture(textures_builds[storage]);
+	sprite_storage.setScale(scale);
+	sprite_supply_center.setTexture(textures_builds[supply_center]);
+	sprite_supply_center.setScale(scale);
 
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			if (matrix_builds[i][j] == town) {
 				sprite_town.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				window.draw(sprite_town);
+			}
+			if (matrix_builds[i][j] == blue_base) {
+				sprite_blue_base.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_blue_base);
+			}
+			if (matrix_builds[i][j] == factory_car) {
+				sprite_factory_car.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_car);
+			}
+			if (matrix_builds[i][j] == factory_dop) {
+				sprite_factory_dop.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_dop);
+			}
+			if (matrix_builds[i][j] == factory_fuel) {
+				sprite_factory_fuel.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_fuel);
+			}
+			if (matrix_builds[i][j] == factory_rifle) {
+				sprite_factory_rifle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_rifle);
+
+			}
+			if (matrix_builds[i][j] == factory_steel) {
+				sprite_factory_steel.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_steel);
+			}
+			if (matrix_builds[i][j] == factory_tank) {
+				sprite_factory_tank.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_factory_tank);
+			}
+			if (matrix_builds[i][j] == millitary_storage) {
+				sprite_millitary_storage.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_millitary_storage);
+			}
+			if (matrix_builds[i][j] == mine) {
+				sprite_mine.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_mine);
+			}
+			if (matrix_builds[i][j] == oil_tower) {
+				sprite_oil_tower.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_oil_tower);
+			}
+			if (matrix_builds[i][j] == red_base) {
+				sprite_red_base.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_red_base);
+			}
+			if (matrix_builds[i][j] == storage) {
+				sprite_storage.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_storage);
+			}
+			if (matrix_builds[i][j] == supply_center) {
+				sprite_supply_center.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_supply_center);
 			}
 		}
 	}
