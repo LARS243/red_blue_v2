@@ -850,6 +850,8 @@ void create_matrix_roads() {
 
 
 	matrix_roads[20][20] = rail_road;
+	matrix_roads[56][27] = rail_road;
+	matrix_roads[55][27] = rail_road;
 }
 
 void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
@@ -1959,7 +1961,7 @@ void game() {
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
 				Vector2i mousePos = Mouse::getPosition(window);
-				if (mousePos.y < size_window_y - player_bar_size_y) {
+				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_y - player_bar_size_x) {
 					select_element(event, zoom, x_camera, y_camera);
 				}
 				else {
