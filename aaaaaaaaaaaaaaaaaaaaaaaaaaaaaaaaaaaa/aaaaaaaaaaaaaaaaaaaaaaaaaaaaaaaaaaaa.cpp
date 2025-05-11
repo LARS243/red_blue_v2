@@ -1942,9 +1942,8 @@ void algorithm_path(vector <int>& coord, vector <int>& coord_saved_unit) {
 	}
 }
 
-//and coord[0] != coord_saved_unit[0] and coord[1] != coord_saved_unit[1]
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
-	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and (coord[0] == coord_saved_unit[0] or coord[1] == coord_saved_unit[1])) {
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
 		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
 			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
 			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
