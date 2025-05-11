@@ -7,6 +7,7 @@
 using namespace std;
 using namespace sf;
 
+const int ID_no_select = -1;
 const int ID_black_hole = 0;
 const int ID_construction = 1;
 const int ID_tank = 2;
@@ -96,6 +97,7 @@ int matrix_resources[size_field_x][size_field_y];
 int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
+int matrix_path[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
 
 class Player_res {
@@ -1149,14 +1151,17 @@ Color get_color(int color) {
 	}
 }
 
-void matrix_unit_to_zero() {
+void matrix_unit_to_zero() {//Удалить говно
 	for (int i = 0; i < size_field_x; i++)
 	{
 		for (int j = 0; j < size_field_y; j++)
 		{
 			matrix_units_id[i][j] = ID_black_hole;
+			matrix_path[i][j] = ID_black_hole;
 		}
 	}
+	matrix_units_id[25][14] = ID_infantry;
+	matrix_units_points[25][14] = new buffer(ID_infantry);
 }
 
 void load_texture() {
@@ -1927,8 +1932,44 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 	coord.push_back((mousePos.y - y_camera) / (size_cell * zoom));
 	return coord;
 }
+
+void algorithm_path(vector <int>& coord, vector <int>& coord_saved_unit) {
+	if (coord[0] == coord_saved_unit[0] and coord[1] == coord_saved_unit[1]) {
+
+	}
+	else {
+
+	}
+}
+
+//and coord[0] != coord_saved_unit[0] and coord[1] != coord_saved_unit[1]
+void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and (coord[0] == coord_saved_unit[0] or coord[1] == coord_saved_unit[1])) {
+		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
+			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
+			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			algorithm_path(coord, coord_saved_unit);
+		}
+	}
+	else {
+		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {//Сюда впишешь отрисовку стат юнита
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			algorithm_path(coord, coord_saved_unit);
+		}
+	}
+}
+
+
+
 // Костыль нажатия левой кнопки для выбора юнита
 void game() {
+	vector <int> coord_saved_unit{-1, -1};
+	vector <int> coord_unit;
 	string last_bind = "none";
 	create_matrix_roads();
 	genetate_resource();
@@ -1961,8 +2002,11 @@ void game() {
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
 				Vector2i mousePos = Mouse::getPosition(window);
-				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_y - player_bar_size_x) {
-					select_element(event, zoom, x_camera, y_camera);
+				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_x - player_bar_size_x) {
+					coord_unit = select_element(event, zoom, x_camera, y_camera);
+					if (matrix_mode[unit_mode]) {
+						select_unit(coord_unit, coord_saved_unit);
+					}
 				}
 				else {
 					matrix_mode[(mousePos.x - 11) / size_step_mode] = not matrix_mode[(mousePos.x - 11) / size_step_mode];
