@@ -1,6 +1,7 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
+#include <sstream>
 #include <iostream>
 #include <vector>
 #include <ctime>
@@ -28,6 +29,7 @@ const int min_zoom = 1;
 const int size_cell = 30;
 
 const int count_mode = 6;
+const int count_player_bar = 4;
 
 const int control_mode = 0;
 const int supply_mode = 1;
@@ -62,8 +64,12 @@ const int red_base = 11;
 const int storage = 12;
 const int supply_center = 13;
 
-const int rail_road = 0;
+const int build_menu = 0;
+const int res_menu = 1;
+const int weap_menu = 2;
+const int unit_build_menu = 3;
 
+const int rail_road = 0;
 
 const int neutral = 0;
 const int red = 1;
@@ -89,6 +95,7 @@ vector<Texture> textures_blue_units;
 vector<Texture> textures_modes;
 vector<Texture> textures_builds;
 vector<Texture> textures_roads;
+vector<Texture> textures_player_bar;
 
 int matrix_relief[size_field_x][size_field_y];
 int matrix_units_id[size_field_x][size_field_y];
@@ -97,6 +104,12 @@ int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
+bool matrix_player_bar[count_player_bar];
+
+const int red_player = 0;
+const int blue_player = 1;
+int player = red_player;
+
 
 class Player_res {
 private:
@@ -105,11 +118,13 @@ private:
 	int coal_;
 	int oil_;
 	int fuel_;
+
 	int rifle_;
 	int dop_;
 	int car_;
 	int tank_;
 	int anti_tank_;
+
 	int max_res;
 	int max_eq;
 
@@ -134,12 +149,16 @@ public:
 	int get_iron() {
 		return iron_;
 	}
+	int get_coal(){
+		return coal_;
+	}
 	int get_oil() {
 		return oil_;
 	}
 	int get_fuel() {
 		return fuel_;
 	}
+
 	int get_rifle() {
 		return rifle_;
 	}
@@ -155,6 +174,7 @@ public:
 	int get_anti_tank() {
 		return anti_tank_;
 	}
+
 	int get_max_res() {
 		return max_res;
 	}
@@ -174,6 +194,7 @@ public:
 	void set_fuel(int new_fuel_) {
 		fuel_ = new_fuel_;
 	}
+
 	void set_rifle(int new_rifle_) {
 		rifle_ = new_rifle_;
 	}
@@ -189,6 +210,7 @@ public:
 	void set_anti_tank(int new_anti_tank_) {
 		 anti_tank_ = new_anti_tank_;
 	}
+
 	void set_max_res(int new_max_res) {
 		 max_res = new_max_res;
 	}
@@ -1132,9 +1154,7 @@ void generate_towns() {
 	reflect_reliesf(matrix_builds);
 	matrix_builds[1][1] = red_base;
 	matrix_builds[size_field_x - 2][size_field_y - 2] = blue_base;
-	for (int i = 0; i < 14; i++) {
-		matrix_builds[20 + i][10] = i;
-	}
+	
 }
 
 Color get_color(int color) {
@@ -1357,6 +1377,30 @@ void load_texture() {
 	image_supply_center.loadFromFile("supply_center.png");
 	supply_center_textures.loadFromImage(image_supply_center);
 	textures_builds.push_back(supply_center_textures);
+
+	Image image_building;
+	Texture building_textures;
+	image_building.loadFromFile("building.png");
+	building_textures.loadFromImage(image_building);
+	textures_player_bar.push_back(building_textures);
+
+	Image image_res_list;
+	Texture res_list_textures;
+	image_res_list.loadFromFile("res_list.png");
+	res_list_textures.loadFromImage(image_res_list);
+	textures_player_bar.push_back(res_list_textures);
+
+	Image image_weap_list;
+	Texture weap_list_textures;
+	image_weap_list.loadFromFile("weap_res.png");
+	weap_list_textures.loadFromImage(image_weap_list);
+	textures_player_bar.push_back(weap_list_textures);
+
+	Image image_unit_building;
+	Texture unit_building_textures;
+	image_unit_building.loadFromFile("unit_building.png");
+	unit_building_textures.loadFromImage(image_unit_building);
+	textures_player_bar.push_back(unit_building_textures);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1440,7 +1484,6 @@ void paint_control(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-
 //заглушка
 void paint_supply(int x_camera, int y_camera, int zoom) {
 	const int road_1 = 0;
@@ -1646,7 +1689,6 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-
 //заглушка
 void paint_builds(int x_camera, int y_camera, int zoom) {
 	Vector2f scale = zoom_to_scale(zoom);
@@ -1756,7 +1798,6 @@ void paint_builds(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-
 // Костыль отрисовки юнитов
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
@@ -1835,11 +1876,67 @@ void paint_map_mode() {
 
 }
 
+void paint_main_menu() {
+	Sprite sprite_mode;
+	for (int i = 0; i < count_player_bar; i++) {
+		sprite_mode.setTexture(textures_player_bar[i]);
+		sprite_mode.setScale({ 0.8, 0.8 });
+		sprite_mode.setPosition(size_window_x - player_bar_size_x + 38, 250 * i + 15);
+		window.draw(sprite_mode);
+
+	}
+}
+
+void paint_res_menu() {
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+
+	int test__ = 13;
+	std::ostringstream buffer;    // объявили переменную
+	
+	for (int i = 0; i < 5; i++) {
+		buffer << test__;
+		text.setString(buffer.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x/3, size_window_y / 5 * i + 50);
+		window.draw(text);
+	}
+	
+
+}
+
+void change_menu(){
+	if (matrix_player_bar[res_menu]) {
+		paint_res_menu();
+	}
+	else {
+		paint_main_menu();
+	}
+}
+
 void paint_player_bar() {
 	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
 	rectangle2.setFillColor({ 100, 100 ,100 });
 	rectangle2.setPosition(size_window_x - player_bar_size_x, 0);
 	window.draw(rectangle2);
+	if (player == red_player) {
+		RectangleShape rectangle1(Vector2f(player_bar_size_x, size_window_y));
+		rectangle1.setFillColor(red_color);
+		rectangle1.setPosition(size_window_x - player_bar_size_x, 0);
+		window.draw(rectangle1);
+	}
+	else {
+		RectangleShape rectangle1(Vector2f(player_bar_size_x, size_window_y));
+		rectangle1.setFillColor(blue_color);
+		rectangle1.setPosition(size_window_x - player_bar_size_x, 0);
+		window.draw(rectangle1);
+
+	}
+	change_menu();
+	
+	
 }
 
 void paint_game(int x_camera, int y_camera, int zoom) {
@@ -1929,6 +2026,8 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 }
 // Костыль нажатия левой кнопки для выбора юнита
 void game() {
+	Player_res Blue_player;
+	Player_res Red_player;
 	string last_bind = "none";
 	create_matrix_roads();
 	genetate_resource();
@@ -1961,7 +2060,7 @@ void game() {
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
 				Vector2i mousePos = Mouse::getPosition(window);
-				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_y - player_bar_size_x) {
+				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_x - player_bar_size_x) {
 					select_element(event, zoom, x_camera, y_camera);
 				}
 				else {
@@ -1970,6 +2069,7 @@ void game() {
 				
 				last_bind = "left";
 			}
+
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) and last_bind != "control_mode")
 			{
 				matrix_mode[control_mode] = not matrix_mode[control_mode];
@@ -1999,6 +2099,46 @@ void game() {
 			{
 				matrix_mode[unit_mode] = not matrix_mode[unit_mode];
 				last_bind = "unit_mode";
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) and last_bind != "build_menu")
+			{
+				last_bind = "build_menu";
+				matrix_player_bar[build_menu] = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) and last_bind != "res_menu")
+			{
+				last_bind = "res_menu";
+				matrix_player_bar[res_menu] = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) and last_bind != "weap_menu")
+			{
+				last_bind = "weap_menu";
+				matrix_player_bar[weap_menu] = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) and last_bind != "unit_build_menu")
+			{
+				last_bind = "unit_build_menu";
+				matrix_player_bar[unit_build_menu] = true;
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and last_bind != "Space")
+			{
+				if (player == red_player) {
+					player = blue_player;
+				}
+				else {
+					player = red_player;
+				}
+				last_bind = "Space";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) and last_bind != "Escape")
+			{
+				matrix_player_bar[build_menu] = false;
+				matrix_player_bar[res_menu] = false;
+				matrix_player_bar[weap_menu] = false;
+				matrix_player_bar[unit_build_menu] = false;
+				last_bind = "Escape";
 			}
 			if (event.type == Event::Closed)
 				window.close();
