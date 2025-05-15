@@ -22,6 +22,9 @@ const int size_window_y = 1000;
 const int player_bar_size_y = 200;
 const int player_bar_size_x = 300;
 
+float window_zoom_x = 1;
+float window_zoom_y = 1;
+
 const int size_field_x = 57;
 const int size_field_y = 28;
 const int max_zoom = 4;
@@ -47,6 +50,8 @@ const int oil = 0;
 const int iron = 1;
 const int coal = 2;
 const int null_res = 3;
+const int steel = 4;
+const int fuel = 5;
 
 const int null = -1;
 const int town = 0;
@@ -187,6 +192,9 @@ public:
 	}
 	void set_iron(int new_iron_) {
 		iron_ = new_iron_;
+	}
+	void set_coal(int new_coal_) {
+		coal_ = new_coal_;
 	}
 	void set_oil(int new_oil_) {
 		oil_ = new_oil_;
@@ -1887,18 +1895,36 @@ void paint_main_menu() {
 	}
 }
 
-void paint_res_menu() {
+void paint_res_menu(Player_res player_color) {
 	Font font;
 	font.loadFromFile("ofont.ru_Arial.ttf");
 	Text text("", font, 40);
 	text.setStyle(sf::Text::Bold);
 	text.setColor(Color::Black);
 
-	int test__ = 13;
-	std::ostringstream buffer;    // объявили переменную
+	int get_res;
+	   // объявили переменную
 	
 	for (int i = 0; i < 5; i++) {
-		buffer << test__;
+		if (i == steel) {
+			get_res = player_color.get_steel();
+		}
+		else if (i == oil) {
+			get_res = player_color.get_oil();
+		}
+		else if (i == coal) {
+			get_res = player_color.get_coal();
+		}
+		else if (i == iron) {
+			get_res = player_color.get_iron();
+		}
+		else {
+			get_res = player_color.get_fuel();
+		}
+		std::ostringstream buffer;
+		buffer << get_res;
+		buffer << "/";
+		buffer << player_color.get_max_res();
 		text.setString(buffer.str());
 		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x/3, size_window_y / 5 * i + 50);
 		window.draw(text);
@@ -1907,16 +1933,16 @@ void paint_res_menu() {
 
 }
 
-void change_menu(){
+void change_menu(Player_res player_color){
 	if (matrix_player_bar[res_menu]) {
-		paint_res_menu();
+		paint_res_menu(player_color);
 	}
 	else {
 		paint_main_menu();
 	}
 }
 
-void paint_player_bar() {
+void paint_player_bar(Player_res player_color) {
 	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
 	rectangle2.setFillColor({ 100, 100 ,100 });
 	rectangle2.setPosition(size_window_x - player_bar_size_x, 0);
@@ -1934,12 +1960,12 @@ void paint_player_bar() {
 		window.draw(rectangle1);
 
 	}
-	change_menu();
+	change_menu(player_color);
 	
 	
 }
 
-void paint_game(int x_camera, int y_camera, int zoom) {
+void paint_game(int x_camera, int y_camera, int zoom, Player_res player_color) {
 	paint_relief(x_camera, y_camera, zoom);
 	if (matrix_mode[control_mode]) {
 		paint_control(x_camera, y_camera, zoom);
@@ -1960,7 +1986,7 @@ void paint_game(int x_camera, int y_camera, int zoom) {
 		paint_units(x_camera, y_camera, zoom);
 	}
 	paint_map_mode();
-	paint_player_bar();
+	paint_player_bar(player_color);
 
 }
 
@@ -2028,7 +2054,6 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 void game() {
 	Player_res Blue_player;
 	Player_res Red_player;
-	string last_bind = "none";
 	create_matrix_roads();
 	genetate_resource();
 	create_matrix_control();
@@ -2049,7 +2074,91 @@ void game() {
 		window.clear();
 		while (window.pollEvent(event))
 		{
+			if (event.type == sf::Event::Resized)
+			{
+				float new_window_zoom_x = event.size.width;
+				float new_window_zoom_y = event.size.height;
+				new_window_zoom_x = new_window_zoom_x / size_window_x;
+				new_window_zoom_y = new_window_zoom_y / size_window_y;
+				window_zoom_x = new_window_zoom_x;
+				window_zoom_y = new_window_zoom_y;
+			}
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Space)
+				{
+					if (player == red_player) {
+						player = blue_player;
+					}
+					else {
+						player = red_player;
+					}
+				}
 
+				if (event.key.code == sf::Keyboard::Num1)
+				{
+					matrix_mode[control_mode] = not matrix_mode[control_mode];
+				}
+				if (event.key.code == sf::Keyboard::Num2)
+				{
+					matrix_mode[supply_mode] = not matrix_mode[supply_mode];
+				}
+				if (event.key.code == sf::Keyboard::Num3)
+				{
+					matrix_mode[grid_mode] = not matrix_mode[grid_mode];
+				}
+				if (event.key.code == sf::Keyboard::Num4)
+				{
+					matrix_mode[resources_mode] = not matrix_mode[resources_mode];
+				}
+				if (event.key.code == sf::Keyboard::Num5)
+				{
+					matrix_mode[builds_mode] = not matrix_mode[builds_mode];
+				}
+				if (event.key.code == sf::Keyboard::Num6)
+				{
+					matrix_mode[unit_mode] = not matrix_mode[unit_mode];
+				}
+
+				if (event.key.code == sf::Keyboard::Q)
+				{
+					matrix_player_bar[build_menu] = true;
+				}
+				if (event.key.code == sf::Keyboard::W)
+				{
+					matrix_player_bar[res_menu] = true;
+				}
+				if (event.key.code == sf::Keyboard::E)
+				{
+					matrix_player_bar[weap_menu] = true;
+				}
+				if (event.key.code == sf::Keyboard::R)
+				{
+					matrix_player_bar[unit_build_menu] = true;
+				}
+
+				if (event.key.code == sf::Keyboard::Escape)
+				{
+					matrix_player_bar[build_menu] = false;
+					matrix_player_bar[res_menu] = false;
+					matrix_player_bar[weap_menu] = false;
+					matrix_player_bar[unit_build_menu] = false;
+				}
+			}
+			if (event.type == sf::Event::MouseButtonPressed)
+			{
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					Vector2i mousePos = Mouse::getPosition(window);
+					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
+						select_element(event, zoom, x_camera, y_camera);
+					}
+					else {
+						int coords = ((mousePos.x - 11 * window_zoom_x) / (size_step_mode * window_zoom_x));
+						matrix_mode[coords] = not matrix_mode[coords];
+					}
+				}
+			}
 			if (Mouse::isButtonPressed(Mouse::Middle)) {
 
 				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
@@ -2058,95 +2167,17 @@ void game() {
 
 				change_zoom(event, zoom, x_camera, y_camera);
 			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
-				Vector2i mousePos = Mouse::getPosition(window);
-				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_x - player_bar_size_x) {
-					select_element(event, zoom, x_camera, y_camera);
-				}
-				else {
-					matrix_mode[(mousePos.x - 11) / size_step_mode] = not matrix_mode[(mousePos.x - 11) / size_step_mode];
-				}
-				
-				last_bind = "left";
-			}
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) and last_bind != "control_mode")
-			{
-				matrix_mode[control_mode] = not matrix_mode[control_mode];
-				last_bind = "control_mode";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) and last_bind != "supply_mode")
-			{
-				matrix_mode[supply_mode] = not matrix_mode[supply_mode];
-				last_bind = "supply_mode";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) and last_bind != "grid_mode")
-			{
-				matrix_mode[grid_mode] = not matrix_mode[grid_mode];
-				last_bind = "grid_mode";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) and last_bind != "resources_mode")
-			{
-				matrix_mode[resources_mode] = not matrix_mode[resources_mode];
-				last_bind = "resources_mode";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5) and last_bind != "builds_mode")
-			{
-				matrix_mode[builds_mode] = not matrix_mode[builds_mode];
-				last_bind = "builds_mode";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6) and last_bind != "unit_mode")
-			{
-				matrix_mode[unit_mode] = not matrix_mode[unit_mode];
-				last_bind = "unit_mode";
-			}
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) and last_bind != "build_menu")
-			{
-				last_bind = "build_menu";
-				matrix_player_bar[build_menu] = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) and last_bind != "res_menu")
-			{
-				last_bind = "res_menu";
-				matrix_player_bar[res_menu] = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) and last_bind != "weap_menu")
-			{
-				last_bind = "weap_menu";
-				matrix_player_bar[weap_menu] = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) and last_bind != "unit_build_menu")
-			{
-				last_bind = "unit_build_menu";
-				matrix_player_bar[unit_build_menu] = true;
-			}
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and last_bind != "Space")
-			{
-				if (player == red_player) {
-					player = blue_player;
-				}
-				else {
-					player = red_player;
-				}
-				last_bind = "Space";
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) and last_bind != "Escape")
-			{
-				matrix_player_bar[build_menu] = false;
-				matrix_player_bar[res_menu] = false;
-				matrix_player_bar[weap_menu] = false;
-				matrix_player_bar[unit_build_menu] = false;
-				last_bind = "Escape";
-			}
 			if (event.type == Event::Closed)
 				window.close();
 			old_mousePos = Mouse::getPosition(window);
 		}
-		paint_game(x_camera, y_camera, zoom);
+		if (player == red_player) {
+			paint_game(x_camera, y_camera, zoom, Red_player);
+		}
+		else {
+			paint_game(x_camera, y_camera, zoom, Blue_player);
+		}
 		window.display();
-		last_bind = "none";
 	}
 }
 
