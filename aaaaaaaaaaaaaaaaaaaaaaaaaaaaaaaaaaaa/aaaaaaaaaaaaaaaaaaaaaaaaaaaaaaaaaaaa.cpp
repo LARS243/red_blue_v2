@@ -53,6 +53,12 @@ const int null_res = 3;
 const int steel = 4;
 const int fuel = 5;
 
+const int sup_steel = 0;
+const int sup_iron = 1;
+const int sup_coal = 2;
+const int sup_oil = 3;
+const int sup_fuel = 4;
+
 const int null = -1;
 const int town = 0;
 const int blue_base = 1;
@@ -101,6 +107,8 @@ vector<Texture> textures_modes;
 vector<Texture> textures_builds;
 vector<Texture> textures_roads;
 vector<Texture> textures_player_bar;
+vector<Texture> textures_sup_res;
+
 
 int matrix_relief[size_field_x][size_field_y];
 int matrix_units_id[size_field_x][size_field_y];
@@ -1409,6 +1417,36 @@ void load_texture() {
 	image_unit_building.loadFromFile("unit_building.png");
 	unit_building_textures.loadFromImage(image_unit_building);
 	textures_player_bar.push_back(unit_building_textures);
+
+	Image image_sup_steel;
+	Texture sup_steel_textures;
+	image_sup_steel.loadFromFile("sup_steel.png");
+	sup_steel_textures.loadFromImage(image_sup_steel);
+	textures_sup_res.push_back(sup_steel_textures);
+
+	Image image_sup_iron;
+	Texture sup_iron_textures;
+	image_sup_iron.loadFromFile("sup_iron.png");
+	sup_iron_textures.loadFromImage(image_sup_iron);
+	textures_sup_res.push_back(sup_iron_textures);
+
+	Image image_sup_coal;
+	Texture sup_coal_textures;
+	image_sup_coal.loadFromFile("sup_coal.png");
+	sup_coal_textures.loadFromImage(image_sup_coal);
+	textures_sup_res.push_back(sup_coal_textures);
+
+	Image image_sup_oil;
+	Texture sup_oil_textures;
+	image_sup_oil.loadFromFile("sup_oil.png");
+	sup_oil_textures.loadFromImage(image_sup_oil);
+	textures_sup_res.push_back(sup_oil_textures);
+
+	Image image_sup_fuel;
+	Texture sup_fuel_textures;
+	image_sup_fuel.loadFromFile("sup_fuel.png");
+	sup_fuel_textures.loadFromImage(image_sup_fuel);
+	textures_sup_res.push_back(sup_fuel_textures);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1901,33 +1939,36 @@ void paint_res_menu(Player_res player_color) {
 	Text text("", font, 40);
 	text.setStyle(sf::Text::Bold);
 	text.setColor(Color::Black);
-
 	int get_res;
-	   // объявили переменную
-	
+	Sprite sprite_res;
+	sprite_res.scale(3, 3);
 	for (int i = 0; i < 5; i++) {
-		if (i == steel) {
+		if (i == sup_steel) {
 			get_res = player_color.get_steel();
 		}
-		else if (i == oil) {
-			get_res = player_color.get_oil();
+		else if (i == sup_iron) {
+			get_res = player_color.get_iron();
 		}
-		else if (i == coal) {
+		else if (i == sup_coal) {
 			get_res = player_color.get_coal();
 		}
-		else if (i == iron) {
-			get_res = player_color.get_iron();
+		else if (i == sup_oil) {
+			get_res = player_color.get_oil();
 		}
 		else {
 			get_res = player_color.get_fuel();
 		}
+		sprite_res.setTexture(textures_sup_res[i]);
 		std::ostringstream buffer;
 		buffer << get_res;
 		buffer << "/";
 		buffer << player_color.get_max_res();
 		text.setString(buffer.str());
 		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x/3, size_window_y / 5 * i + 50);
+		sprite_res.setPosition(size_window_x - player_bar_size_x, size_window_y / 5 * i + 35);
+		
 		window.draw(text);
+		window.draw(sprite_res);
 	}
 	
 
@@ -2153,6 +2194,10 @@ void game() {
 					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
 						select_element(event, zoom, x_camera, y_camera);
 					}
+					else if (mousePos.x > (size_window_x - player_bar_size_x) * window_zoom_x) {
+						int coords = (mousePos.y / (250 * window_zoom_y));
+						matrix_player_bar[coords] = true;
+					}
 					else {
 						int coords = ((mousePos.x - 11 * window_zoom_x) / (size_step_mode * window_zoom_x));
 						matrix_mode[coords] = not matrix_mode[coords];
@@ -2183,7 +2228,6 @@ void game() {
 
 int main()
 {
-
 	game();
 	return 0;
 }
