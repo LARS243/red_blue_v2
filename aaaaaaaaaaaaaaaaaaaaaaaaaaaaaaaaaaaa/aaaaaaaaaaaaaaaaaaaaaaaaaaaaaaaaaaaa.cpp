@@ -75,6 +75,19 @@ const int red_base = 11;
 const int storage = 12;
 const int supply_center = 13;
 
+const int cost_factory_car = 0;
+const int cost_factory_dop = 1;
+const int cost_factory_fuel = 2;
+const int cost_factory_rifle = 3;
+const int cost_factory_tank = 4;
+const int cost_millitary_storage = 5;
+const int cost_factory_steel = 6;
+const int cost_mine = 7;
+const int cost_oil_tower = 8;
+const int cost_storage = 9;
+const int cost_supply_center = 10;
+const int cost_rail_road = 11;
+
 const int build_menu = 0;
 const int res_menu = 1;
 const int weap_menu = 2;
@@ -93,7 +106,7 @@ const int mount_infantry = 2;
 const Color field_color = { 40, 100, 0 };
 const Color forest_color = { 0,69,36 };
 const Color mount_color = { 150, 150, 150 };
-const Color black_for_Oleg = { 0, 0, 0 };//Потом делитнуть 
+const Color black_for_Oleg = { 0, 0, 0 };
 const Color red_color = { 255,0,0, 100 };
 const Color blue_color = { 0, 0, 255 , 100 };
 const Color green_color = { 0,169,36 };
@@ -116,6 +129,9 @@ int matrix_resources[size_field_x][size_field_y];
 int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
+
+int cost_buildings[cost_rail_road +1];
+
 bool matrix_mode[count_mode];
 bool matrix_player_bar[count_player_bar];
 
@@ -890,6 +906,21 @@ void create_matrix_roads() {
 	matrix_roads[20][20] = rail_road;
 	matrix_roads[56][27] = rail_road;
 	matrix_roads[55][27] = rail_road;
+}
+
+void create_cost_buildings() {
+	cost_buildings[cost_factory_car] = 10;
+	cost_buildings[cost_factory_dop] = 6;
+	cost_buildings[cost_factory_fuel] = 4;
+	cost_buildings[cost_factory_rifle] = 6;
+	cost_buildings[cost_factory_steel] = 4;
+	cost_buildings[cost_factory_tank] = 10;
+	cost_buildings[cost_millitary_storage] = 4;
+	cost_buildings[cost_mine] = 4;
+	cost_buildings[cost_oil_tower] = 4;
+	cost_buildings[cost_rail_road] = 2;
+	cost_buildings[cost_storage] = 4;
+	cost_buildings[cost_supply_center] = 6;
 }
 
 void reflect_reliesf(int matrix[size_field_x][size_field_y]) {
@@ -1959,7 +1990,7 @@ void paint_res_menu(Player_res player_color) {
 			get_res = player_color.get_fuel();
 		}
 		sprite_res.setTexture(textures_sup_res[i]);
-		std::ostringstream buffer;
+		ostringstream buffer;
 		buffer << get_res;
 		buffer << "/";
 		buffer << player_color.get_max_res();
@@ -1974,9 +2005,89 @@ void paint_res_menu(Player_res player_color) {
 
 }
 
+void paint_build_menu(Player_res player_color) {
+	Sprite sprite_builds;
+	sprite_builds.setScale(2, 2);
+	char binds[cost_rail_road + 2] = "QWERTYUIOPAS";
+	RectangleShape rectangle_cost(Vector2f(70, 70));
+	RectangleShape rectangle_blank_line(Vector2f(60, 60));
+	rectangle_blank_line.setFillColor(mount_color);
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	Text text_2("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+	text_2.setStyle(sf::Text::Bold);
+	text_2.setColor(Color::Black);
+	for (int i = 0; i <= cost_rail_road; i++) {
+		if (i == cost_factory_car) {
+			sprite_builds.setTexture(textures_builds[factory_car]);
+		}
+		if (i == cost_factory_dop) {
+			sprite_builds.setTexture(textures_builds[factory_dop]);
+		}
+		if (i == cost_factory_fuel) {
+			sprite_builds.setTexture(textures_builds[factory_fuel]);
+		}
+		if (i == cost_factory_rifle) {
+			sprite_builds.setTexture(textures_builds[factory_rifle]);
+		}
+		if (i == cost_factory_steel) {
+			sprite_builds.setTexture(textures_builds[factory_steel]);
+		}
+		if (i == cost_factory_tank) {
+			sprite_builds.setTexture(textures_builds[factory_tank]);
+		}
+		if (i == cost_millitary_storage) {
+			sprite_builds.setTexture(textures_builds[millitary_storage]);
+		}
+		if (i == cost_mine) {
+			sprite_builds.setTexture(textures_builds[mine]);
+		}
+		if (i == cost_oil_tower) {
+			sprite_builds.setTexture(textures_builds[oil_tower]);
+		}
+		if (i == cost_rail_road) {
+			sprite_builds.setTexture(textures_roads[0]);
+		}
+		if (i == cost_storage) {
+			sprite_builds.setTexture(textures_builds[storage]);
+		}
+		if (i == cost_supply_center) {
+			sprite_builds.setTexture(textures_builds[supply_center]);
+		}
+
+		text_2.setString(binds[i]);
+		ostringstream buffer;
+		buffer << player_color.get_steel();
+		buffer << "/";
+		buffer << cost_buildings[i];
+		text.setString(buffer.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3, 75 * i + 70);
+		text_2.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 + 150, 75 * i + 70);
+		sprite_builds.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80 + 5, 75 * i + 60 + 5);
+		rectangle_blank_line.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80 + 5, 75 * i + 60 + 5);
+		if (player_color.get_steel() >= cost_buildings[i]) {
+			rectangle_cost.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80, 75 * i + 60);
+			rectangle_cost.setFillColor(green_color);
+			window.draw(rectangle_cost);
+		}
+		window.draw(rectangle_blank_line);
+		window.draw(text_2);
+		window.draw(text);
+		window.draw(sprite_builds);
+		
+		
+	}
+}
+
 void change_menu(Player_res player_color){
 	if (matrix_player_bar[res_menu]) {
 		paint_res_menu(player_color);
+	}
+	else if (matrix_player_bar[build_menu]) {
+		paint_build_menu(player_color);
 	}
 	else {
 		paint_main_menu();
@@ -2095,6 +2206,7 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 void game() {
 	Player_res Blue_player;
 	Player_res Red_player;
+	create_cost_buildings();
 	create_matrix_roads();
 	genetate_resource();
 	create_matrix_control();
@@ -2161,22 +2273,25 @@ void game() {
 					matrix_mode[unit_mode] = not matrix_mode[unit_mode];
 				}
 
-				if (event.key.code == sf::Keyboard::Q)
-				{
-					matrix_player_bar[build_menu] = true;
+				if (matrix_player_bar[build_menu] == false and matrix_player_bar[res_menu] == false and matrix_player_bar[weap_menu] == false and matrix_player_bar[unit_build_menu] == false) {
+					if (event.key.code == sf::Keyboard::Q)
+					{
+						matrix_player_bar[build_menu] = true;
+					}
+					if (event.key.code == sf::Keyboard::W)
+					{
+						matrix_player_bar[res_menu] = true;
+					}
+					if (event.key.code == sf::Keyboard::E)
+					{
+						matrix_player_bar[weap_menu] = true;
+					}
+					if (event.key.code == sf::Keyboard::R)
+					{
+						matrix_player_bar[unit_build_menu] = true;
+					}
 				}
-				if (event.key.code == sf::Keyboard::W)
-				{
-					matrix_player_bar[res_menu] = true;
-				}
-				if (event.key.code == sf::Keyboard::E)
-				{
-					matrix_player_bar[weap_menu] = true;
-				}
-				if (event.key.code == sf::Keyboard::R)
-				{
-					matrix_player_bar[unit_build_menu] = true;
-				}
+				
 
 				if (event.key.code == sf::Keyboard::Escape)
 				{
@@ -2193,6 +2308,7 @@ void game() {
 					Vector2i mousePos = Mouse::getPosition(window);
 					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
 						select_element(event, zoom, x_camera, y_camera);
+						
 					}
 					else if (mousePos.x > (size_window_x - player_bar_size_x) * window_zoom_x) {
 						int coords = (mousePos.y / (250 * window_zoom_y));
