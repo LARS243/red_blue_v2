@@ -2551,12 +2551,12 @@ void change_zoom(Event event, int& zoom, int& x_camera, int& y_camera) {
 	}
 }
 // Костыль выбора юнитов после нажатия левой кнопки
-vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera) {
+vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera, float window_zoom_x, float window_zoom_y) {
 	vector<int> coord;
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
-	coord.push_back((mousePos.x - x_camera) / (size_cell * zoom));
-	coord.push_back((mousePos.y - y_camera) / (size_cell * zoom));
+	coord.push_back(((mousePos.x - x_camera) / (size_cell * zoom * window_zoom_x)));
+	coord.push_back(((mousePos.y - y_camera) / (size_cell * zoom * window_zoom_y)));
 	return coord;
 }
 // Костыль нажатия левой кнопки для выбора юнита
@@ -2606,8 +2606,7 @@ void game() {
 					else {
 						player = red_player;
 					}
-					check_zone(zone_building_red);
-					check_zone(zone_building_blue);
+					
 				}
 
 				if (event.key.code == sf::Keyboard::Num1)
@@ -2733,7 +2732,7 @@ void game() {
 					Vector2i mousePos = Mouse::getPosition(window);
 					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
 						vector<int> coord;
-						coord = select_element(event, zoom, x_camera, y_camera);
+						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
 						
 						if (player == red_player) {
 							check_build(Red_player, constuction, coord[0], coord[1]);
@@ -2745,7 +2744,7 @@ void game() {
 
 					}
 					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
-						select_element(event, zoom, x_camera, y_camera);
+						select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
 						
 					}
 					else if (mousePos.x > (size_window_x - player_bar_size_x) * window_zoom_x) {
@@ -2769,6 +2768,8 @@ void game() {
 			if (event.type == Event::Closed)
 				window.close();
 			old_mousePos = Mouse::getPosition(window);
+			check_zone(zone_building_red);
+			check_zone(zone_building_blue);
 		}
 		if (player == red_player) {
 			paint_game(x_camera, y_camera, zoom, Red_player, constuction);
