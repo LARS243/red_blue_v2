@@ -3,8 +3,8 @@
 #include <SFML/Window/Event.hpp>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <vector>
-#include <ctime>
 using namespace std;
 using namespace sf;
 
@@ -94,6 +94,9 @@ const int weap_menu = 2;
 const int unit_build_menu = 3;
 
 const int rail_road = 0;
+const int rail_town = 1;
+const int rail_supply_center = 2;
+const int rail_base = 3;
 
 const int neutral = 0;
 const int red = 1;
@@ -111,6 +114,7 @@ const Color red_color = { 255,0,0, 100 };
 const Color blue_color = { 0, 0, 255 , 100 };
 const Color green_color = { 0,169,36 };
 const Color choose_color = {115, 200, 55, 200};
+const Color orange_color = {255, 165, 0, 100};
 
 RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
@@ -130,6 +134,9 @@ int matrix_resources[size_field_x][size_field_y];
 int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
+int matrix_rail_web[size_field_x][size_field_y];
+int matrix_supply_zone[size_field_x][size_field_y];
+int matrix_build_zone[size_field_x][size_field_y];
 
 int zone_building_red[size_field_x][size_field_y];
 int zone_building_blue[size_field_x][size_field_y];
@@ -143,7 +150,6 @@ bool choose_build = false;
 const int red_player = 1;
 const int blue_player = 2;
 int player = red_player;
-
 
 class Player_res {
 private:
@@ -164,7 +170,7 @@ private:
 
 public:
 	Player_res() {
-		steel_ = 10;
+		steel_ = 1000;
 		iron_ = 0;
 		coal_ = 0;
 		oil_ = 0;
@@ -881,42 +887,17 @@ void create_matrix_mode() {
 void create_matrix_roads() {
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
-			matrix_roads[i][j] = null;
+			if (matrix_builds[i][j] == town) {
+				matrix_roads[i][j] = rail_town;
+			}
+			else {
+				matrix_roads[i][j] = null;
+			}
 		}
 		
 	}
-	matrix_roads[5][3] = rail_road;
-	matrix_roads[5][4] = rail_road;
-	matrix_roads[5][5] = rail_road;
-
-	matrix_roads[5][10] = rail_road;
-	matrix_roads[4][10] = rail_road;
-	matrix_roads[3][10] = rail_road;
-
-	matrix_roads[3][1] = rail_road;
-	matrix_roads[2][1] = rail_road;
-	matrix_roads[1][2] = rail_road;
-	matrix_roads[2][3] = rail_road;
-	matrix_roads[3][2] = rail_road;
-	matrix_roads[3][3] = rail_road;
-	matrix_roads[3][4] = rail_road;
-	matrix_roads[4][3] = rail_road;
-	matrix_roads[6][3] = rail_road;
-	matrix_roads[7][3] = rail_road;
-	matrix_roads[8][3] = rail_road;
-	matrix_roads[9][3] = rail_road;
-	matrix_roads[10][3] = rail_road;
-
-	matrix_roads[3][5] = rail_road;
-	matrix_roads[3][6] = rail_road;
-	matrix_roads[3][7] = rail_road;
-	matrix_roads[3][8] = rail_road;
-	matrix_roads[3][9] = rail_road;
-
-
-	matrix_roads[20][20] = rail_road;
-	matrix_roads[56][27] = rail_road;
-	matrix_roads[55][27] = rail_road;
+	matrix_roads[1][1] = rail_base;
+	matrix_roads[size_field_x - 3][size_field_x - 3] = rail_base;
 }
 
 void create_cost_buildings() {
@@ -1133,6 +1114,41 @@ void generate_relief() {
 	}
 	reflect_reliesf(matrix_relief);
 	clear_field(matrix_relief);
+}
+
+void read_relief() {
+	std::string line;
+
+	std::ifstream in("generated_map.txt"); // окрываем файл для чтения
+	if (in.is_open())
+	{
+		string g = "G";
+		string m = "M";
+		string w = "W";
+		int y = 0;
+		system("MapGenerator.exe");
+		while (std::getline(in, line))
+		{
+			for (int x = 0; x < line.size(); x++) {
+				if (line[x] == g) {
+					matrix_relief[x][y] = field;
+				}
+				if (line[x] == m) {
+					matrix_relief[x][y] = mount;
+				}
+				if (line[x] == w) {
+					matrix_relief[x][y] = forest;
+				}
+				
+			}
+			y++;
+			cout << "\n";
+			
+		}
+	}
+	in.close();     // закрываем файл
+	clear_field(matrix_relief);
+	reflect_reliesf(matrix_relief);
 }
 
 void genetate_resource() {
@@ -1573,7 +1589,174 @@ void paint_control(int x_camera, int y_camera, int zoom) {
 	}
 }
 //заглушка
+int rail_objectrs(int x, int y) {
+	if (matrix_roads[x][y] == rail_base or matrix_roads[x][y] == rail_road or matrix_roads[x][y] == rail_supply_center or matrix_roads[x][y] == rail_town) {
+		return rail_road;
+	}
+	else {
+		return null;
+	}
+}
+
+void check_rail_web(int x, int y) {
+	if (matrix_rail_web[x][y] == null and matrix_roads[x][y] != null and player == matrix_control[x][y]) {
+		matrix_rail_web[x][y] = rail_road;
+		check_rail_web(x + 1, y);
+		check_rail_web(x, y + 1);
+		check_rail_web(x - 1, y);
+		check_rail_web(x, y - 1);
+	}
+
+}
+void start_check_rail_web(int x, int y) {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_rail_web[i][j] = null;
+		}
+	}
+	check_rail_web(x, y);
+}
+
+void check_supply_zones(int supply_range,int x, int y) {
+	if (supply_range > 0 and matrix_control[x][y] == player) {
+		matrix_supply_zone[x][y] = 1;
+		
+		if (matrix_relief[x][y] == mount) {
+			supply_range -= 3;
+		}
+		else if (matrix_relief[x][y] == forest) {
+			supply_range -= 2;
+		}
+		else {
+			supply_range -= 1;
+		}
+		if (y - 1 >= 0) {
+			check_supply_zones(supply_range, x, y - 1);
+		}
+		if (x - 1 >= x - 1) {
+			check_supply_zones(supply_range, x - 1, y);
+		}
+		if (y + 1 <= size_field_y) {
+			check_supply_zones(supply_range, x, y + 1);
+		}
+		if (x + 1 <= size_field_x) {
+			check_supply_zones(supply_range, x + 1, y);
+		}
+		
+	}
+	
+}
+void start_check_supply_zones() {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_supply_zone[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_rail_web[i][j] == rail_road and (matrix_roads[i][j] == rail_town or matrix_roads[i][j] == rail_base) and matrix_control[i][j] == player) {
+				check_supply_zones(5, i, j);
+			}
+			else if (matrix_rail_web[i][j] == rail_road and (matrix_roads[i][j] == rail_supply_center) and matrix_control[i][j] == player) {
+				check_supply_zones(4, i, j);
+			}
+		}
+	}
+}
+
+void check_build_zones_supply_center(int supply_range, int x, int y) {
+	if (supply_range > 0 and matrix_control[x][y] == player) {
+		matrix_build_zone[x][y] = 2;
+		if (matrix_relief[x][y] == mount) {
+			supply_range -= 4;
+		}
+		else if (matrix_relief[x][y] == forest) {
+			supply_range -= 2;
+		}
+		else {
+			supply_range -= 2;
+		}
+		if (y - 1 >= 0) {
+			
+			check_build_zones_supply_center(supply_range, x, y - 1);
+		}
+		if (x - 1 >= x - 1) {
+			check_build_zones_supply_center(supply_range, x - 1, y);
+		}
+		if (y + 1 <= size_field_y) {
+			check_build_zones_supply_center(supply_range, x, y + 1);
+		}
+		if (x + 1 <= size_field_x) {
+			check_build_zones_supply_center(supply_range, x + 1, y);
+		}
+
+	}
+}
+
+void check_build_zones_town(int supply_range, int x, int y) {
+	if (supply_range > 0 and matrix_control[x][y] == player) {
+		matrix_build_zone[x][y] = 1;
+		if (matrix_relief[x][y] == mount) {
+			supply_range -= 4;
+		}
+		else if (matrix_relief[x][y] == forest) {
+			supply_range -= 2;
+		}
+		else {
+			supply_range -= 2;
+		}
+		if (y - 1 >= 0) {
+
+			check_build_zones_town(supply_range, x, y - 1);
+		}
+		if (x - 1 >= x - 1) {
+			check_build_zones_town(supply_range, x - 1, y);
+		}
+		if (y + 1 <= size_field_y) {
+			check_build_zones_town(supply_range, x, y + 1);
+		}
+		if (x + 1 <= size_field_x) {
+			check_build_zones_town(supply_range, x + 1, y);
+		}
+
+	}
+}
+void start_check_build_zones() {
+	if (red_player == player) {
+		start_check_rail_web(1, 1);
+	}
+	else {
+		start_check_rail_web(size_field_x - 2, size_field_y - 2);
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_build_zone[i][j] = 2000;
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_rail_web[i][j] == rail_road and ( matrix_roads[i][j] == rail_supply_center) and matrix_control[i][j] == player) {
+				check_build_zones_supply_center(5, i, j);
+			}
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_rail_web[i][j] == rail_road and (matrix_roads[i][j] == rail_town or matrix_roads[i][j] == rail_base) and matrix_control[i][j] == player) {
+				check_build_zones_town(6, i, j);
+			}
+		}
+	}
+}
+
 void paint_supply(int x_camera, int y_camera, int zoom) {
+	if (player == red_player){
+		start_check_rail_web(1, 1);
+	}
+	else {
+		start_check_rail_web(size_field_x - 2,size_field_y-2);
+	}
+	start_check_supply_zones();
 	const int road_1 = 0;
 	const int road_2 = 1;
 	const int road_3 = 2;
@@ -1590,6 +1773,10 @@ void paint_supply(int x_camera, int y_camera, int zoom) {
 	Sprite sprite_road_2;
 	Sprite sprite_road_3;
 	Sprite sprite_road_4;
+	Sprite sprite_town;
+	Sprite sprite_blue_base;
+	Sprite sprite_red_base;
+	Sprite sprite_supply_center;
 
 	sprite_road_1.setTexture(textures_roads[road_1]);
 	sprite_road_1.setScale(scale);
@@ -1603,129 +1790,181 @@ void paint_supply(int x_camera, int y_camera, int zoom) {
 	sprite_road_4.setTexture(textures_roads[road_4]);
 	sprite_road_4.setScale(scale);
 
+	sprite_town.setTexture(textures_builds[town]);
+	sprite_town.setScale(scale);
+
+	sprite_blue_base.setTexture(textures_builds[blue_base]);
+	sprite_blue_base.setScale(scale);
+
+	sprite_red_base.setTexture(textures_builds[red_base]);
+	sprite_red_base.setScale(scale);
+
+	sprite_supply_center.setTexture(textures_builds[supply_center]);
+	sprite_supply_center.setScale(scale);
+	
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
+			int rail_object = rail_objectrs(i, j);
+			int rail_object_up = rail_objectrs(i, j + up);
+			int rail_object_down = rail_objectrs(i, j + down);
+			int rail_object_left = rail_objectrs(i + left, j);
+			int rail_object_right = rail_objectrs(i + right, j);
 			// 1 слой
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == null and matrix_roads[i][j + down] == null and
-				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
-				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
+			if (matrix_roads[i][j] == rail_town) {
+				sprite_town.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_town);
 			}
-
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
+			else if (matrix_roads[i][j] == rail_supply_center) {
+				sprite_supply_center.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(sprite_supply_center);
 			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + right][j] == null and matrix_roads[i  + left][j] == null){
-				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
-				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
-				sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
-			}
-
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
-				sprite_road_1.setRotation(angle);
-				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
-				sprite_road_1.setRotation(angle);
-				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
-				sprite_road_1.setRotation(angle);
-				sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_1);
-			}
-
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
-				sprite_road_2.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_2);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j+down] == rail_road){
-				sprite_road_2.setRotation(angle);
-				sprite_road_2.setPosition((i+1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_2);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_2.setRotation(2*angle);
-				sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, (j+1) * size_cell * zoom + y_camera);
-				window.draw(sprite_road_2);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_2.setRotation(3 * angle);
-				sprite_road_2.setPosition((i) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
-				window.draw(sprite_road_2);
-			}
+			else if (matrix_roads[i][j] == rail_base) {
+				if (i == 1 and j == 1) {
+					sprite_red_base.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_red_base);
+				}
+				else {
+					sprite_blue_base.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_blue_base);
+				}
 				
-			// 2 слой
+			}
+			else {
+				if (rail_object == rail_road and rail_object_up == null and rail_object_down == null and
+					rail_object_left == null and rail_object_right == null) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
 
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + down] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + right][j] == null and matrix_roads[i + left][j] == null) {
-				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i][j + up] == rail_road and matrix_roads[i][j + down] == null and
-				matrix_roads[i + left][j] == null and matrix_roads[i + right][j] == null) {
-				sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
+				if (rail_object == rail_road and rail_object_down == rail_road and rail_object_up == rail_road) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (rail_object == rail_road and rail_object_down == rail_road and rail_object_up == null and
+					rail_object_right == null and matrix_roads[i + left][j] == null) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (rail_object == rail_road and rail_object_up == rail_road and rail_object_down == null and
+					rail_object_left == null and rail_object_right == null) {
+					sprite_road_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
 
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i + left][j] == rail_road) {
-				sprite_road_3.setRotation(angle);
-				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + right][j] == null and matrix_roads[i][j + down] == null) {
-				sprite_road_3.setRotation(angle);
-				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == null and
-				matrix_roads[i + left][j] == null and matrix_roads[i][j + down] == null) {
-				sprite_road_3.setRotation(angle);
-				sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_3);
-			}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_left == rail_road) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and rail_object_up == null and
+					rail_object_right == null and rail_object_down == null) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_up == null and
+					rail_object_left == null and rail_object_down == null) {
+					sprite_road_1.setRotation(angle);
+					sprite_road_1.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_1);
+				}
 
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
-				sprite_road_4.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_4);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + down] == rail_road) {
-				sprite_road_4.setRotation(angle);
-				sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
-				window.draw(sprite_road_4);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + left][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_4.setRotation(2 * angle);
-				sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
-				window.draw(sprite_road_4);
-			}
-			if (matrix_roads[i][j] == rail_road and matrix_roads[i + right][j] == rail_road and matrix_roads[i][j + up] == rail_road) {
-				sprite_road_4.setRotation(3 * angle);
-				sprite_road_4.setPosition((i)*size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
-				window.draw(sprite_road_4);
-			}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_down == rail_road) {
+					sprite_road_2.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and matrix_roads[i][j + down] == rail_road) {
+					sprite_road_2.setRotation(angle);
+					sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and rail_object_up == rail_road) {
+					sprite_road_2.setRotation(2 * angle);
+					sprite_road_2.setPosition((i + 1) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_up == rail_road) {
+					sprite_road_2.setRotation(3 * angle);
+					sprite_road_2.setPosition((i)*size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_2);
+				}
 
-			sprite_road_1.setRotation(zero_angle);
-			sprite_road_2.setRotation(zero_angle);
-			sprite_road_3.setRotation(zero_angle);
-			sprite_road_4.setRotation(zero_angle);
+				// 2 слой
+
+				if (rail_object == rail_road and rail_object_down == rail_road and rail_object_up == rail_road) {
+					sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+				if (rail_object == rail_road and rail_object_down == rail_road and rail_object_up == null and
+					rail_object_right == null and rail_object_left == null) {
+					sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+				if (rail_object == rail_road and rail_object_up == rail_road and rail_object_down == null and
+					rail_object_left == null and rail_object_right == null) {
+					sprite_road_3.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_left == rail_road) {
+					sprite_road_3.setRotation(angle);
+					sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and rail_object_up == null and
+					rail_object_right == null and rail_object_down == null) {
+					sprite_road_3.setRotation(angle);
+					sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_up == null and
+					rail_object_left == null and rail_object_down == null) {
+					sprite_road_3.setRotation(angle);
+					sprite_road_3.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_3);
+				}
+
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_down == rail_road) {
+					sprite_road_4.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_4);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and rail_object_down == rail_road) {
+					sprite_road_4.setRotation(angle);
+					sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+					window.draw(sprite_road_4);
+				}
+				if (rail_object == rail_road and rail_object_left == rail_road and rail_object_up == rail_road) {
+					sprite_road_4.setRotation(2 * angle);
+					sprite_road_4.setPosition((i + 1) * size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_4);
+				}
+				if (rail_object == rail_road and rail_object_right == rail_road and rail_object_up == rail_road) {
+					sprite_road_4.setRotation(3 * angle);
+					sprite_road_4.setPosition((i)*size_cell * zoom + x_camera, (j + 1) * size_cell * zoom + y_camera);
+					window.draw(sprite_road_4);
+				}
+
+				sprite_road_1.setRotation(zero_angle);
+				sprite_road_2.setRotation(zero_angle);
+				sprite_road_3.setRotation(zero_angle);
+				sprite_road_4.setRotation(zero_angle);
+			}
+			
 		}
 	}
+	RectangleShape rectangle(Vector2f(size_cell* zoom, size_cell* zoom));
+	rectangle.setFillColor(orange_color);
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_supply_zone[i][j] == 1) {
+				rectangle.setPosition(i* size_cell* zoom + x_camera, j* size_cell* zoom + y_camera);
+				window.draw(rectangle);
+			}
+			
+		}
+	}
+	
+	
 }
 
 void paint_grid(int x_camera, int y_camera, int zoom) {
@@ -2176,6 +2415,9 @@ int cost_to_build_convert(int constuction) {
 	if (constuction == cost_storage) {
 		return storage;
 	}
+	if (constuction == cost_supply_center) {
+		return supply_center;
+	}
 }
 
 void build(Player_res player_color, int constuction, int zoom, int x_camera, int y_camera) {
@@ -2187,40 +2429,38 @@ void build(Player_res player_color, int constuction, int zoom, int x_camera, int
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	rectangle.setFillColor(choose_color);
 
-	int zone_control[size_field_x][size_field_y];
-	if (player == red_player) {
-		for (int i = 0; i < size_field_x; i++) {
-			for (int j = 0; j < size_field_y; j++) {
-				zone_control[i][j] = zone_building_red[i][j];
+	start_check_build_zones();
+	//print(matrix_build_zone);
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (constuction == cost_mine) {
+				if (matrix_resources[i][j] == coal or matrix_resources[i][j] == iron) {
+					if (steel >= cost_object * coefficient_field * matrix_build_zone[i][j]) {
+						rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+						window.draw(rectangle);
+					}
+				}
 			}
 		}
 	}
-	else {
-		for (int i = 0; i < size_field_x; i++) {
-			for (int j = 0; j < size_field_y; j++) {
-				zone_control[i][j] = zone_building_blue[i][j];
-			}
-		}
-	}
-	
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			if (constuction == cost_mine) {
 				if (matrix_resources[i][j] == coal or matrix_resources[i][j] == iron) {
 					if (matrix_relief[i][j] == field) {
-						if (steel >= cost_object * coefficient_field * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_field * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
 					}
 					else if (matrix_relief[i][j] == forest) {
-						if (steel >= cost_object * coefficient_forest * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_forest * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
 					}
 					else if (matrix_relief[i][j] == mount) {
-						if (steel >= cost_object * coefficient_mount * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_mount * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
@@ -2231,19 +2471,19 @@ void build(Player_res player_color, int constuction, int zoom, int x_camera, int
 			else if (constuction == cost_oil_tower) {
 				if (matrix_resources[i][j] == oil) {
 					if (matrix_relief[i][j] == field) {
-						if (steel >= cost_object * coefficient_field * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_field * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
 					}
 					else if (matrix_relief[i][j] == forest) {
-						if (steel >= cost_object * coefficient_forest * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_forest * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
 					}
 					else if (matrix_relief[i][j] == mount) {
-						if (steel >= cost_object * coefficient_mount * zone_control[i][j]) {
+						if (steel >= cost_object * coefficient_mount * matrix_build_zone[i][j]) {
 							rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 							window.draw(rectangle);
 						}
@@ -2252,19 +2492,19 @@ void build(Player_res player_color, int constuction, int zoom, int x_camera, int
 			}
 			else if (constuction != cost_rail_road and constuction != cost_supply_center) {
 				if (matrix_relief[i][j] == field) {
-					if (steel >= cost_object * coefficient_field * zone_control[i][j]) {
+					if (steel >= cost_object * coefficient_field * matrix_build_zone[i][j]) {
 						rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 						window.draw(rectangle);
 					}
 				}
 				else if (matrix_relief[i][j] == forest) {
-					if (steel >= cost_object * coefficient_forest * zone_control[i][j]) {
+					if (steel >= cost_object * coefficient_forest * matrix_build_zone[i][j]) {
 						rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 						window.draw(rectangle);
 					}
 				}
 				else if (matrix_relief[i][j] == mount) {
-					if (steel >= cost_object * coefficient_mount * zone_control[i][j]) {
+					if (steel >= cost_object * coefficient_mount * matrix_build_zone[i][j]) {
 						rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 						window.draw(rectangle);
 					}
@@ -2303,46 +2543,31 @@ void check_build(Player_res &player_color, int constuction, int x, int y) {
 	float coefficient_forest = 1.5;
 	float coefficient_mount = 2;
 	int balance;
-	int zone_control[size_field_x][size_field_y];
 	
-	if (player == red_player) {
-		for (int i = 0; i < size_field_x; i++) {
-			for (int j = 0; j < size_field_y; j++) {
-				zone_control[i][j] = zone_building_red[i][j];
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < size_field_x; i++) {
-			for (int j = 0; j < size_field_y; j++) {
-				zone_control[i][j] = zone_building_blue[i][j];
-			}
-		}
-	}
-
+	start_check_build_zones();
 	if (constuction == cost_mine) {
 		if (matrix_resources[x][y] == coal or matrix_resources[x][y] == iron) {
 			if (matrix_relief[x][y] == field) {
-				if (steel >= cost_object * coefficient_field * zone_control[x][y]) {
+				if (steel >= cost_object * coefficient_field * matrix_build_zone[x][y]) {
 					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_field * zone_control[x][y];
+					balance -= cost_object * coefficient_field * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == forest) {
-				if (steel >= cost_object * coefficient_forest * zone_control[x][y]) {
+				if (steel >= cost_object * coefficient_forest * matrix_build_zone[x][y]) {
 					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_forest * zone_control[x][y];
+					balance -= cost_object * coefficient_forest * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == mount) {
-				if (steel >= cost_object * coefficient_mount * zone_control[x][y]) {
+				if (steel >= cost_object * coefficient_mount * matrix_build_zone[x][y]) {
 					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_mount * zone_control[x][y];
+					balance -= cost_object * coefficient_mount * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
@@ -2352,26 +2577,26 @@ void check_build(Player_res &player_color, int constuction, int x, int y) {
 	else if (constuction == cost_oil_tower) {
 		if (matrix_resources[x][y] == oil) {
 			if (matrix_relief[x][y] == field) {
-				if (steel >= cost_object * coefficient_field * zone_control[x][y]) {
-					matrix_builds[x][y] = constuction;
+				if (steel >= cost_object * coefficient_field * matrix_build_zone[x][y]) {
+					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_field * zone_control[x][y];
+					balance -= cost_object * coefficient_field * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == forest) {
-				if (steel >= cost_object * coefficient_forest * zone_control[x][y]) {
-					matrix_builds[x][y] = constuction;
+				if (steel >= cost_object * coefficient_forest * matrix_build_zone[x][y]) {
+					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_forest * zone_control[x][y];
+					balance -= cost_object * coefficient_forest * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == mount) {
-				if (steel >= cost_object * coefficient_mount * zone_control[x][y]) {
-					matrix_builds[x][y] = constuction;
+				if (steel >= cost_object * coefficient_mount * matrix_build_zone[x][y]) {
+					matrix_builds[x][y] = cost_to_build_convert(constuction);
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_mount * zone_control[x][y];
+					balance -= cost_object * coefficient_mount * matrix_build_zone[x][y];
 					player_color.set_steel(balance);
 				}
 			}
@@ -2379,59 +2604,77 @@ void check_build(Player_res &player_color, int constuction, int x, int y) {
 	}
 	else if (constuction != cost_rail_road and constuction != cost_supply_center) {
 		if (matrix_relief[x][y] == field) {
-			if (steel >= cost_object * coefficient_field * zone_control[x][y]) {
+			if (steel >= cost_object * coefficient_field * matrix_build_zone[x][y]) {
 				
 				matrix_builds[x][y] = cost_to_build_convert(constuction);
 				balance = player_color.get_steel();
-				balance -= cost_object * coefficient_field * zone_control[x][y];
+				balance -= cost_object * coefficient_field * matrix_build_zone[x][y];
 				player_color.set_steel(balance);
 			}
 		}
 		else if (matrix_relief[x][y] == forest) {
-			if (steel >= cost_object * coefficient_forest * zone_control[x][y]) {
+			if (steel >= cost_object * coefficient_forest * matrix_build_zone[x][y]) {
 				matrix_builds[x][y] = cost_to_build_convert(constuction);
 				balance = player_color.get_steel();
-				balance -= cost_object * coefficient_forest * zone_control[x][y];
+				balance -= cost_object * coefficient_forest * matrix_build_zone[x][y];
 				player_color.set_steel(balance);
 			}
 		}
 		else if (matrix_relief[x][y] == mount) {
-			if (steel >= cost_object * coefficient_mount * zone_control[x][y]) {
+			if (steel >= cost_object * coefficient_mount * matrix_build_zone[x][y]) {
 				matrix_builds[x][y] = cost_to_build_convert(constuction);
 				balance = player_color.get_steel();
-				balance -= cost_object * coefficient_mount * zone_control[x][y];
+				balance -= cost_object * coefficient_mount * matrix_build_zone[x][y];
 				player_color.set_steel(balance);
 			}
 		}
 	}
-	/*else {
+	else {
 		if (matrix_control[x][y] == player) {
 			if (matrix_relief[x][y] == field) {
 				if (steel >= cost_object * coefficient_field and matrix_builds[x][y] == null and matrix_roads[x][y] == null) {
-					matrix_roads[x][y] = constuction;
+					if (constuction == cost_rail_road) {
+						matrix_roads[x][y] = rail_road;
+					}
+					else {
+						matrix_builds[x][y] = cost_to_build_convert(constuction);
+						matrix_roads[x][y] = rail_supply_center;
+					}
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_field * zone_control[x][y];
+					balance -= cost_object * coefficient_field;
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == forest) {
 				if (steel >= cost_object * coefficient_forest and matrix_builds[x][y] == null and matrix_roads[x][y] == null) {
-					matrix_roads[x][y] = constuction;
+					if (constuction == cost_rail_road) {
+						matrix_roads[x][y] = rail_road;
+					}
+					else {
+						matrix_builds[x][y] = cost_to_build_convert(constuction);
+						matrix_roads[x][y] = rail_supply_center;
+					}
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_field * zone_control[x][y];
+					balance -= cost_object * coefficient_field;
 					player_color.set_steel(balance);
 				}
 			}
 			else if (matrix_relief[x][y] == mount) {
 				if (steel >= cost_object * coefficient_mount and matrix_builds[x][y] == null and matrix_roads[x][y] == null) {
-					matrix_roads[x][y] = constuction;
+					if (constuction == cost_rail_road) {
+						matrix_roads[x][y] = rail_road;
+					}
+					else {
+						matrix_builds[x][y] = cost_to_build_convert(constuction);
+						matrix_roads[x][y] = rail_supply_center;
+					}
 					balance = player_color.get_steel();
-					balance -= cost_object * coefficient_field * zone_control[x][y];
+					balance -= cost_object * coefficient_field ;
 					player_color.set_steel(balance);
 				}
 			}
 		}
-	}*/
+	}
 
 }
 
@@ -2564,14 +2807,18 @@ void game() {
 	Player_res Blue_player;
 	Player_res Red_player;
 	create_cost_buildings();
-	create_matrix_roads();
+	
 	genetate_resource();
 	create_matrix_control();
 	create_matrix_mode();
 	matrix_unit_to_zero();
 	load_texture();
-	generate_relief();
+
+	//generate_relief();
+	read_relief();
+
 	generate_towns();
+	create_matrix_roads();
 	check_zone(zone_building_red);
 	check_zone(zone_building_blue);
 	int x_camera = 0;
@@ -2600,6 +2847,7 @@ void game() {
 			{
 				if (event.key.code == sf::Keyboard::Space)
 				{
+					
 					if (player == red_player) {
 						player = blue_player;
 					}
@@ -2723,6 +2971,7 @@ void game() {
 					matrix_player_bar[weap_menu] = false;
 					matrix_player_bar[unit_build_menu] = false;
 					choose_build = false;
+					constuction = -1;
 				}
 			}
 			if (event.type == sf::Event::MouseButtonPressed)
