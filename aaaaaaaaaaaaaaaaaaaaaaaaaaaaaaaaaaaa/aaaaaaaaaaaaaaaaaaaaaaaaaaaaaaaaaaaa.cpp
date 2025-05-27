@@ -1,9 +1,10 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
 #include <vector>
-#include <ctime>
+
 using namespace std;
 using namespace sf;
 
