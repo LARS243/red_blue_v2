@@ -224,34 +224,64 @@ public:
 
 	void set_steel(int new_steel_) {
 		steel_ = new_steel_;
+		/*if (steel_ > max_res) {
+			steel_ = max_res;
+		}*/
 	}
 	void set_iron(int new_iron_) {
 		iron_ = new_iron_;
+		if (iron_ > max_res) {
+			iron_ = max_res;
+		}
 	}
 	void set_coal(int new_coal_) {
 		coal_ = new_coal_;
+		if (coal_ > max_res) {
+			coal_ = max_res;
+		}
 	}
 	void set_oil(int new_oil_) {
 		oil_ = new_oil_;
+		if (oil_ > max_res) {
+			oil_ = max_res;
+		}
 	}
 	void set_fuel(int new_fuel_) {
 		fuel_ = new_fuel_;
+		if (fuel_ > max_res) {
+			fuel_ = max_res;
+		}
 	}
 
 	void set_rifle(int new_rifle_) {
 		rifle_ = new_rifle_;
+		if (rifle_ > max_eq) {
+			rifle_ = max_eq;
+		}
 	}
 	void set_dop(int new_dop_) {
 		 dop_ = new_dop_;
+		 if (dop_ > max_eq) {
+			 dop_ = max_eq;
+		 }
 	}
 	void set_car(int new_car_) {
 		 car_ = new_car_;
+		 if (car_ > max_eq) {
+			 car_ = max_eq;
+		 }
 	}
 	void set_tank(int new_tank_) {
 		 tank_ = new_tank_;
+		 if (tank_ > max_eq) {
+			 tank_ = max_eq;
+		 }
 	}
 	void set_anti_tank(int new_anti_tank_) {
 		 anti_tank_ = new_anti_tank_;
+		 if (anti_tank_ > max_eq) {
+			 anti_tank_ = max_eq;
+		 }
 	}
 
 	void set_max_res(int new_max_res) {
@@ -1749,6 +1779,119 @@ void start_check_build_zones() {
 	}
 }
 
+void update_product(Player_res &player_color) {
+	const int product_mine = 4;
+
+	const int product_steel_factory_cost = 1;
+	const int product_factory_steel = 3;
+
+	const int product_cost = 1;// уголь
+
+	const int product_factory_rifle_cost = 1;
+	const int product_factory_rifle = 5;
+
+	const int product_factory_dop_cost = 1;
+	const int product_factory_dop = 3;
+
+	const int product_factory_car_cost = 3;
+	const int product_factory_car = 3;
+
+	const int product_factory_tank_cost = 5;
+	const int product_factory_tank = 2;
+
+	const int product_factory_anti_tank_cost = 2;
+	const int product_factory_anti_tank = 3;
+
+	const int product_factory_fuel_cost = 2;
+	const int product_factory_fuel = 1;
+
+	player_color.set_max_eq(0);
+	player_color.set_max_res(0);
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_control[i][j] == player) {
+				if (matrix_builds[i][j] == storage) {
+					player_color.set_max_res(player_color.get_max_res() + 10);
+				}
+				else if (matrix_builds[i][j] == millitary_storage) {
+					player_color.set_max_eq(player_color.get_max_eq() + 10);
+				}
+				else if (matrix_builds[i][j] == red_base or matrix_builds[i][j] == blue_base) {
+					player_color.set_max_res(player_color.get_max_res() + 20);
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
+				
+			}
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
+				if (matrix_builds[i][j] == mine) {
+					if (matrix_resources[i][j] == coal) {
+						
+						player_color.set_coal(player_color.get_coal() + product_mine);
+					}
+					else {
+						player_color.set_iron(player_color.get_iron() + product_mine);
+					}
+				}
+				else if (matrix_builds[i][j] == oil_tower) {
+					player_color.set_oil(player_color.get_oil() + product_mine);
+				}
+			}
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
+				if (player_color.get_coal() >= product_cost) {
+					int builds_ = matrix_builds[i][j];
+					if (builds_ == factory_steel) {
+						if (player_color.get_iron() >= product_steel_factory_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_iron(player_color.get_iron() - product_steel_factory_cost);
+							player_color.set_steel(player_color.get_steel() + product_factory_steel);
+						}
+					}
+					if (builds_ == factory_rifle) {
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_rifle(player_color.get_rifle() + product_factory_rifle);
+					}
+					if (builds_ == factory_dop) {
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_dop(player_color.get_dop() + product_factory_dop);
+					}
+					if (builds_ == factory_car) {
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_car(player_color.get_car() + product_factory_car);
+					}
+					if (builds_ == factory_tank) {
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_tank(player_color.get_tank() + product_factory_tank);
+					}
+					// проблема
+					/*if (builds_ == factory_anti_tank) { 
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_anti_tank(player_color.get_anti_tank() + product_factory_anti_tank);
+					}*/
+					if (builds_ == factory_fuel) {
+						player_color.set_coal(player_color.get_coal() - product_cost);
+						player_color.set_fuel(player_color.get_fuel() - product_factory_fuel_cost);
+						player_color.set_steel(player_color.get_steel() + product_factory_fuel);
+					}
+				}
+			}
+		}
+	}
+}
+
 void paint_supply(int x_camera, int y_camera, int zoom) {
 	if (player == red_player){
 		start_check_rail_web(1, 1);
@@ -2798,8 +2941,8 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 	vector<int> coord;
 	Vector2i mousePos;
 	mousePos = Mouse::getPosition(window);
-	coord.push_back(((mousePos.x - x_camera) / (size_cell * zoom * window_zoom_x)));
-	coord.push_back(((mousePos.y - y_camera) / (size_cell * zoom * window_zoom_y)));
+	coord.push_back(((mousePos.x - x_camera * window_zoom_x) / (size_cell * zoom * window_zoom_x)));
+	coord.push_back(((mousePos.y - y_camera * window_zoom_x) / (size_cell * zoom * window_zoom_y)));
 	return coord;
 }
 // Костыль нажатия левой кнопки для выбора юнита
@@ -2847,11 +2990,14 @@ void game() {
 			{
 				if (event.key.code == sf::Keyboard::Space)
 				{
-					
+					start_check_build_zones();
 					if (player == red_player) {
+						
+						update_product(Red_player);
 						player = blue_player;
 					}
 					else {
+						update_product(Blue_player);
 						player = red_player;
 					}
 					
