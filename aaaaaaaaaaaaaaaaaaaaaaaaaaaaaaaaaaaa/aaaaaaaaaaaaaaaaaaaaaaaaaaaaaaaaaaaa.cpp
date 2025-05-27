@@ -1,10 +1,12 @@
 ﻿﻿#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <vector>
+
 using namespace std;
 using namespace sf;
 
