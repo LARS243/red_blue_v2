@@ -98,6 +98,7 @@ int matrix_control[size_field_x][size_field_y];
 int matrix_builds[size_field_x][size_field_y];
 int matrix_roads[size_field_x][size_field_y];
 int matrix_path[size_field_x][size_field_y];
+int matrix_unit_mobility[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
 
 class Player_res {
@@ -1847,6 +1848,24 @@ void paint_player_bar() {
 	window.draw(rectangle2);
 }
 
+void check_unit_road(int x, int y, int mobility) {
+	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and mobility > -1) {
+		matrix_unit_mobility[x][y] = rail_road;
+		check_unit_road(x + 1, y, mobility - 1);
+		check_unit_road(x, y + 1, mobility - 1);
+		check_unit_road(x - 1, y, mobility - 1);
+		check_unit_road(x, y - 1, mobility - 1);
+	}
+}
+void start_check_unit_road(int x, int y, int& mobility) {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_unit_mobility[i][j] = null;
+		}
+	}
+	check_unit_road(x, y, mobility);
+}
+
 void paint_game(int x_camera, int y_camera, int zoom) {
 	paint_relief(x_camera, y_camera, zoom);
 	if (matrix_mode[control_mode]) {
@@ -1933,15 +1952,6 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera)
 	return coord;
 }
 
-void algorithm_path(vector <int>& coord, vector <int>& coord_saved_unit) {
-	if (coord[0] == coord_saved_unit[0] and coord[1] == coord_saved_unit[1]) {
-
-	}
-	else {
-
-	}
-}
-
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
 		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
@@ -1951,14 +1961,14 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			algorithm_path(coord, coord_saved_unit);
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1]);
 		}
 	}
 	else {
 		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {//Сюда впишешь отрисовку стат юнита
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			algorithm_path(coord, coord_saved_unit);
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1]);
 		}
 	}
 }
