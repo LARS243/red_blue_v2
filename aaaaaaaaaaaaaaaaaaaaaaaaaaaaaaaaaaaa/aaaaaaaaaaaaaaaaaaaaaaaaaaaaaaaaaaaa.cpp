@@ -1,4 +1,4 @@
-﻿﻿#include <SFML/Graphics.hpp>
+﻿
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
@@ -10,6 +10,7 @@
 using namespace std;
 using namespace sf;
 
+const int ID_no_select = -1;
 const int ID_black_hole = 0;
 const int ID_construction = 1;
 const int ID_tank = 2;
@@ -139,6 +140,9 @@ int matrix_roads[size_field_x][size_field_y];
 int matrix_rail_web[size_field_x][size_field_y];
 int matrix_supply_zone[size_field_x][size_field_y];
 int matrix_build_zone[size_field_x][size_field_y];
+
+int matrix_unit_mobility[size_field_x][size_field_y];
+
 
 int zone_building_red[size_field_x][size_field_y];
 int zone_building_blue[size_field_x][size_field_y];
@@ -2948,6 +2952,47 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 	return coord;
 }
 // Костыль нажатия левой кнопки для выбора юнита
+void check_unit_road(int x, int y, int mobility) {
+	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and mobility > -1) {
+		matrix_unit_mobility[x][y] = rail_road;
+		check_unit_road(x + 1, y, mobility - 1);
+		check_unit_road(x, y + 1, mobility - 1);
+		check_unit_road(x - 1, y, mobility - 1);
+		check_unit_road(x, y - 1, mobility - 1);
+	}
+}
+void start_check_unit_road(int x, int y, int& mobility) {
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			matrix_unit_mobility[i][j] = null;
+		}
+	}
+	check_unit_road(x, y, mobility);
+}
+
+void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
+	int stri = 0;
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
+		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
+			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
+			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+		}
+	}
+	else {
+		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+		}
+	}
+}
+
+
 void game() {
 	Player_res Blue_player;
 	Player_res Red_player;
