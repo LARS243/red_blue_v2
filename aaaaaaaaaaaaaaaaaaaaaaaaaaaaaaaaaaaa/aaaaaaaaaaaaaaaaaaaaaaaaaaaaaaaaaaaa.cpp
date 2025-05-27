@@ -8,6 +8,7 @@
 using namespace std;
 using namespace sf;
 
+const int ID_no_select = -1;
 const int ID_black_hole = 0;
 const int ID_construction = 1;
 const int ID_tank = 2;
@@ -143,6 +144,8 @@ int zone_building_blue[size_field_x][size_field_y];
 
 int cost_buildings[cost_rail_road +1];
 
+int matrix_path[size_field_x][size_field_y];
+int matrix_unit_mobility[size_field_x][size_field_y];
 bool matrix_mode[count_mode];
 bool matrix_player_bar[count_player_bar];
 bool choose_build = false;
@@ -1273,14 +1276,17 @@ Color get_color(int color) {
 	}
 }
 
-void matrix_unit_to_zero() {
+void matrix_unit_to_zero() {//Удалить говно
 	for (int i = 0; i < size_field_x; i++)
 	{
 		for (int j = 0; j < size_field_y; j++)
 		{
 			matrix_units_id[i][j] = ID_black_hole;
+			matrix_path[i][j] = ID_black_hole;
 		}
 	}
+	matrix_units_id[25][14] = ID_infantry;
+	matrix_units_points[25][14] = new buffer(ID_infantry);
 }
 
 void load_texture() {
@@ -2838,18 +2844,7 @@ void paint_player_bar(Player_res player_color, int constuction, int zoom, int x_
 	rectangle2.setFillColor({ 100, 100 ,100 });
 	rectangle2.setPosition(size_window_x - player_bar_size_x, 0);
 	window.draw(rectangle2);
-	
-	if (player == red_player) {
-		RectangleShape rectangle1(Vector2f(player_bar_size_x, size_window_y));
-		rectangle1.setFillColor(red_color);
-		rectangle1.setPosition(size_window_x - player_bar_size_x, 0);
-		window.draw(rectangle1);
-	}
-	else {
-		RectangleShape rectangle1(Vector2f(player_bar_size_x, size_window_y));
-		rectangle1.setFillColor(blue_color);
-		rectangle1.setPosition(size_window_x - player_bar_size_x, 0);
-		window.draw(rectangle1);
+}
 
 	}
 	change_menu(player_color, constuction, zoom, x_camera, y_camera);
@@ -2945,12 +2940,34 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 	coord.push_back(((mousePos.y - y_camera * window_zoom_x) / (size_cell * zoom * window_zoom_y)));
 	return coord;
 }
+
+void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
+		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
+			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
+			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1]);
+		}
+	}
+	else {
+		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {//Сюда впишешь отрисовку стат юнита
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1]);
+		}
+	}
+}
+
+
+
 // Костыль нажатия левой кнопки для выбора юнита
 void game() {
-	Player_res Blue_player;
-	Player_res Red_player;
-	create_cost_buildings();
-	
+	string last_bind = "none";
+	create_matrix_roads();
 	genetate_resource();
 	create_matrix_control();
 	create_matrix_mode();
@@ -2986,179 +3003,50 @@ void game() {
 				window_zoom_x = new_window_zoom_x;
 				window_zoom_y = new_window_zoom_y;
 			}
-			if (event.type == sf::Event::KeyPressed)
-			{
-				if (event.key.code == sf::Keyboard::Space)
-				{
-					start_check_build_zones();
-					if (player == red_player) {
-						
-						update_product(Red_player);
-						player = blue_player;
-					}
-					else {
-						update_product(Blue_player);
-						player = red_player;
-					}
-					
-				}
-
-				if (event.key.code == sf::Keyboard::Num1)
-				{
-					matrix_mode[control_mode] = not matrix_mode[control_mode];
-				}
-				if (event.key.code == sf::Keyboard::Num2)
-				{
-					matrix_mode[supply_mode] = not matrix_mode[supply_mode];
-				}
-				if (event.key.code == sf::Keyboard::Num3)
-				{
-					matrix_mode[grid_mode] = not matrix_mode[grid_mode];
-				}
-				if (event.key.code == sf::Keyboard::Num4)
-				{
-					matrix_mode[resources_mode] = not matrix_mode[resources_mode];
-				}
-				if (event.key.code == sf::Keyboard::Num5)
-				{
-					matrix_mode[builds_mode] = not matrix_mode[builds_mode];
-				}
-				if (event.key.code == sf::Keyboard::Num6)
-				{
-					matrix_mode[unit_mode] = not matrix_mode[unit_mode];
-				}
-
-				if (matrix_player_bar[build_menu] == false and matrix_player_bar[res_menu] == false and matrix_player_bar[weap_menu] == false and matrix_player_bar[unit_build_menu] == false) {
-					if (event.key.code == sf::Keyboard::Q)
-					{
-						matrix_player_bar[build_menu] = true;
-					}
-					if (event.key.code == sf::Keyboard::W)
-					{
-						matrix_player_bar[res_menu] = true;
-					}
-					if (event.key.code == sf::Keyboard::E)
-					{
-						matrix_player_bar[weap_menu] = true;
-					}
-					if (event.key.code == sf::Keyboard::R)
-					{
-						matrix_player_bar[unit_build_menu] = true;
-					}
-				}
-				
-				else if (matrix_player_bar[build_menu] == true) {
-					if (event.key.code == sf::Keyboard::Q)
-					{
-						constuction = cost_factory_car;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::W)
-					{
-						constuction = cost_factory_dop;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::E)
-					{
-						constuction = cost_factory_fuel;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::R)
-					{
-						constuction = cost_factory_rifle;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::T)
-					{
-						constuction = cost_factory_tank;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::Y)
-					{
-						constuction = cost_millitary_storage;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::U)
-					{
-						constuction = cost_factory_steel;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::I)
-					{
-						constuction = cost_mine;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::O)
-					{
-						constuction = cost_oil_tower;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::P)
-					{
-						constuction = cost_storage;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::A)
-					{
-						constuction = cost_supply_center;
-						choose_build = true;
-					}
-					if (event.key.code == sf::Keyboard::S)
-					{
-						constuction = cost_rail_road;
-						choose_build = true;
-					}
-				}
-
-				if (event.key.code == sf::Keyboard::Escape)
-				{
-					matrix_player_bar[build_menu] = false;
-					matrix_player_bar[res_menu] = false;
-					matrix_player_bar[weap_menu] = false;
-					matrix_player_bar[unit_build_menu] = false;
-					choose_build = false;
-					constuction = -1;
-				}
-			}
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					Vector2i mousePos = Mouse::getPosition(window);
-					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
-						vector<int> coord;
-						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
-						
-						if (player == red_player) {
-							check_build(Red_player, constuction, coord[0], coord[1]);
-						}
-						else {
-							check_build(Blue_player, constuction, coord[0], coord[1]);
-						}
-						
-
-					}
-					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
-						select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
-						
-					}
-					else if (mousePos.x > (size_window_x - player_bar_size_x) * window_zoom_x) {
-						int coords = (mousePos.y / (250 * window_zoom_y));
-						matrix_player_bar[coords] = true;
-					}
-					else {
-						int coords = ((mousePos.x - 11 * window_zoom_x) / (size_step_mode * window_zoom_x));
-						matrix_mode[coords] = not matrix_mode[coords];
-					}
-				}
-			}
-			if (Mouse::isButtonPressed(Mouse::Middle)) {
-
-				change_camera(event, old_mousePos, step, x_camera, y_camera, zoom);
-			}
 			if (sf::Event::MouseWheelScrolled) {
 
 				change_zoom(event, zoom, x_camera, y_camera);
+			}
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left) and last_bind != "left") {//Костыль
+				Vector2i mousePos = Mouse::getPosition(window);
+				if (mousePos.y < size_window_y - player_bar_size_y and mousePos.x < size_window_y - player_bar_size_x) {
+					select_element(event, zoom, x_camera, y_camera);
+				}
+				else {
+					matrix_mode[(mousePos.x - 11) / size_step_mode] = not matrix_mode[(mousePos.x - 11) / size_step_mode];
+				}
+				
+				last_bind = "left";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) and last_bind != "control_mode")
+			{
+				matrix_mode[control_mode] = not matrix_mode[control_mode];
+				last_bind = "control_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) and last_bind != "supply_mode")
+			{
+				matrix_mode[supply_mode] = not matrix_mode[supply_mode];
+				last_bind = "supply_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) and last_bind != "grid_mode")
+			{
+				matrix_mode[grid_mode] = not matrix_mode[grid_mode];
+				last_bind = "grid_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) and last_bind != "resources_mode")
+			{
+				matrix_mode[resources_mode] = not matrix_mode[resources_mode];
+				last_bind = "resources_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5) and last_bind != "builds_mode")
+			{
+				matrix_mode[builds_mode] = not matrix_mode[builds_mode];
+				last_bind = "builds_mode";
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6) and last_bind != "unit_mode")
+			{
+				matrix_mode[unit_mode] = not matrix_mode[unit_mode];
+				last_bind = "unit_mode";
 			}
 			if (event.type == Event::Closed)
 				window.close();
