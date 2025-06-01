@@ -104,9 +104,21 @@ const int neutral = 0;
 const int red = 1;
 const int blue = 2;
 
-//const int infantry = 0;
-const int jaeger = 1;
-const int mount_infantry = 2;
+const int blue_jaeger = 0;
+const int red_jaeger = 1;
+const int blue_mount_infantry = 2;
+const int red_mount_infantry = 3;
+const int blue_infantry = 4;
+const int red_infantry = 5;
+const int blue_moto = 6;
+const int red_moto = 7;
+const int blue_PTO = 8;
+const int red_PTO = 9;
+const int blue_sup = 10;
+const int red_sup = 11;
+const int blue_tank = 12;
+const int red_tank = 13;
+
 
 const Color field_color = { 40, 100, 0 };
 const Color forest_color = { 0,69,36 };
@@ -122,7 +134,7 @@ RenderWindow window(VideoMode(size_window_x, size_window_y), "shiiit");
 
 vector<Texture> textures_relief;
 vector<Texture> textures_resources;
-vector<Texture> textures_blue_units;
+vector<Texture> textures_units;
 vector<Texture> textures_modes;
 vector<Texture> textures_builds;
 vector<Texture> textures_roads;
@@ -1328,23 +1340,6 @@ void load_texture() {
 	texture_mount.loadFromImage(image_mount);
 	textures_relief.push_back(texture_mount);
 
-	Image image_infantry;
-	Texture texture_infantry;
-	image_infantry.loadFromFile("blue_infantry.png");
-	texture_infantry.loadFromImage(image_infantry);
-	textures_blue_units.push_back(texture_infantry);
-
-	Image image_jaeger;
-	Texture texture_jaeger;
-	image_jaeger.loadFromFile("blue_jaeger.png");
-	texture_jaeger.loadFromImage(image_jaeger);
-	textures_blue_units.push_back(texture_jaeger);
-
-	Image image_mount_infantry;
-	Texture texture_mount_infantry;
-	image_mount_infantry.loadFromFile("blue_mount_infantry.png");
-	texture_mount_infantry.loadFromImage(image_mount_infantry);
-	textures_blue_units.push_back(texture_mount_infantry);
 
 	Image image_control_mode;
 	Texture texture_control_mode;
@@ -1543,6 +1538,70 @@ void load_texture() {
 	image_sup_fuel.loadFromFile("sup_fuel.png");
 	sup_fuel_textures.loadFromImage(image_sup_fuel);
 	textures_sup_res.push_back(sup_fuel_textures);
+
+
+	Image image_jaeger;
+	Texture texture_jaeger;
+	image_jaeger.loadFromFile("blue_jaeger.png");
+	texture_jaeger.loadFromImage(image_jaeger);
+	textures_units.push_back(texture_jaeger);
+	image_jaeger.loadFromFile("red_jaeger.png");
+	texture_jaeger.loadFromImage(image_jaeger);
+	textures_units.push_back(texture_jaeger);
+
+	Image image_mount_infantry;
+	Texture texture_mount_infantry;
+	image_mount_infantry.loadFromFile("blue_mount_infantry.png");
+	texture_mount_infantry.loadFromImage(image_mount_infantry);
+	textures_units.push_back(texture_mount_infantry);
+	image_mount_infantry.loadFromFile("red_mount_infantry.png");
+	texture_mount_infantry.loadFromImage(image_mount_infantry);
+	textures_units.push_back(texture_mount_infantry);
+
+	Image image_infantry;
+	Texture texture_infantry;
+	image_infantry.loadFromFile("blue_infantry.png");
+	texture_infantry.loadFromImage(image_infantry);
+	textures_units.push_back(texture_infantry);
+	image_infantry.loadFromFile("red_infantry.png");
+	texture_infantry.loadFromImage(image_infantry);
+	textures_units.push_back(texture_infantry);
+
+	Image image_moto;
+	Texture texture_moto;
+	image_moto.loadFromFile("blue_moto.png");
+	texture_moto.loadFromImage(image_moto);
+	textures_units.push_back(texture_moto);
+	image_moto.loadFromFile("red_moto.png");
+	texture_moto.loadFromImage(image_moto);
+	textures_units.push_back(texture_moto);
+
+	Image image_PTO;
+	Texture texture_PTO;
+	image_PTO.loadFromFile("blue_PTO.png");
+	texture_PTO.loadFromImage(image_PTO);
+	textures_units.push_back(texture_PTO);
+	image_PTO.loadFromFile("red_PTO.png");
+	texture_PTO.loadFromImage(image_PTO);
+	textures_units.push_back(texture_PTO);
+
+	Image image_sup;
+	Texture texture_sup;
+	image_sup.loadFromFile("blue_sup.png");
+	texture_sup.loadFromImage(image_sup);
+	textures_units.push_back(texture_sup);
+	image_sup.loadFromFile("red_sup.png");
+	texture_sup.loadFromImage(image_sup);
+	textures_units.push_back(texture_sup);
+
+	Image image_tank;
+	Texture texture_tank;
+	image_tank.loadFromFile("blue_tank.png");
+	texture_tank.loadFromImage(image_tank);
+	textures_units.push_back(texture_tank);
+	image_tank.loadFromFile("red_tank.png");
+	texture_tank.loadFromImage(image_tank);
+	textures_units.push_back(texture_tank);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -2282,7 +2341,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	Vector2f scale = zoom_to_scale(zoom);
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	Sprite test;
-	test.setTexture(textures_blue_units[mount_infantry]);
+	test.setTexture(textures_units[blue_tank]);
 	test.setScale(scale);
 	test.setPosition(0, 0);
 
