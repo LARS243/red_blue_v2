@@ -18,6 +18,7 @@ const int ID_infantry = 4;
 const int ID_motorised_infantry = 5;
 const int ID_supply_car = 6;
 const int ID_mount_infantry = 7;
+const int ID_forest_infantry = 8;
 
 const int size_window_x = 2000;
 const int size_window_y = 1000;
@@ -655,6 +656,58 @@ public:
 	}
 };
 
+class forest_infantry {
+private:
+	int health;
+	int damage_to_living_force;
+	int damage_to_war_machine;
+	int mobility;
+	int supply;
+	int armor;
+	int ID;
+
+public:
+	forest_infantry() {
+		health = 100;
+		damage_to_living_force = 10;
+		damage_to_war_machine = 5;
+		mobility = 10;
+		supply = 50;
+		armor = 50;
+		ID = ID_motorised_infantry;
+	}
+	int get_health() {
+		return(health);
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
+	}
+	int get_armor() {
+		return(armor);
+	}
+	int get_ID() {
+		return(ID);
+	}
+	void set_mobility(int new_mobility) {
+		mobility = new_mobility;
+	}
+	void set_health(int new_health) {
+		health = new_health;
+	}
+	void set_supply(int new_supply) {
+		supply = new_supply;
+	}
+};
+
 class buffer {
 private:
 	int index;
@@ -665,6 +718,7 @@ private:
 	motorised_infantry* motorised_infantry_point = nullptr;
 	supply_car* supply_car_point = nullptr;
 	mount_infantry* mount_infantry_point = nullptr;
+	forest_infantry* forest_infantry_point = nullptr;
 
 public:
 	buffer(int new_index) {
@@ -696,6 +750,9 @@ public:
 		case 7:
 			mount_infantry_point = new mount_infantry();
 			index = new_index;
+		case 8:
+			forest_infantry_point = new forest_infantry();
+			index = new_index;
 		default:
 			break;
 		}
@@ -724,6 +781,9 @@ public:
 		case 7:
 			return (mount_infantry_point->get_health());
 			break;
+		case 8:
+			return (forest_infantry_point->get_health());
+			break;
 		default:
 			break;
 		}
@@ -748,6 +808,9 @@ public:
 			break;
 		case 7:
 			return (mount_infantry_point->get_damage_to_living_force());
+			break;
+		case 8:
+			return (forest_infantry_point->get_damage_to_living_force());
 			break;
 		default:
 			break;
@@ -774,6 +837,9 @@ public:
 		case 7:
 			return (mount_infantry_point->get_damage_to_war_machine());
 			break;
+		case 8:
+			return (forest_infantry_point->get_damage_to_war_machine());
+			break;
 		default:
 			break;
 		}
@@ -799,6 +865,9 @@ public:
 		case 7:
 			return (mount_infantry_point->get_mobility());
 			break;
+		case 8:
+			return (forest_infantry_point->get_mobility());
+			break;
 		default:
 			break;
 		}
@@ -823,6 +892,9 @@ public:
 			break;
 		case 7:
 			return (mount_infantry_point->get_supply());
+			break;
+		case 8:
+			return (forest_infantry_point->get_supply());
 			break;
 		default:
 			break;
@@ -852,6 +924,9 @@ public:
 		case 7:
 			return (mount_infantry_point->get_armor());
 			break;
+		case 8:
+			return (forest_infantry_point->get_armor());
+			break;
 		default:
 			break;
 		}
@@ -880,6 +955,9 @@ public:
 		case 7:
 			return (mount_infantry_point->get_ID());
 			break;
+		case 8:
+			return (forest_infantry_point->get_ID());
+			break;
 		default:
 			break;
 		}
@@ -904,6 +982,9 @@ public:
 			break;
 		case 7:
 			mount_infantry_point->set_mobility(new_mobility);
+			break;
+		case 8:
+			forest_infantry_point->set_mobility(new_mobility);
 			break;
 		default:
 			break;
@@ -933,6 +1014,9 @@ public:
 		case 7:
 			mount_infantry_point->set_health(new_health);
 			break;
+		case 8:
+			forest_infantry_point->set_health(new_health);
+			break;
 		default:
 			break;
 		}
@@ -957,6 +1041,9 @@ public:
 			break;
 		case 7:
 			mount_infantry_point->set_supply(new_supply);
+			break;
+		case 8:
+			forest_infantry_point->set_supply(new_supply);
 			break;
 		default:
 			break;
@@ -2477,6 +2564,10 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					window.draw(rectangle);
 					break;
 				case ID_mount_infantry:
+					rectangle.setFillColor(black_for_Oleg);
+					window.draw(rectangle);
+					break;
+				case ID_forest_infantry:
 					rectangle.setFillColor(black_for_Oleg);
 					window.draw(rectangle);
 					break;
