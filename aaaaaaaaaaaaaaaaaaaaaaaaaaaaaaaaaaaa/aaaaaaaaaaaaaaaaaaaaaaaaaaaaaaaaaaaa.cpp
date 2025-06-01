@@ -252,7 +252,6 @@ public:
 		dop_ = 0;
 		car_ = 0;
 		tank_ = 0;
-		anti_tank_ = 0;
 		max_res = 20;
 		max_eq = 20;
 	}
@@ -4181,7 +4180,6 @@ void game() {
 						unit_choose = true;
 						unit_x = coord[0];
 						unit_y = coord[1];
-						select_unit(coord, coord_units);
 
 					}
 					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
