@@ -2518,9 +2518,10 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	Vector2f scale = zoom_to_scale(zoom);
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
 	Sprite unit_sprite;
-	
 	unit_sprite.setScale(scale);
 	unit_sprite.setPosition(0, 0);
+
+
 
 	RectangleShape rectangle_1(Vector2f(size_cell * zoom, size_cell * zoom));
 	rectangle_1.setFillColor(orange_color);
@@ -2539,13 +2540,13 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 		for (int j = 0; j < size_field_y; j++) {
 			type_units = matrix_units_id[i][j];
 			if (type_units != 0) {
-				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				unit_sprite.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				switch (type_units) {
 				case ID_construction:
 					;
 					break;
 				case ID_tank:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_tank]);
 					}
 					else {
@@ -2553,7 +2554,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					}
 					break;
 				case ID_anti_tank:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_PTO]);
 					}
 					else {
@@ -2561,15 +2562,16 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					}
 					break;
 				case ID_infantry:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_infantry]);
 					}
 					else {
 						unit_sprite.setTexture(textures_units[blue_infantry]);
 					}
+					
 					break;
 				case ID_motorised_infantry:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_moto]);
 					}
 					else {
@@ -2577,7 +2579,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					}
 					break;
 				case ID_supply_car:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_sup]);
 					}
 					else {
@@ -2585,7 +2587,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					}
 					break;
 				case ID_mount_infantry:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_mount_infantry]);
 					}
 					else {
@@ -2593,7 +2595,7 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 					}
 					break;
 				case ID_forest_infantry:
-					if (player == red_player) {
+					if (matrix_control[i][j] == red_player) {
 						unit_sprite.setTexture(textures_units[red_jaeger]);
 					}
 					else {
