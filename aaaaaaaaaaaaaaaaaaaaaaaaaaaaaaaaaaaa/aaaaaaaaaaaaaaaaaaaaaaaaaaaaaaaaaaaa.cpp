@@ -1177,6 +1177,79 @@ void print(int matrix[size_field_x][size_field_y]) {
 	}
 }
 
+
+int max_supply(int& x, int& y) {
+	if (matrix_units_id[x][y] == ID_tank) {
+		return(max_supply_tank);
+	}
+	if (matrix_units_id[x][y] == ID_anti_tank) {
+		return(max_supply_anti_tank);
+	}
+	if (matrix_units_id[x][y] == ID_infantry) {
+		return(max_supply_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_motorised_infantry) {
+		return(max_supply_motorised_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_forest_infantry) {
+		return(max_supply_forest_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_mount_infantry) {
+		return(max_supply_mount_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_supply_car) {
+		return(max_supply_supply_car);
+	}
+}
+
+int max_health(int& x, int& y) {
+	if (matrix_units_id[x][y] == ID_tank) {
+		return(max_health_tank);
+	}
+	if (matrix_units_id[x][y] == ID_anti_tank) {
+		return(max_health_anti_tank);
+	}
+	if (matrix_units_id[x][y] == ID_infantry) {
+		return(max_health_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_motorised_infantry) {
+		return(max_health_motorised_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_forest_infantry) {
+		return(max_health_forest_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_mount_infantry) {
+		return(max_health_mount_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_supply_car) {
+		return(max_health_supply_car);
+	}
+}
+
+int max_mobility(int& x, int& y) {
+	if (matrix_units_id[x][y] == ID_tank) {
+		return(max_mobility_tank);
+	}
+	if (matrix_units_id[x][y] == ID_anti_tank) {
+		return(max_mobility_anti_tank);
+	}
+	if (matrix_units_id[x][y] == ID_infantry) {
+		return(max_mobility_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_motorised_infantry) {
+		return(max_mobility_motorised_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_forest_infantry) {
+		return(max_mobility_forest_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_mount_infantry) {
+		return(max_mobility_mount_infantry);
+	}
+	if (matrix_units_id[x][y] == ID_supply_car) {
+		return(max_mobility_supply_car);
+	}
+}
+
 void create_matrix_control() {
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
@@ -2842,6 +2915,7 @@ void paint_res_menu(Player_res player_color) {
 	for (int i = 0; i < 5; i++) {
 		if (i == sup_steel) {
 			get_res = player_color.get_steel();
+			
 		}
 		else if (i == sup_iron) {
 			get_res = player_color.get_iron();
@@ -2883,14 +2957,21 @@ void paint_unit_stat() {
 		if (i == stat_hp) {
 			sprite_res.setTexture(textures_stats[stat_hp]);
 			buffer_text << matrix_units_points[unit_x][unit_y]->get_health(matrix_units_id[unit_x][unit_y]);
+			buffer_text << "/";
+			buffer_text << max_health(unit_x, unit_y);
+			
 		}
 		if (i == stat_eq) {
 			sprite_res.setTexture(textures_stats[stat_eq]);
 			buffer_text << matrix_units_points[unit_x][unit_y]->get_supply(matrix_units_id[unit_x][unit_y]);
+			buffer_text << "/";
+			buffer_text << max_supply(unit_x, unit_y);
 		}
 		if (i == stat_mobility) {
 			sprite_res.setTexture(textures_stats[stat_mobility]);
 			buffer_text << matrix_units_points[unit_x][unit_y]->get_mobility(matrix_units_id[unit_x][unit_y]);
+			buffer_text << "/";
+			buffer_text << max_mobility(unit_x, unit_y);
 		}
 		if (i == stat_soft) {
 			sprite_res.setTexture(textures_stats[stat_soft]);
@@ -3856,77 +3937,6 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit, Player_res
 	}
 }
 
-int max_supply(int& x, int& y) {
-	if (matrix_units_id[x][y] == ID_tank) {
-		return(max_supply_tank);
-	}
-	if (matrix_units_id[x][y] == ID_anti_tank) {
-		return(max_supply_anti_tank);
-	}
-	if (matrix_units_id[x][y] == ID_infantry) {
-		return(max_supply_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_motorised_infantry) {
-		return(max_supply_motorised_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_forest_infantry) {
-		return(max_supply_forest_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_mount_infantry) {
-		return(max_supply_mount_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_supply_car) {
-		return(max_supply_supply_car);
-	}
-}
-
-int max_health(int& x, int& y) {
-	if (matrix_units_id[x][y] == ID_tank) {
-		return(max_health_tank);
-	}
-	if (matrix_units_id[x][y] == ID_anti_tank) {
-		return(max_health_anti_tank);
-	}
-	if (matrix_units_id[x][y] == ID_infantry) {
-		return(max_health_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_motorised_infantry) {
-		return(max_health_motorised_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_forest_infantry) {
-		return(max_health_forest_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_mount_infantry) {
-		return(max_health_mount_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_supply_car) {
-		return(max_health_supply_car);
-	}
-}
-
-int max_mobility(int& x, int& y) {
-	if (matrix_units_id[x][y] == ID_tank) {
-		return(max_mobility_tank);
-	}
-	if (matrix_units_id[x][y] == ID_anti_tank) {
-		return(max_mobility_anti_tank);
-	}
-	if (matrix_units_id[x][y] == ID_infantry) {
-		return(max_mobility_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_motorised_infantry) {
-		return(max_mobility_motorised_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_forest_infantry) {
-		return(max_mobility_forest_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_mount_infantry) {
-		return(max_mobility_mount_infantry);
-	}
-	if (matrix_units_id[x][y] == ID_supply_car) {
-		return(max_mobility_supply_car);
-	}
-}
 
 void survivors_remember_the_fallen() {
 	start_check_supply_zones();
