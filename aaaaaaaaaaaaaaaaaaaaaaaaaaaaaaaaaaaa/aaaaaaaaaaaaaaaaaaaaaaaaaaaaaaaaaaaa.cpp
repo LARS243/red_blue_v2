@@ -2521,8 +2521,6 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	unit_sprite.setScale(scale);
 	unit_sprite.setPosition(0, 0);
 
-
-
 	RectangleShape rectangle_1(Vector2f(size_cell * zoom, size_cell * zoom));
 	rectangle_1.setFillColor(orange_color);
 	for (int i = 0; i < size_field_x; i++) {
@@ -3243,6 +3241,11 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 void check_unit_road(int x, int y, int new_mobility, int mobility) {
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
 		matrix_unit_mobility[x][y] = new_mobility;
+	}
+	else if (matrix_unit_mobility[x][y] != null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
+		if (new_mobility < matrix_unit_mobility[x][y]) {
+			matrix_unit_mobility[x][y] = new_mobility;
+		}
 	}
 	if (new_mobility <= mobility) {
 		check_unit_road(x + 1, y, new_mobility + 1, mobility);
