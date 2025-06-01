@@ -325,11 +325,13 @@ private:
 	int health;
 	int armor;
 	int ID;
+	int player;
 public:
-	construction() {
+	construction(int new_player) {
 		health = 100;
 		armor = 50;
 		ID = ID_construction;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -357,8 +359,9 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 public:
-	tank() {
+	tank(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 20;
@@ -366,6 +369,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID = ID_tank;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -387,6 +391,9 @@ public:
 	}
 	int get_ID() {
 		return(ID);
+	}
+	int get_player() {
+		return(player);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -408,9 +415,10 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	anti_tank() {
+	anti_tank(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 20;
@@ -418,6 +426,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID = ID_anti_tank;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -439,6 +448,9 @@ public:
 	}
 	int get_ID() {
 		return(ID);
+	}
+	int get_player() {
+		return(player);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -460,9 +472,10 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	infantry() {
+	infantry(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 2;
@@ -470,6 +483,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID_infantry;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -491,6 +505,9 @@ public:
 	}
 	int get_ID() {
 		return(ID);
+	}
+	int get_player() {
+		return(player);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -512,9 +529,10 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	motorised_infantry() {
+	motorised_infantry(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 5;
@@ -522,6 +540,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID = ID_motorised_infantry;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -544,6 +563,9 @@ public:
 	int get_ID() {
 		return(ID);
 	}
+	int get_player() {
+		return(player);
+	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
 	}
@@ -564,9 +586,10 @@ private:
 	int supply_for_supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	supply_car() {
+	supply_car(int new_player) {
 		health = 10000;
 		damage_to_living_force = 1000;
 		damage_to_war_machine = 3000;
@@ -574,6 +597,7 @@ public:
 		supply_for_supply = 2147483647;
 		armor = 50;
 		ID = ID_supply_car;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -596,6 +620,9 @@ public:
 	int get_ID() {
 		return(ID);
 	}
+	int get_player() {
+		return (player);
+	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
 	}
@@ -616,9 +643,10 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	mount_infantry() {
+	mount_infantry(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 5;
@@ -626,6 +654,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID = ID_motorised_infantry;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -647,6 +676,9 @@ public:
 	}
 	int get_ID() {
 		return(ID);
+	}
+	int get_player() {
+		return(player);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -668,9 +700,10 @@ private:
 	int supply;
 	int armor;
 	int ID;
+	int player;
 
 public:
-	forest_infantry() {
+	forest_infantry(int new_player) {
 		health = 100;
 		damage_to_living_force = 10;
 		damage_to_war_machine = 5;
@@ -678,6 +711,7 @@ public:
 		supply = 50;
 		armor = 50;
 		ID = ID_motorised_infantry;
+		player = new_player;
 	}
 	int get_health() {
 		return(health);
@@ -699,6 +733,9 @@ public:
 	}
 	int get_ID() {
 		return(ID);
+	}
+	int get_player() {
+		return(player);
 	}
 	void set_mobility(int new_mobility) {
 		mobility = new_mobility;
@@ -724,38 +761,69 @@ private:
 	forest_infantry* forest_infantry_point = nullptr;
 
 public:
-	buffer(int new_index) {
+	buffer(int new_index, int player) {
 		switch (new_index) {
 		case 1:
-			construction_point = new construction();
+			construction_point = new construction(player);
 			index = new_index;
 			break;
 		case 2:
-			tank_point = new tank();
+			tank_point = new tank(player);
 			index = new_index;
 			break;
 		case 3:
-			anti_tank_point = new anti_tank();
+			anti_tank_point = new anti_tank(player);
 			index = new_index;
 			break;
 		case 4:
-			infantry_point = new infantry();
+			infantry_point = new infantry(player);
 			index = new_index;
 			break;
 		case 5:
-			motorised_infantry_point = new motorised_infantry();
+			motorised_infantry_point = new motorised_infantry(player);
 			index = new_index;
 			break;
 		case 6:
-			supply_car_point = new supply_car();
+			supply_car_point = new supply_car(player);
 			index = new_index;
 			break;
 		case 7:
-			mount_infantry_point = new mount_infantry();
+			mount_infantry_point = new mount_infantry(player);
 			index = new_index;
 		case 8:
-			forest_infantry_point = new forest_infantry();
+			forest_infantry_point = new forest_infantry(player);
 			index = new_index;
+		default:
+			break;
+		}
+	}
+
+	int get_player(int new_index) {
+		switch (new_index) {
+		case 1:
+			return (construction_point->get_player());
+			break;
+		case 2:
+			return (tank_point->get_player());
+			break;
+		case 3:
+			return (anti_tank_point->get_player());
+			break;
+		case 4:
+			return (infantry_point->get_player());
+			break;
+		case 5:
+			return (motorised_infantry_point->get_player());
+			break;
+		case 6:
+			return (supply_car_point->get_player());
+			break;
+		case 7:
+			return (mount_infantry_point->get_player());
+			break;
+		case 8:
+			return (forest_infantry_point->get_player());
+			break;
 		default:
 			break;
 		}
@@ -1477,7 +1545,7 @@ void matrix_unit_to_zero() {
 		}
 	}
 	matrix_units_id[10][10] = ID_infantry;
-	matrix_units_points[10][10] = new buffer(ID_infantry);
+	matrix_units_points[10][10] = new buffer(ID_infantry, player);
 }
 
 void load_texture() {
@@ -3238,7 +3306,7 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 }
 
 // Костыль нажатия левой кнопки для выбора юнита
-void check_unit_road(int x, int y, int new_mobility, int mobility) {
+void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id) {
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
 		matrix_unit_mobility[x][y] = new_mobility;
 	}
@@ -3248,20 +3316,52 @@ void check_unit_road(int x, int y, int new_mobility, int mobility) {
 		}
 	}
 	if (new_mobility <= mobility) {
-		check_unit_road(x + 1, y, new_mobility + 1, mobility);
-		check_unit_road(x, y + 1, new_mobility + 1, mobility);
-		check_unit_road(x - 1, y, new_mobility + 1, mobility);
-		check_unit_road(x, y - 1, new_mobility + 1, mobility);
+		if (matrix_relief[x][y] == field) {
+			check_unit_road(x + 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + 1, mobility, unit_id);
+		}
+		else if (matrix_relief[x][y] == forest and unit_id != ID_forest_infantry) {
+			check_unit_road(x + 1, y, new_mobility + 2, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + 2, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + 2, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + 2, mobility, unit_id);
+		}
+		else if (matrix_relief[x][y] == mount and unit_id != ID_mount_infantry) {
+			check_unit_road(x + 1, y, new_mobility + 3, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + 3, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + 3, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + 3, mobility, unit_id);
+		}
+		else if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
+			check_unit_road(x + 1, y, new_mobility + mobility, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + mobility, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + mobility, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + mobility, mobility, unit_id);
+		}
+		else if (matrix_relief[x][y] == forest and unit_id == ID_forest_infantry) {
+			check_unit_road(x + 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + 1, mobility, unit_id);
+		}
+		else if (matrix_relief[x][y] == mount and unit_id == ID_mount_infantry) {
+			check_unit_road(x + 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y + 1, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x - 1, y, new_mobility + 1, mobility, unit_id);
+			check_unit_road(x, y - 1, new_mobility + 1, mobility, unit_id);
+		}
 	}
 }
-void start_check_unit_road(int x, int y, int mobility) {
+void start_check_unit_road(int x, int y, int mobility, int unit_id) {
 	int new_mobility = 0;
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			matrix_unit_mobility[i][j] = null;
 		}
 	}
-	check_unit_road(x, y, new_mobility, mobility);
+	check_unit_road(x, y, new_mobility, mobility, unit_id);
 }
 
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
@@ -3275,14 +3375,14 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 			matrix_units_points[coord[0]][coord[1]]->set_mobility(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - matrix_unit_mobility[coord[0]][coord[1]]);
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]));
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
 		}
 	}
 	else {
 		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]));
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]), matrix_units_id[coord[0]][coord[1]]);
 		}
 	}
 }
@@ -3471,12 +3571,7 @@ void game() {
 						vector<int> coord;
 						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
 
-						if (player == red_player) {
-							select_unit(coord, coord_units);
-						}
-						else {
-							select_unit(coord, coord_units);
-						}
+						select_unit(coord, coord_units);
 
 					}
 					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
