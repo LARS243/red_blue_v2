@@ -3745,10 +3745,7 @@ void check_unit_road_machine(int x, int y, int new_mobility, int mobility, int& 
 	}
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
 		if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
-			check_unit_road_machine(x + 1, y, new_mobility + mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y + 1, new_mobility + mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x - 1, y, new_mobility + mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y - 1, new_mobility + mobility + 1, mobility, unit_id, player_resources);
+			
 		}
 		else if (matrix_relief[x][y] == field) {
 			check_unit_road_machine(x + 1, y, new_mobility + 1, mobility, unit_id, player_resources);
