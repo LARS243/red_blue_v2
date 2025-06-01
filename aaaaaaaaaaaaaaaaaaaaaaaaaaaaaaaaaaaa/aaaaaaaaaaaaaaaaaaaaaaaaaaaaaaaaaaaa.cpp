@@ -1,5 +1,4 @@
-﻿
-#include <SFML/Graphics/Image.hpp>
+﻿#include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <sstream>
@@ -2991,7 +2990,6 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 		}
 	}
 }
-
 
 void game() {
 	Player_res Blue_player;
