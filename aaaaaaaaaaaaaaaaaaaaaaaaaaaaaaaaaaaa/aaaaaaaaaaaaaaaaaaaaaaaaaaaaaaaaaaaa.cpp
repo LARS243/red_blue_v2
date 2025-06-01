@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 using namespace sf;
@@ -1546,6 +1547,8 @@ void matrix_unit_to_zero() {
 	}
 	matrix_units_id[10][10] = ID_infantry;
 	matrix_units_points[10][10] = new buffer(ID_infantry, player);
+	matrix_units_id[11][11] = ID_infantry;
+	matrix_units_points[11][11] = new buffer(ID_infantry, blue);
 }
 
 void load_texture() {
@@ -3328,7 +3331,7 @@ void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id)
 			check_unit_road(x - 1, y, new_mobility + 2, mobility, unit_id);
 			check_unit_road(x, y - 1, new_mobility + 2, mobility, unit_id);
 		}
-		else if (matrix_relief[x][y] == mount and unit_id != ID_mount_infantry) {
+		else if (matrix_relief[x][y] == mount and unit_id != ID_mount_infantry and unit_id != ID_tank) {
 			check_unit_road(x + 1, y, new_mobility + 3, mobility, unit_id);
 			check_unit_road(x, y + 1, new_mobility + 3, mobility, unit_id);
 			check_unit_road(x - 1, y, new_mobility + 3, mobility, unit_id);
@@ -3364,6 +3367,82 @@ void start_check_unit_road(int x, int y, int mobility, int unit_id) {
 	check_unit_road(x, y, new_mobility, mobility, unit_id);
 }
 
+int supply_removed(vector <int>& coord, vector <int>& coord_saved_unit) {
+	if ((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_supply_car or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) and matrix_relief[coord[0]][coord[1]] == mount) {
+		return(20);
+	}
+	else if (matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_mount_infantry and matrix_relief[coord[0]][coord[1]] == mount) {
+		return(10);
+	}
+	else if (matrix_relief[coord[0]][coord[1]] == mount){
+		return(15);
+	}
+
+	else if ((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_supply_car or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) and matrix_relief[coord[0]][coord[1]] == forest) {
+		return(15);
+	}
+	else if (matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_forest_infantry and matrix_relief[coord[0]][coord[1]] == forest) {
+		return(8);
+	}
+	else if (matrix_relief[coord[0]][coord[1]] == forest) {
+		return(12);
+	}
+
+	else if ((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_supply_car or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) and matrix_relief[coord[0]][coord[1]] == field) {
+		return(12);
+	}
+	else if (matrix_relief[coord[0]][coord[1]] == field) {
+		return(10);
+	}
+}
+
+void atack(vector <int>& coord, vector <int>& coord_saved_unit) {
+	int supply_for_atack = supply_removed(coord, coord_saved_unit);
+	if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= supply_for_atack) {
+		matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - supply_for_atack);
+		if (matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_construction) {
+			if (matrix_relief[coord[0]][coord[1]] == mount) {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 3);
+			}
+			else if (matrix_relief[coord[0]][coord[1]] == forest) {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 2);
+			}
+			else {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 1);
+			}
+			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_war_machine((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]))) {
+				matrix_units_points[coord[0]][coord[1]] = nullptr;
+				matrix_units_id[coord[0]][coord[1]] = ID_black_hole;
+				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
+			}
+			else {
+				matrix_units_points[coord[0]][coord[1]]->set_health(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) - matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_war_machine((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]])));
+				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
+			}
+		}
+		else {
+			if (matrix_relief[coord[0]][coord[1]] == mount) {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 3);
+			}
+			else if (matrix_relief[coord[0]][coord[1]] == forest) {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 2);
+			}
+			else {
+				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 1);
+			}
+			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_living_force((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]))) {
+				matrix_units_points[coord[0]][coord[1]] = nullptr;
+				matrix_units_id[coord[0]][coord[1]] = ID_black_hole;
+				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
+			}
+			else {
+				matrix_units_points[coord[0]][coord[1]]->set_health(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) - matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_living_force((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]])));
+				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
+			}
+		}
+	}
+}
+
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 	int stri = 0;
 	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_unit_mobility[coord[0]][coord[1]] != null) {
@@ -3377,6 +3456,9 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 			coord_saved_unit[1] = coord[1];
 			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]]);
 		}
+	}
+	else if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_units_points[coord[0]][coord[1]]->get_player(matrix_units_id[coord[0]][coord[1]]) != player and (abs(coord[0] - coord_saved_unit[0]) <= 1) and (abs(coord[1] - coord_saved_unit[1]) <= 1)) {
+		atack(coord, coord_saved_unit);
 	}
 	else {
 		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
@@ -3560,6 +3642,8 @@ void game() {
 					matrix_player_bar[unit_build_menu] = false;
 					choose_build = false;
 					constuction = -1;
+					coord_units[0] = ID_no_select;
+					coord_units[1] = ID_no_select;
 				}
 			}
 			if (event.type == sf::Event::MouseButtonPressed)
