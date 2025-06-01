@@ -1932,10 +1932,19 @@ int rail_objectrs(int x, int y) {
 void check_rail_web(int x, int y) {
 	if (matrix_rail_web[x][y] == null and matrix_roads[x][y] != null and player == matrix_control[x][y]) {
 		matrix_rail_web[x][y] = rail_road;
-		check_rail_web(x + 1, y);
-		check_rail_web(x, y + 1);
-		check_rail_web(x - 1, y);
-		check_rail_web(x, y - 1);
+		if (x + 1 < size_field_x) {
+			check_rail_web(x + 1, y);
+		}
+		if (y + 1 < size_field_y) {
+			check_rail_web(x, y + 1);
+		}
+		if (x - 1 >= 0) {
+			check_rail_web(x - 1, y);
+		}
+		if (y - 1 >= 0) {
+			check_rail_web(x, y - 1);
+		}
+		
 	}
 
 }
@@ -2037,16 +2046,15 @@ void check_build_zones_town(int supply_range, int x, int y) {
 			supply_range -= 2;
 		}
 		if (y - 1 >= 0) {
-
 			check_build_zones_town(supply_range, x, y - 1);
 		}
-		if (x - 1 >= x - 1) {
+		if (x - 1 >= 0) {
 			check_build_zones_town(supply_range, x - 1, y);
 		}
-		if (y + 1 <= size_field_y) {
+		if (y + 1 < size_field_y) {
 			check_build_zones_town(supply_range, x, y + 1);
 		}
-		if (x + 1 <= size_field_x) {
+		if (x + 1 < size_field_x) {
 			check_build_zones_town(supply_range, x + 1, y);
 		}
 
