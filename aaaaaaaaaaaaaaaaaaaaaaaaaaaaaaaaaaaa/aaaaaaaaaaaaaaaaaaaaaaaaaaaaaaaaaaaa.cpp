@@ -182,7 +182,6 @@ private:
 	int dop_;
 	int car_;
 	int tank_;
-	int anti_tank_;
 
 	int max_res;
 	int max_eq;
@@ -198,7 +197,6 @@ public:
 		dop_ = 0;
 		car_ = 0;
 		tank_ = 0;
-		anti_tank_ = 0;
 		max_res = 20;
 		max_eq = 20;
 	}
@@ -229,9 +227,6 @@ public:
 	}
 	int get_tank() {
 		return tank_;
-	}
-	int get_anti_tank() {
-		return anti_tank_;
 	}
 
 	int get_max_res() {
@@ -294,12 +289,6 @@ public:
 		tank_ = new_tank_;
 		if (tank_ > max_eq) {
 			tank_ = max_eq;
-		}
-	}
-	void set_anti_tank(int new_anti_tank_) {
-		anti_tank_ = new_anti_tank_;
-		if (anti_tank_ > max_eq) {
-			anti_tank_ = max_eq;
 		}
 	}
 
@@ -2689,6 +2678,9 @@ void paint_res_menu(Player_res player_color) {
 
 }
 
+void paint_mil_res_menu(Player_res player_color) {
+
+}
 void paint_build_menu(Player_res player_color) {
 	Sprite sprite_builds;
 	sprite_builds.setScale(2, 2);
