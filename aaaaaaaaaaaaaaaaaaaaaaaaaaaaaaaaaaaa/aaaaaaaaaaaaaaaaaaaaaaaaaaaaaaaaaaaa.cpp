@@ -3243,6 +3243,8 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 void check_unit_road(int x, int y, int new_mobility, int mobility) {
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
 		matrix_unit_mobility[x][y] = new_mobility;
+	}
+	if (new_mobility <= mobility) {
 		check_unit_road(x + 1, y, new_mobility + 1, mobility);
 		check_unit_road(x, y + 1, new_mobility + 1, mobility);
 		check_unit_road(x - 1, y, new_mobility + 1, mobility);
