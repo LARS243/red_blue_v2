@@ -121,6 +121,19 @@ const int red_sup = 11;
 const int blue_tank = 12;
 const int red_tank = 13;
 
+const int infantry_ = 0;
+const int jager_ = 1;
+const int mount_infantry_ = 2;
+const int moto_ = 3;
+const int PTO_ = 4;
+const int sup_ = 5;
+const int tank_ = 6;
+
+const int stat_hp = 0;
+const int stat_eq = 1;
+const int stat_mobility = 2;
+const int stat_soft = 3;
+const int stat_hard = 4;
 
 const Color field_color = { 40, 100, 0 };
 const Color forest_color = { 0,69,36 };
@@ -142,6 +155,8 @@ vector<Texture> textures_builds;
 vector<Texture> textures_roads;
 vector<Texture> textures_player_bar;
 vector<Texture> textures_sup_res;
+vector<Texture> textures_sup_mil;
+vector<Texture> textures_stats;
 
 
 int matrix_relief[size_field_x][size_field_y];
@@ -161,6 +176,7 @@ int zone_building_red[size_field_x][size_field_y];
 int zone_building_blue[size_field_x][size_field_y];
 
 int cost_buildings[cost_rail_road + 1];
+int cost_units[7] = {10, 10, 10, 10, 10, 10, 10 };
 
 bool matrix_mode[count_mode];
 bool matrix_player_bar[count_player_bar];
@@ -169,6 +185,8 @@ bool choose_build = false;
 const int red_player = 1;
 const int blue_player = 2;
 int player = red_player;
+int unit_x = -1;
+int unit_y = -1;
 
 class Player_res {
 private:
@@ -193,10 +211,10 @@ public:
 		coal_ = 0;
 		oil_ = 0;
 		fuel_ = 0;
-		rifle_ = 0;
-		dop_ = 0;
-		car_ = 0;
-		tank_ = 0;
+		rifle_ = 20;
+		dop_ = 20;
+		car_ = 20;
+		tank_ = 20;
 		max_res = 20;
 		max_eq = 20;
 	}
@@ -582,7 +600,7 @@ public:
 		health = 10000;
 		damage_to_living_force = 1000;
 		damage_to_war_machine = 3000;
-		mobility = 4000;
+		mobility = 10;
 		supply_for_supply = 2147483647;
 		armor = 50;
 		ID = ID_supply_car;
@@ -1774,6 +1792,32 @@ void load_texture() {
 	textures_sup_res.push_back(sup_fuel_textures);
 
 
+	Image image_sup_rifle;
+	Texture sup_rifle_textures;
+	image_sup_rifle.loadFromFile("sup_rifle.png");
+	sup_rifle_textures.loadFromImage(image_sup_rifle);
+	textures_sup_mil.push_back(sup_rifle_textures);
+
+	Image image_sup_dop;
+	Texture sup_dop_textures;
+	image_sup_dop.loadFromFile("sup_eq.png");
+	sup_dop_textures.loadFromImage(image_sup_dop);
+	textures_sup_mil.push_back(sup_dop_textures);
+
+	Image image_sup_car;
+	Texture sup_car_textures;
+	image_sup_car.loadFromFile("sup_car.png");
+	sup_car_textures.loadFromImage(image_sup_car);
+	textures_sup_mil.push_back(sup_car_textures);
+
+	Image image_sup_tank;
+	Texture sup_tank_textures;
+	image_sup_tank.loadFromFile("sup_tank.png");
+	sup_tank_textures.loadFromImage(image_sup_tank);
+	textures_sup_mil.push_back(sup_tank_textures);
+
+
+
 	Image image_jaeger;
 	Texture texture_jaeger;
 	image_jaeger.loadFromFile("blue_jaeger.png");
@@ -1836,6 +1880,36 @@ void load_texture() {
 	image_tank.loadFromFile("red_tank.png");
 	texture_tank.loadFromImage(image_tank);
 	textures_units.push_back(texture_tank);
+
+	Image image_hp;
+	Texture texture_hp;
+	image_hp.loadFromFile("hp.png");
+	texture_hp.loadFromImage(image_hp);
+	textures_stats.push_back(texture_hp);
+
+	Image image_eq;
+	Texture texture_eq;
+	image_eq.loadFromFile("eq.png");
+	texture_eq.loadFromImage(image_eq);
+	textures_stats.push_back(texture_eq);
+
+	Image image_mobility;
+	Texture texture_mobility;
+	image_mobility.loadFromFile("mobility.png");
+	texture_mobility.loadFromImage(image_mobility);
+	textures_stats.push_back(texture_mobility);
+
+	Image image_soft_attack;
+	Texture texture_soft_attack;
+	image_soft_attack.loadFromFile("soft_attack.png");
+	texture_soft_attack.loadFromImage(image_soft_attack);
+	textures_stats.push_back(texture_soft_attack);
+
+	Image image_armor_attack;
+	Texture texture_armor_attack;
+	image_armor_attack.loadFromFile("armor_attack.png");
+	texture_armor_attack.loadFromImage(image_armor_attack);
+	textures_stats.push_back(texture_armor_attack);
 }
 
 Vector2f zoom_to_scale(int zoom) {
@@ -1919,7 +1993,7 @@ void paint_control(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-//заглушка
+
 int rail_objectrs(int x, int y) {
 	if (matrix_roads[x][y] == rail_base or matrix_roads[x][y] == rail_road or matrix_roads[x][y] == rail_supply_center or matrix_roads[x][y] == rail_town) {
 		return rail_road;
@@ -2127,15 +2201,8 @@ void update_product(Player_res& player_color) {
 				}
 				else if (matrix_builds[i][j] == red_base or matrix_builds[i][j] == blue_base) {
 					player_color.set_max_res(player_color.get_max_res() + 20);
+					player_color.set_max_eq(player_color.get_max_eq() + 20);
 				}
-			}
-		}
-	}
-
-	for (int i = 0; i < size_field_x; i++) {
-		for (int j = 0; j < size_field_y; j++) {
-			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
-
 			}
 		}
 	}
@@ -2169,31 +2236,42 @@ void update_product(Player_res& player_color) {
 							player_color.set_steel(player_color.get_steel() + product_factory_steel);
 						}
 					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
+				if (player_color.get_coal() >= product_cost) {
+					int builds_ = matrix_builds[i][j];
 					if (builds_ == factory_rifle) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_rifle(player_color.get_rifle() + product_factory_rifle);
-					}
-					if (builds_ == factory_dop) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_dop(player_color.get_dop() + product_factory_dop);
-					}
-					if (builds_ == factory_car) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_car(player_color.get_car() + product_factory_car);
+						if (player_color.get_steel() >= product_factory_rifle_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_rifle_cost);
+							player_color.set_rifle(player_color.get_rifle() + product_factory_rifle);
+						}
 					}
 					if (builds_ == factory_tank) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_tank(player_color.get_tank() + product_factory_tank);
+						if (player_color.get_steel() >= product_factory_tank_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_tank_cost);
+							player_color.set_tank(player_color.get_tank() + product_factory_tank);
+						}
 					}
-					// проблема
-					/*if (builds_ == factory_anti_tank) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_anti_tank(player_color.get_anti_tank() + product_factory_anti_tank);
-					}*/
-					if (builds_ == factory_fuel) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_fuel(player_color.get_fuel() - product_factory_fuel_cost);
-						player_color.set_steel(player_color.get_steel() + product_factory_fuel);
+					if (builds_ == factory_dop) {
+						if (player_color.get_steel() >= product_factory_dop_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_dop_cost);
+							player_color.set_dop(player_color.get_dop() + product_factory_dop);
+						}
+					}
+					if (builds_ == factory_car) {
+						if (player_color.get_steel() >= product_factory_car_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_car_cost);
+							player_color.set_car(player_color.get_car() + product_factory_car);
+						}
 					}
 				}
 			}
@@ -2468,7 +2546,7 @@ void paint_resource(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-//заглушка
+
 void paint_builds(int x_camera, int y_camera, int zoom) {
 	Vector2f scale = zoom_to_scale(zoom);
 	Sprite sprite_town;
@@ -2577,7 +2655,7 @@ void paint_builds(int x_camera, int y_camera, int zoom) {
 		}
 	}
 }
-// Костыль отрисовки юнитов
+
 void paint_units(int x_camera, int y_camera, int zoom) {//Допилить под новые реалии, но потом
 	int type_units;
 	Vector2f scale = zoom_to_scale(zoom);
@@ -2753,8 +2831,83 @@ void paint_res_menu(Player_res player_color) {
 
 
 }
+void paint_unit_stat() {
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+	Sprite sprite_res;
+	sprite_res.scale(3, 3);
+	for (int i = 0; i <= stat_hard; i++) {
+		ostringstream buffer_text;
+		if (i == stat_hp) {
+			sprite_res.setTexture(textures_stats[stat_hp]);
+			buffer_text << matrix_units_points[unit_x][unit_y]->get_health(matrix_units_id[unit_x][unit_y]);
+		}
+		if (i == stat_eq) {
+			sprite_res.setTexture(textures_stats[stat_eq]);
+			buffer_text << matrix_units_points[unit_x][unit_y]->get_supply(matrix_units_id[unit_x][unit_y]);
+		}
+		if (i == stat_mobility) {
+			sprite_res.setTexture(textures_stats[stat_mobility]);
+			buffer_text << matrix_units_points[unit_x][unit_y]->get_mobility(matrix_units_id[unit_x][unit_y]);
+		}
+		if (i == stat_soft) {
+			sprite_res.setTexture(textures_stats[stat_soft]);
+			buffer_text << matrix_units_points[unit_x][unit_y]->get_damage_to_living_force(matrix_units_id[unit_x][unit_y]);
+		}
+		if (i == stat_hard) {
+			sprite_res.setTexture(textures_stats[stat_hard]);
+			buffer_text << matrix_units_points[unit_x][unit_y]->get_damage_to_war_machine(matrix_units_id[unit_x][unit_y]);
+		}
+		text.setString(buffer_text.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3, size_window_y / 5 * i + 50);
+		sprite_res.setPosition(size_window_x - player_bar_size_x, size_window_y / 5 * i + 35);
 
+		window.draw(text);
+		window.draw(sprite_res);
+
+	}
+}
 void paint_mil_res_menu(Player_res player_color) {
+	const int sup_rifle = 0;
+	const int sup_dop = 1;
+	const int sup_car = 2;
+	const int sup_tank = 3;
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+	int get_res;
+	Sprite sprite_res;
+	sprite_res.scale(3, 3);
+	for (int i = 0; i < 4; i++) {
+		if (i == sup_rifle) {
+			get_res = player_color.get_rifle();
+		}
+		else if (i == sup_dop) {
+			get_res = player_color.get_dop();
+		}
+		else if (i == sup_car) {
+			get_res = player_color.get_car();
+		}
+		else if (i == sup_tank) {
+			get_res = player_color.get_tank();
+		}
+		sprite_res.setTexture(textures_sup_mil[i]);
+		ostringstream buffer;
+		buffer << get_res;
+		buffer << "/";
+		buffer << player_color.get_max_eq();
+		text.setString(buffer.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3, size_window_y / 5 * i + 50);
+		sprite_res.setPosition(size_window_x - player_bar_size_x, size_window_y / 5 * i + 35);
+
+		window.draw(text);
+		window.draw(sprite_res);
+	}
 
 }
 void paint_build_menu(Player_res player_color) {
@@ -2829,6 +2982,113 @@ void paint_build_menu(Player_res player_color) {
 		window.draw(text_2);
 		window.draw(text);
 		window.draw(sprite_builds);
+
+
+	}
+}
+
+void paint_unit_build_menu(Player_res player_color) {
+	Sprite sprite_units;
+	sprite_units.setScale(2, 2);
+	char binds[cost_rail_road + 2] = "QWERTYU";
+	RectangleShape rectangle_cost(Vector2f(70, 70));
+	RectangleShape rectangle_blank_line(Vector2f(60, 60));
+	rectangle_blank_line.setFillColor(mount_color);
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	Text text_2("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+	text_2.setStyle(sf::Text::Bold);
+	text_2.setColor(Color::Black);
+
+	for (int i = 0; i < 7; i++) {
+		int res;
+		if (i == infantry_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_infantry]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_infantry]);
+			}
+			res = player_color.get_rifle();
+			
+		}
+		else if (i == jager_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_jaeger]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_jaeger]);
+			}
+			res = player_color.get_rifle();
+		}
+		else if (i == mount_infantry_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_mount_infantry]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_mount_infantry]);
+			}
+			res = player_color.get_dop();
+		}
+		else if (i == PTO_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_PTO]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_PTO]);
+			}
+			res = player_color.get_dop();
+		}
+		else if (i == moto_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_moto]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_moto]);
+			}
+			res = player_color.get_car();
+		}
+		else if (i == tank_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_tank]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_tank]);
+			}
+			res = player_color.get_tank();
+		}
+		else if (i == sup_) {
+			if (player == red_player) {
+				sprite_units.setTexture(textures_units[red_sup]);
+			}
+			else {
+				sprite_units.setTexture(textures_units[blue_sup]);
+			}
+			res = player_color.get_car();
+		}
+
+		text_2.setString(binds[i]);
+		ostringstream buffer;
+		buffer << res;
+		buffer << "/";
+		buffer << cost_units[i];
+		text.setString(buffer.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3, 75 * i + 70);
+		text_2.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 + 150, 75 * i + 70);
+		sprite_units.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80 + 5, 75 * i + 60 + 5);
+		rectangle_blank_line.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80 + 5, 75 * i + 60 + 5);
+		if (res >= cost_units[i]) {
+			rectangle_cost.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3 - 80, 75 * i + 60);
+			rectangle_cost.setFillColor(green_color);
+			window.draw(rectangle_cost);
+		}
+		window.draw(rectangle_blank_line);
+		window.draw(text_2);
+		window.draw(text);
+		window.draw(sprite_units);
 
 
 	}
@@ -3180,19 +3440,67 @@ void check_build(Player_res& player_color, int constuction, int x, int y) {
 
 }
 
-void change_menu(Player_res player_color, int constuction, int zoom, int x_camera, int y_camera) {
+void build_unit(Player_res& player_color, int create_unit, int x, int y) {
+	start_check_supply_zones();
+	if (create_unit == infantry_ and player_color.get_rifle() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_rifle(player_color.get_rifle() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_infantry;
+		matrix_units_points[x][y] = new buffer(ID_infantry, player);
+	}
+	if (create_unit == jager_ and player_color.get_rifle() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_rifle(player_color.get_rifle() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_forest_infantry;
+		matrix_units_points[x][y] = new buffer(ID_forest_infantry, player);
+	}
+	if (create_unit == mount_infantry_ and player_color.get_dop() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_dop(player_color.get_dop() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_mount_infantry;
+		matrix_units_points[x][y] = new buffer(ID_mount_infantry, player);
+	}
+	if (create_unit == PTO_ and player_color.get_dop() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_dop(player_color.get_dop() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_anti_tank;
+		matrix_units_points[x][y] = new buffer(ID_anti_tank, player);
+	}
+	if (create_unit == moto_ and player_color.get_car() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_car(player_color.get_car() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_motorised_infantry;
+		matrix_units_points[x][y] = new buffer(ID_motorised_infantry, player);
+	}
+	if (create_unit == sup_ and player_color.get_car() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_car(player_color.get_car() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_supply_car;
+		matrix_units_points[x][y] = new buffer(ID_supply_car, player);
+	}
+	if (create_unit == tank_ and player_color.get_tank() >= cost_units[create_unit] and matrix_supply_zone[x][y] == 1) {
+		player_color.set_tank(player_color.get_tank() - cost_units[create_unit]);
+		matrix_units_id[x][y] = ID_tank;
+		matrix_units_points[x][y] = new buffer(ID_tank, player);
+	}
+}
+
+void change_menu(Player_res& player_color, int constuction, int zoom, int x_camera, int y_camera, bool unit_choose) {
 	if (matrix_player_bar[res_menu]) {
 		paint_res_menu(player_color);
 	}
 	else if (matrix_player_bar[build_menu]) {
 		paint_build_menu(player_color);
 	}
+	else if (matrix_player_bar[weap_menu]) {
+		paint_mil_res_menu(player_color);
+	}
+	else if (matrix_player_bar[unit_build_menu]) {
+		paint_unit_build_menu(player_color);
+	}
+	else if (unit_choose and matrix_units_id[unit_x][unit_y] != ID_black_hole) {
+		paint_unit_stat();
+	}
 	else {
 		paint_main_menu();
 	}
 }
 
-void paint_player_bar(Player_res player_color, int constuction, int zoom, int x_camera, int y_camera) {
+void paint_player_bar(Player_res& player_color, int constuction, int zoom, int x_camera, int y_camera, bool unit_choose) {
 	RectangleShape rectangle2(Vector2f(player_bar_size_x, size_window_y));
 	rectangle2.setFillColor({ 100, 100 ,100 });
 	rectangle2.setPosition(size_window_x - player_bar_size_x, 0);
@@ -3211,12 +3519,12 @@ void paint_player_bar(Player_res player_color, int constuction, int zoom, int x_
 		window.draw(rectangle1);
 
 	}
-	change_menu(player_color, constuction, zoom, x_camera, y_camera);
+	change_menu(player_color, constuction, zoom, x_camera, y_camera, unit_choose);
 
 
 }
 
-void paint_game(int x_camera, int y_camera, int zoom, Player_res player_color, int constuction) {
+void paint_game(int x_camera, int y_camera, int zoom, Player_res player_color, int constuction, bool unit_choose) {
 	paint_relief(x_camera, y_camera, zoom);
 	if (choose_build) {
 		build(player_color, constuction, zoom, x_camera, y_camera);
@@ -3240,7 +3548,7 @@ void paint_game(int x_camera, int y_camera, int zoom, Player_res player_color, i
 		paint_units(x_camera, y_camera, zoom);
 	}
 	paint_map_mode();
-	paint_player_bar(player_color, constuction, zoom, x_camera, y_camera);
+	paint_player_bar(player_color, constuction, zoom, x_camera, y_camera, unit_choose);
 
 }
 
@@ -3414,6 +3722,8 @@ void game() {
 	Event event;
 	window.setKeyRepeatEnabled(false);
 	int constuction = -1;
+	int create_unit = -1;
+	bool unit_choose = false;
 	while (window.isOpen())
 	{
 		window.clear();
@@ -3552,6 +3862,37 @@ void game() {
 					}
 				}
 
+				else if (matrix_player_bar[unit_build_menu] == true) {
+					if (event.key.code == sf::Keyboard::Q)
+					{
+						create_unit = infantry_;
+					}
+					if (event.key.code == sf::Keyboard::W)
+					{
+						create_unit = jager_;
+					}
+					if (event.key.code == sf::Keyboard::E)
+					{
+						create_unit = mount_infantry_;
+					}
+					if (event.key.code == sf::Keyboard::R)
+					{
+						create_unit = moto_;
+					}
+					if (event.key.code == sf::Keyboard::T)
+					{
+						create_unit = PTO_;
+					}
+					if (event.key.code == sf::Keyboard::Y)
+					{
+						create_unit = sup_;
+					}
+					if (event.key.code == sf::Keyboard::U)
+					{
+						create_unit = tank_;
+					}
+				}
+
 				if (event.key.code == sf::Keyboard::Escape)
 				{
 					matrix_player_bar[build_menu] = false;
@@ -3560,6 +3901,7 @@ void game() {
 					matrix_player_bar[unit_build_menu] = false;
 					choose_build = false;
 					constuction = -1;
+					create_unit = -1;
 				}
 			}
 			if (event.type == sf::Event::MouseButtonPressed)
@@ -3567,10 +3909,12 @@ void game() {
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
 					Vector2i mousePos = Mouse::getPosition(window);
-					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and matrix_mode[unit_mode] == true) {
+					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and matrix_mode[unit_mode] == true and create_unit == -1) {
 						vector<int> coord;
 						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
-
+						unit_choose = true;
+						unit_x = coord[0];
+						unit_y = coord[1];
 						select_unit(coord, coord_units);
 
 					}
@@ -3584,8 +3928,17 @@ void game() {
 						else {
 							check_build(Blue_player, constuction, coord[0], coord[1]);
 						}
+					}
+					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and create_unit != -1) {
+						vector<int> coord;
+						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
 
-
+						if (player == red_player) {
+							build_unit(Red_player, create_unit, coord[0], coord[1]);
+						}
+						else {
+							build_unit(Blue_player, create_unit, coord[0], coord[1]);
+						}
 					}
 					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x) {
 						select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
@@ -3616,10 +3969,10 @@ void game() {
 			check_zone(zone_building_blue);
 		}
 		if (player == red_player) {
-			paint_game(x_camera, y_camera, zoom, Red_player, constuction);
+			paint_game(x_camera, y_camera, zoom, Red_player, constuction, unit_choose);
 		}
 		else {
-			paint_game(x_camera, y_camera, zoom, Blue_player, constuction);
+			paint_game(x_camera, y_camera, zoom, Blue_player, constuction, unit_choose);
 		}
 		window.display();
 	}
