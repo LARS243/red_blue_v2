@@ -340,6 +340,9 @@ public:
 	int get_ID() {
 		return(ID);
 	}
+	int get_player() {
+		return(player);
+	}
 	void set_health(int new_health) {
 		health = new_health;
 	}
@@ -1473,8 +1476,8 @@ void matrix_unit_to_zero() {
 			matrix_unit_mobility[i][j] = null;
 		}
 	}
-	matrix_units_id[25][14] = ID_infantry;
-	matrix_units_points[25][14] = new buffer(ID_infantry);
+	matrix_units_id[10][10] = ID_infantry;
+	matrix_units_points[10][10] = new buffer(ID_infantry);
 }
 
 void load_texture() {
@@ -3235,23 +3238,23 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 }
 
 // Костыль нажатия левой кнопки для выбора юнита
-void check_unit_road(int x, int y, int mobility) {
-	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and mobility > -1) {
-		matrix_unit_mobility[x][y] = mobility;
-		check_unit_road(x + 1, y, mobility - 1);
-		check_unit_road(x, y + 1, mobility - 1);
-		check_unit_road(x - 1, y, mobility - 1);
-		check_unit_road(x, y - 1, mobility - 1);
+void check_unit_road(int x, int y, int new_mobility, int mobility) {
+	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
+		matrix_unit_mobility[x][y] = new_mobility;
+		check_unit_road(x + 1, y, new_mobility + 1, mobility);
+		check_unit_road(x, y + 1, new_mobility + 1, mobility);
+		check_unit_road(x - 1, y, new_mobility + 1, mobility);
+		check_unit_road(x, y - 1, new_mobility + 1, mobility);
 	}
 }
 void start_check_unit_road(int x, int y, int mobility) {
-	int new_mobility;
+	int new_mobility = 0;
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			matrix_unit_mobility[i][j] = null;
 		}
 	}
-	check_unit_road(x, y, mobility);
+	check_unit_road(x, y, new_mobility, mobility);
 }
 
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
