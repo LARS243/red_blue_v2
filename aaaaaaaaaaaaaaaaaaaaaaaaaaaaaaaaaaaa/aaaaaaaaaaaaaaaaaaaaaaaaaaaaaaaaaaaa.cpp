@@ -2514,10 +2514,10 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	int type_units;
 	Vector2f scale = zoom_to_scale(zoom);
 	RectangleShape rectangle(Vector2f(size_cell * zoom, size_cell * zoom));
-	Sprite test;
-	test.setTexture(textures_units[blue_tank]);
-	test.setScale(scale);
-	test.setPosition(0, 0);
+	Sprite unit_sprite;
+	
+	unit_sprite.setScale(scale);
+	unit_sprite.setPosition(0, 0);
 
 	RectangleShape rectangle_1(Vector2f(size_cell * zoom, size_cell * zoom));
 	rectangle_1.setFillColor(orange_color);
@@ -2531,49 +2531,76 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 		}
 	}
 
-	window.draw(test);
+	
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			type_units = matrix_units_id[i][j];
 			if (type_units != 0) {
-
 				rectangle.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
 				switch (type_units) {
 				case ID_construction:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					;
 					break;
 				case ID_tank:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_tank]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_tank]);
+					}
 					break;
 				case ID_anti_tank:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_PTO]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_PTO]);
+					}
 					break;
 				case ID_infantry:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_infantry]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_infantry]);
+					}
 					break;
 				case ID_motorised_infantry:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_moto]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_moto]);
+					}
 					break;
 				case ID_supply_car:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_sup]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_sup]);
+					}
 					break;
 				case ID_mount_infantry:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_mount_infantry]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_mount_infantry]);
+					}
 					break;
 				case ID_forest_infantry:
-					rectangle.setFillColor(black_for_Oleg);
-					window.draw(rectangle);
+					if (player == red_player) {
+						unit_sprite.setTexture(textures_units[red_jaeger]);
+					}
+					else {
+						unit_sprite.setTexture(textures_units[blue_jaeger]);
+					}
 					break;
 				default:
 					break;
 				}
+				window.draw(unit_sprite);
 			}
 		}
 
