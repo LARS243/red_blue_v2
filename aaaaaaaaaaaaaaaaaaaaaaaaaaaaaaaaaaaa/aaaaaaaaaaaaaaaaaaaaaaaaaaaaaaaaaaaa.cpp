@@ -1284,8 +1284,11 @@ void matrix_unit_to_zero() {
 		for (int j = 0; j < size_field_y; j++)
 		{
 			matrix_units_id[i][j] = ID_black_hole;
+			matrix_unit_mobility[i][j] = null;
 		}
 	}
+	matrix_units_id[25][14] = ID_infantry;
+	matrix_units_points[25][14] = new buffer(ID_infantry);
 }
 
 void load_texture() {
@@ -2283,6 +2286,18 @@ void paint_units(int x_camera, int y_camera, int zoom) {//Допилить по�
 	test.setScale(scale);
 	test.setPosition(0, 0);
 
+	RectangleShape rectangle_1(Vector2f(size_cell * zoom, size_cell * zoom));
+	rectangle_1.setFillColor(orange_color);
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_unit_mobility[i][j] > null) {
+				rectangle_1.setPosition(i * size_cell * zoom + x_camera, j * size_cell * zoom + y_camera);
+				window.draw(rectangle_1);
+			}
+
+		}
+	}
+
 	window.draw(test);
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
@@ -2951,41 +2966,18 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 	return coord;
 }
 
-void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
-	int stri = 0;
-	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
-		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
-			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
-			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
-			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
-			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
-			coord_saved_unit[0] = coord[0];
-			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
-		}
-	}
-	else {
-		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {//Сюда впишешь отрисовку стат юнита
-			coord_saved_unit[0] = coord[0];
-			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
-		}
-	}
-}
-
-
-
 // Костыль нажатия левой кнопки для выбора юнита
 void check_unit_road(int x, int y, int mobility) {
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and mobility > -1) {
-		matrix_unit_mobility[x][y] = rail_road;
+		matrix_unit_mobility[x][y] = mobility;
 		check_unit_road(x + 1, y, mobility - 1);
 		check_unit_road(x, y + 1, mobility - 1);
 		check_unit_road(x - 1, y, mobility - 1);
 		check_unit_road(x, y - 1, mobility - 1);
 	}
 }
-void start_check_unit_road(int x, int y, int& mobility) {
+void start_check_unit_road(int x, int y, int mobility) {
+	int new_mobility;
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			matrix_unit_mobility[i][j] = null;
@@ -2996,22 +2988,23 @@ void start_check_unit_road(int x, int y, int& mobility) {
 
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
 	int stri = 0;
-	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_unit_mobility[coord[0]][coord[1]] != null) {
 		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
 			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
 			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
 			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
 			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+			matrix_units_points[coord[0]][coord[1]]->set_mobility(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - matrix_unit_mobility[coord[0]][coord[1]]);
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]));
 		}
 	}
 	else {
 		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]));
 		}
 	}
 }
@@ -3020,6 +3013,7 @@ void game() {
 	Player_res Blue_player;
 	Player_res Red_player;
 	create_cost_buildings();
+	vector <int> coord_units{ID_no_select, ID_no_select};
 
 	genetate_resource();
 	create_matrix_control();
@@ -3195,7 +3189,19 @@ void game() {
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
 					Vector2i mousePos = Mouse::getPosition(window);
-					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
+					if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and matrix_mode[unit_mode] == true) {
+						vector<int> coord;
+						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
+
+						if (player == red_player) {
+							select_unit(coord, coord_units);
+						}
+						else {
+							select_unit(coord, coord_units);
+						}
+
+					}
+					else if (mousePos.y < (size_window_y - player_bar_size_y) * window_zoom_y and mousePos.x < (size_window_x - player_bar_size_x) * window_zoom_x and constuction != -1) {
 						vector<int> coord;
 						coord = select_element(event, zoom, x_camera, y_camera, window_zoom_x, window_zoom_y);
 
