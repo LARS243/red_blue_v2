@@ -2950,6 +2950,31 @@ vector<int> select_element(Event event, int& zoom, int& x_camera, int& y_camera,
 	coord.push_back(((mousePos.y - y_camera * window_zoom_x) / (size_cell * zoom * window_zoom_y)));
 	return coord;
 }
+
+void select_unit(vector <int>& coord, vector <int>& coord_saved_unit) {
+	int stri = 0;
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select) {
+		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
+			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
+			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+		}
+	}
+	else {
+		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {//Сюда впишешь отрисовку стат юнита
+			coord_saved_unit[0] = coord[0];
+			coord_saved_unit[1] = coord[1];
+			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], stri);
+		}
+	}
+}
+
+
+
 // Костыль нажатия левой кнопки для выбора юнита
 void check_unit_road(int x, int y, int mobility) {
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and mobility > -1) {
