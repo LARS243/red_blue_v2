@@ -142,6 +142,7 @@ vector<Texture> textures_builds;
 vector<Texture> textures_roads;
 vector<Texture> textures_player_bar;
 vector<Texture> textures_sup_res;
+vector<Texture> textures_sup_mil;
 
 
 int matrix_relief[size_field_x][size_field_y];
@@ -1774,6 +1775,32 @@ void load_texture() {
 	textures_sup_res.push_back(sup_fuel_textures);
 
 
+	Image image_sup_rifle;
+	Texture sup_rifle_textures;
+	image_sup_rifle.loadFromFile("sup_rifle.png");
+	sup_rifle_textures.loadFromImage(image_sup_rifle);
+	textures_sup_mil.push_back(sup_rifle_textures);
+
+	Image image_sup_dop;
+	Texture sup_dop_textures;
+	image_sup_dop.loadFromFile("sup_eq.png");
+	sup_dop_textures.loadFromImage(image_sup_dop);
+	textures_sup_mil.push_back(sup_dop_textures);
+
+	Image image_sup_car;
+	Texture sup_car_textures;
+	image_sup_car.loadFromFile("sup_car.png");
+	sup_car_textures.loadFromImage(image_sup_car);
+	textures_sup_mil.push_back(sup_car_textures);
+
+	Image image_sup_tank;
+	Texture sup_tank_textures;
+	image_sup_tank.loadFromFile("sup_tank.png");
+	sup_tank_textures.loadFromImage(image_sup_tank);
+	textures_sup_mil.push_back(sup_tank_textures);
+
+
+
 	Image image_jaeger;
 	Texture texture_jaeger;
 	image_jaeger.loadFromFile("blue_jaeger.png");
@@ -2119,15 +2146,8 @@ void update_product(Player_res& player_color) {
 				}
 				else if (matrix_builds[i][j] == red_base or matrix_builds[i][j] == blue_base) {
 					player_color.set_max_res(player_color.get_max_res() + 20);
+					player_color.set_max_eq(player_color.get_max_eq() + 20);
 				}
-			}
-		}
-	}
-
-	for (int i = 0; i < size_field_x; i++) {
-		for (int j = 0; j < size_field_y; j++) {
-			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
-
 			}
 		}
 	}
@@ -2161,31 +2181,42 @@ void update_product(Player_res& player_color) {
 							player_color.set_steel(player_color.get_steel() + product_factory_steel);
 						}
 					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < size_field_x; i++) {
+		for (int j = 0; j < size_field_y; j++) {
+			if (matrix_build_zone[i][j] != 2000 and matrix_control[i][j] == player) {
+				if (player_color.get_coal() >= product_cost) {
+					int builds_ = matrix_builds[i][j];
 					if (builds_ == factory_rifle) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_rifle(player_color.get_rifle() + product_factory_rifle);
-					}
-					if (builds_ == factory_dop) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_dop(player_color.get_dop() + product_factory_dop);
-					}
-					if (builds_ == factory_car) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_car(player_color.get_car() + product_factory_car);
+						if (player_color.get_steel() >= product_factory_rifle_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_rifle_cost);
+							player_color.set_rifle(player_color.get_rifle() + product_factory_rifle);
+						}
 					}
 					if (builds_ == factory_tank) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_tank(player_color.get_tank() + product_factory_tank);
+						if (player_color.get_steel() >= product_factory_tank_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_tank_cost);
+							player_color.set_tank(player_color.get_tank() + product_factory_tank);
+						}
 					}
-					// проблема
-					/*if (builds_ == factory_anti_tank) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_anti_tank(player_color.get_anti_tank() + product_factory_anti_tank);
-					}*/
-					if (builds_ == factory_fuel) {
-						player_color.set_coal(player_color.get_coal() - product_cost);
-						player_color.set_fuel(player_color.get_fuel() - product_factory_fuel_cost);
-						player_color.set_steel(player_color.get_steel() + product_factory_fuel);
+					if (builds_ == factory_dop) {
+						if (player_color.get_steel() >= product_factory_dop_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_dop_cost);
+							player_color.set_dop(player_color.get_dop() + product_factory_dop);
+						}
+					}
+					if (builds_ == factory_car) {
+						if (player_color.get_steel() >= product_factory_car_cost) {
+							player_color.set_coal(player_color.get_coal() - product_cost);
+							player_color.set_steel(player_color.get_steel() - product_factory_car_cost);
+							player_color.set_car(player_color.get_car() + product_factory_car);
+						}
 					}
 				}
 			}
@@ -2747,6 +2778,43 @@ void paint_res_menu(Player_res player_color) {
 }
 
 void paint_mil_res_menu(Player_res player_color) {
+	const int sup_rifle = 0;
+	const int sup_dop = 1;
+	const int sup_car = 2;
+	const int sup_tank = 3;
+	Font font;
+	font.loadFromFile("ofont.ru_Arial.ttf");
+	Text text("", font, 40);
+	text.setStyle(sf::Text::Bold);
+	text.setColor(Color::Black);
+	int get_res;
+	Sprite sprite_res;
+	sprite_res.scale(3, 3);
+	for (int i = 0; i < 4; i++) {
+		if (i == sup_rifle) {
+			get_res = player_color.get_rifle();
+		}
+		else if (i == sup_dop) {
+			get_res = player_color.get_dop();
+		}
+		else if (i == sup_car) {
+			get_res = player_color.get_car();
+		}
+		else if (i == sup_tank) {
+			get_res = player_color.get_tank();
+		}
+		sprite_res.setTexture(textures_sup_mil[i]);
+		ostringstream buffer;
+		buffer << get_res;
+		buffer << "/";
+		buffer << player_color.get_max_eq();
+		text.setString(buffer.str());
+		text.setPosition(size_window_x - player_bar_size_x + player_bar_size_x / 3, size_window_y / 5 * i + 50);
+		sprite_res.setPosition(size_window_x - player_bar_size_x, size_window_y / 5 * i + 35);
+
+		window.draw(text);
+		window.draw(sprite_res);
+	}
 
 }
 void paint_build_menu(Player_res player_color) {
@@ -3178,6 +3246,9 @@ void change_menu(Player_res player_color, int constuction, int zoom, int x_camer
 	}
 	else if (matrix_player_bar[build_menu]) {
 		paint_build_menu(player_color);
+	}
+	else if (matrix_player_bar[weap_menu]) {
+		paint_mil_res_menu(player_color);
 	}
 	else {
 		paint_main_menu();
