@@ -1667,6 +1667,16 @@ void matrix_unit_to_zero() {
 	matrix_units_points[11][11] = new buffer(ID_infantry, player);
 }
 
+void matrix_road_to_zero() {
+	for (int i = 0; i < size_field_x; i++)
+	{
+		for (int j = 0; j < size_field_y; j++)
+		{
+			matrix_unit_mobility[i][j] = null;
+		}
+	}
+}
+
 void load_texture() {
 	Image image_oil;
 	Texture oil_textures;
@@ -3745,7 +3755,7 @@ void check_unit_road_machine(int x, int y, int new_mobility, int mobility, int& 
 	}
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
 		if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
-			
+			matrix_unit_mobility[x][y] = new_mobility = null;
 		}
 		else if (matrix_relief[x][y] == field) {
 			check_unit_road_machine(x + 1, y, new_mobility + 1, mobility, unit_id, player_resources);
@@ -4167,6 +4177,7 @@ void game() {
 					coord_units[0] = ID_no_select;
 					coord_units[1] = ID_no_select;
 					create_unit = -1;
+					matrix_road_to_zero();
 				}
 			}
 			if (event.type == sf::Event::MouseButtonPressed)
