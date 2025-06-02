@@ -1276,6 +1276,18 @@ void create_matrix_control() {
 	matrix_control[2][0] = red;
 	matrix_control[2][1] = red;
 
+
+	matrix_control[size_field_x - 3][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 3][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 3][size_field_y - 1] = blue;
+
+	matrix_control[size_field_x - 2][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 1] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 2] = blue;
+
+	matrix_control[size_field_x - 1][size_field_y - 1] = blue;
 }
 
 void create_matrix_mode() {
@@ -1658,6 +1670,13 @@ void matrix_unit_to_zero() {
 	matrix_units_points[2][1] = new buffer(ID_infantry, red_player);
 	matrix_units_id[2][2] = ID_infantry;
 	matrix_units_points[2][2] = new buffer(ID_infantry, red_player);
+
+	matrix_units_id[size_field_x - 3][size_field_x - 4] = ID_infantry;
+	matrix_units_points[size_field_x - 3][size_field_x - 4] = new buffer(ID_infantry, blue_player);
+	matrix_units_id[size_field_x - 4][size_field_x - 3] = ID_infantry;
+	matrix_units_points[size_field_x - 4][size_field_x - 3] = new buffer(ID_infantry, blue_player);
+	matrix_units_id[size_field_x - 4][size_field_x - 4] = ID_infantry;
+	matrix_units_points[size_field_x - 4][size_field_x - 4] = new buffer(ID_infantry, blue_player);
 }
 
 void matrix_road_to_zero() {
@@ -3748,31 +3767,40 @@ void check_unit_road_machine(int x, int y, int new_mobility, int mobility, int& 
 		}
 	}
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
-		if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
-			matrix_unit_mobility[x][y] = new_mobility = null;
-		}
-		else if (matrix_relief[x][y] == field) {
-			check_unit_road_machine(x + 1, y, new_mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y + 1, new_mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x - 1, y, new_mobility + 1, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y - 1, new_mobility + 1, mobility, unit_id, player_resources);
-		}
-		else if (matrix_relief[x][y] == forest) {
-			check_unit_road_machine(x + 1, y, new_mobility + 2, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y + 1, new_mobility + 2, mobility, unit_id, player_resources);
-			check_unit_road_machine(x - 1, y, new_mobility + 2, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y - 1, new_mobility + 2, mobility, unit_id, player_resources);
-		}
-		else if (matrix_relief[x][y] == mount and unit_id != ID_tank) {
-			check_unit_road_machine(x + 1, y, new_mobility + 3, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y + 1, new_mobility + 3, mobility, unit_id, player_resources);
-			check_unit_road_machine(x - 1, y, new_mobility + 3, mobility, unit_id, player_resources);
-			check_unit_road_machine(x, y - 1, new_mobility + 3, mobility, unit_id, player_resources);
+		if (matrix_control[x][y] != player) {
+			if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
+				matrix_unit_mobility[x][y] = new_mobility = null;
+				matrix_unit_mobility[x][y] = new_mobility;
+			}
+			else if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
+				matrix_unit_mobility[x][y] = new_mobility = null;
+			}
+			else if (matrix_relief[x][y] == field) {
+				check_unit_road_machine(x + 1, y, new_mobility + 1, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y + 1, new_mobility + 1, mobility, unit_id, player_resources);
+				check_unit_road_machine(x - 1, y, new_mobility + 1, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y - 1, new_mobility + 1, mobility, unit_id, player_resources);
+			}
+			else if (matrix_relief[x][y] == forest) {
+				check_unit_road_machine(x + 1, y, new_mobility + 2, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y + 1, new_mobility + 2, mobility, unit_id, player_resources);
+				check_unit_road_machine(x - 1, y, new_mobility + 2, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y - 1, new_mobility + 2, mobility, unit_id, player_resources);
+			}
+			else if (matrix_relief[x][y] == mount and unit_id != ID_tank) {
+				check_unit_road_machine(x + 1, y, new_mobility + 3, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y + 1, new_mobility + 3, mobility, unit_id, player_resources);
+				check_unit_road_machine(x - 1, y, new_mobility + 3, mobility, unit_id, player_resources);
+				check_unit_road_machine(x, y - 1, new_mobility + 3, mobility, unit_id, player_resources);
+			}
 		}
 	}
 }
 
 void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id) {
+	/*if (matrix_control[x][y] != player) {
+		new_mobility = mobility;
+	}*/
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
 		matrix_unit_mobility[x][y] = new_mobility;
 	}
@@ -3781,8 +3809,13 @@ void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id)
 			matrix_unit_mobility[x][y] = new_mobility;
 		}
 	}
+	
+	
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
-		if (matrix_relief[x][y] == field) {
+		if (matrix_control[x][y] != player) {
+			matrix_unit_mobility[x][y] = new_mobility;
+		}
+		else if (matrix_relief[x][y] == field) {
 			check_unit_road(x + 1, y, new_mobility + 1, mobility, unit_id);
 			check_unit_road(x, y + 1, new_mobility + 1, mobility, unit_id);
 			check_unit_road(x - 1, y, new_mobility + 1, mobility, unit_id);
@@ -3924,6 +3957,7 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit, Player_res
 			if (matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_motorised_infantry) {
 				player_resources.set_fuel(player_resources.get_fuel() - matrix_unit_mobility[coord[0]][coord[1]]);
 			}
+			matrix_control[coord[0]][coord[1]] = player;
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
 			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
