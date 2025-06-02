@@ -540,7 +540,6 @@ public:
 		return(damage_to_war_machine);
 	}
 	int get_mobility() {
-		cout << "{" << "s" << "}";
 		return(mobility);
 	}
 	int get_supply() {
@@ -972,7 +971,6 @@ public:
 			return (anti_tank_point->get_mobility());
 			break;
 		case 4:
-			cout << "panic";
 			return (infantry_point->get_mobility());
 			break;
 		case 5:
@@ -1657,9 +1655,9 @@ void matrix_unit_to_zero() {
 	matrix_units_id[1][2] = ID_infantry;
 	matrix_units_points[1][2] = new buffer(ID_infantry, red_player);
 	matrix_units_id[2][1] = ID_infantry;
-	matrix_units_points[1][1] = new buffer(ID_infantry, red_player);
+	matrix_units_points[2][1] = new buffer(ID_infantry, red_player);
 	matrix_units_id[2][2] = ID_infantry;
-	matrix_units_points[1][2] = new buffer(ID_infantry, red_player);
+	matrix_units_points[2][2] = new buffer(ID_infantry, red_player);
 }
 
 void matrix_road_to_zero() {
@@ -3819,7 +3817,7 @@ void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id)
 
 void start_check_unit_road(int x, int y, int mobility, int unit_id, Player_res& player_resources) {
 	int new_mobility = 0;
-	cout << "s";
+	
 	for (int i = 0; i < size_field_x; i++) {
 		for (int j = 0; j < size_field_y; j++) {
 			matrix_unit_mobility[i][j] = null;
@@ -3940,11 +3938,10 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit, Player_res
 		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
-			cout << coord[0] << "|" << coord[1];
 			int id = matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]);
-			cout << "s";
+			
 			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], id, matrix_units_id[coord[0]][coord[1]], player_resources);
-			cout << "s";
+			
 		}
 	}
 }//
