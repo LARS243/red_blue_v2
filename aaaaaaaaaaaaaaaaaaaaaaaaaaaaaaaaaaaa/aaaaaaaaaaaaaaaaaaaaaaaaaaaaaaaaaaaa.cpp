@@ -371,12 +371,20 @@ private:
 	int armor;
 	int ID;
 	int player;
+	int damage_to_living_force = 0;
+	int damage_to_war_machine = 0;
+	int mobility = 0;
+	int supply = 0;
 public:
 	construction(int new_player) {
-		health = 100;
+		health = 200;
 		armor = 50;
 		ID = ID_construction;
 		player = new_player;
+		damage_to_living_force = 0;
+		damage_to_war_machine = 0;
+		mobility = 0;
+		supply = 0;
 	}
 	int get_health() {
 		return(health);
@@ -392,6 +400,18 @@ public:
 	}
 	void set_health(int new_health) {
 		health = new_health;
+	}
+	int get_damage_to_living_force() {
+		return(damage_to_living_force);
+	}
+	int get_damage_to_war_machine() {
+		return(damage_to_war_machine);
+	}
+	int get_mobility() {
+		return(mobility);
+	}
+	int get_supply() {
+		return(supply);
 	}
 };
 
@@ -907,6 +927,9 @@ public:
 
 	int get_damage_to_living_force(int new_index) {
 		switch (new_index) {
+		case 1:
+			return (construction_point->get_damage_to_living_force());
+			break;
 		case 2:
 			return (tank_point->get_damage_to_living_force());
 			break;
@@ -935,6 +958,9 @@ public:
 
 	int get_damage_to_war_machine(int new_index) {
 		switch (new_index) {
+		case 1:
+			return (construction_point->get_damage_to_war_machine());
+			break;
 		case 2:
 			return (tank_point->get_damage_to_war_machine());
 			break;
@@ -964,6 +990,9 @@ public:
 	int get_mobility(int new_index) {
 		
 		switch (new_index) {
+		case 1:
+			return (construction_point->get_mobility());
+			break;
 		case 2:
 			return (tank_point->get_mobility());
 			break;
@@ -992,6 +1021,9 @@ public:
 
 	int get_supply(int new_index) {
 		switch (new_index) {
+		case 1:
+			return (construction_point->get_supply());
+			break;
 		case 2:
 			return (tank_point->get_supply());
 			break;
@@ -1275,7 +1307,20 @@ void create_matrix_control() {
 	matrix_control[2][2] = red;
 	matrix_control[2][0] = red;
 	matrix_control[2][1] = red;
+	matrix_control[4][4] = blue;
 
+
+	matrix_control[size_field_x - 3][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 3][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 3] = blue;
+	matrix_control[size_field_x - 3][size_field_y - 1] = blue;
+
+	matrix_control[size_field_x - 2][size_field_y - 2] = blue;
+	matrix_control[size_field_x - 2][size_field_y - 1] = blue;
+	matrix_control[size_field_x - 1][size_field_y - 2] = blue;
+
+	matrix_control[size_field_x - 1][size_field_y - 1] = blue;
 }
 
 void create_matrix_mode() {
@@ -1652,12 +1697,25 @@ void matrix_unit_to_zero() {
 			matrix_unit_mobility[i][j] = null;
 		}
 	}
-	matrix_units_id[1][2] = ID_infantry;
-	matrix_units_points[1][2] = new buffer(ID_infantry, red_player);
+	matrix_units_id[1][1] = ID_construction;
+	matrix_units_points[1][1] = new buffer(ID_construction, red_player);
+	matrix_units_id[1][2] = ID_motorised_infantry;
+	matrix_units_points[1][2] = new buffer(ID_motorised_infantry, red_player);
 	matrix_units_id[2][1] = ID_infantry;
 	matrix_units_points[2][1] = new buffer(ID_infantry, red_player);
 	matrix_units_id[2][2] = ID_infantry;
 	matrix_units_points[2][2] = new buffer(ID_infantry, red_player);
+	matrix_units_id[4][4] = ID_infantry;
+	matrix_units_points[4][4] = new buffer(ID_infantry, blue_player);
+
+	matrix_units_id[size_field_x - 3][size_field_x - 3] = ID_construction;
+	matrix_units_points[size_field_x - 3][size_field_x - 3] = new buffer(ID_construction, blue_player);
+	matrix_units_id[size_field_x - 3][size_field_x - 4] = ID_infantry;
+	matrix_units_points[size_field_x - 3][size_field_x - 4] = new buffer(ID_infantry, blue_player);
+	matrix_units_id[size_field_x - 4][size_field_x - 3] = ID_infantry;
+	matrix_units_points[size_field_x - 4][size_field_x - 3] = new buffer(ID_infantry, blue_player);
+	matrix_units_id[size_field_x - 4][size_field_x - 4] = ID_infantry;
+	matrix_units_points[size_field_x - 4][size_field_x - 4] = new buffer(ID_infantry, blue_player);
 }
 
 void matrix_road_to_zero() {
@@ -3747,8 +3805,16 @@ void check_unit_road_machine(int x, int y, int new_mobility, int mobility, int& 
 		}
 	}
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
-		if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
-			matrix_unit_mobility[x][y] = new_mobility = null;
+		if (matrix_control[x][y] != player) {
+			if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
+				matrix_unit_mobility[x][y] = null;
+			}
+			else {
+				matrix_unit_mobility[x][y] = mobility / 2;
+			}
+		}
+		else if (matrix_relief[x][y] == mount and unit_id == ID_tank) {
+			matrix_unit_mobility[x][y] = null;
 		}
 		else if (matrix_relief[x][y] == field) {
 			check_unit_road_machine(x + 1, y, new_mobility + 1, mobility, unit_id, player_resources);
@@ -3772,6 +3838,9 @@ void check_unit_road_machine(int x, int y, int new_mobility, int mobility, int& 
 }
 
 void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id) {
+	/*if (matrix_control[x][y] != player) {
+		new_mobility = mobility;
+	}*/
 	if (matrix_unit_mobility[x][y] == null and matrix_units_id[x][y] == ID_black_hole and new_mobility <= mobility) {
 		matrix_unit_mobility[x][y] = new_mobility;
 	}
@@ -3781,7 +3850,10 @@ void check_unit_road(int x, int y, int new_mobility, int mobility, int& unit_id)
 		}
 	}
 	if (new_mobility <= mobility and x >= 0 and y >= 0) {
-		if (matrix_relief[x][y] == field) {
+		if (matrix_control[x][y] != player) {
+			matrix_unit_mobility[x][y] = mobility / 2;
+		}
+		else if (matrix_relief[x][y] == field) {
 			check_unit_road(x + 1, y, new_mobility + 1, mobility, unit_id);
 			check_unit_road(x, y + 1, new_mobility + 1, mobility, unit_id);
 			check_unit_road(x - 1, y, new_mobility + 1, mobility, unit_id);
@@ -3861,49 +3933,58 @@ int supply_removed(vector <int>& coord, vector <int>& coord_saved_unit) {
 
 void atack(vector <int>& coord, vector <int>& coord_saved_unit, Player_res& player_resources) {
 	int supply_for_atack = supply_removed(coord, coord_saved_unit);
+	int supply_for_defense = supply_for_atack / 2;
+	bool cheking = false;
 	if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= supply_for_atack and ((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] != ID_tank and matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] != ID_motorised_infantry) or player_resources.get_fuel() >= supply_for_atack)) {
-		matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - supply_for_atack);
-		if (matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) {
-			player_resources.set_fuel(player_resources.get_fuel() - supply_for_atack);
+
+		if (matrix_relief[coord[0]][coord[1]] == mount and matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 4 and matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 4) {
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 3);
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 3);
+			cheking = true;
 		}
-		if (matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_construction) {
-			if (matrix_relief[coord[0]][coord[1]] == mount) {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 3);
-			}
-			else if (matrix_relief[coord[0]][coord[1]] == forest) {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 2);
-			}
-			else {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 1);
-			}
-			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_war_machine((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]))) {
+
+		else if (matrix_relief[coord[0]][coord[1]] == forest and matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 3 and matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 3) {
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 2);
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 2);
+			cheking = true;
+		}
+
+		else if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 2 and matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= 2){
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 1);
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_health(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - 1);
+			cheking = true;
+		}
+
+		if ((matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_construction) and cheking) {
+			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_war_machine(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) or (matrix_units_points[coord[0]][coord[1]]->get_supply(matrix_units_id[coord[0]][coord[1]]) < supply_for_defense)) {
 				matrix_units_points[coord[0]][coord[1]] = nullptr;
 				matrix_units_id[coord[0]][coord[1]] = ID_black_hole;
 				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
 			}
-			else {
+			else{
 				matrix_units_points[coord[0]][coord[1]]->set_health(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) - matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_war_machine((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]])));
+				matrix_units_points[coord[0]][coord[1]]->set_supply(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_supply(matrix_units_id[coord[0]][coord[1]]) - supply_for_defense);
 				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
 			}
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - supply_for_atack);
+			if (matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) {
+				player_resources.set_fuel(player_resources.get_fuel() - supply_for_atack);
+			}
 		}
-		else {
-			if (matrix_relief[coord[0]][coord[1]] == mount) {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 3);
-			}
-			else if (matrix_relief[coord[0]][coord[1]] == forest) {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 2);
-			}
-			else {
-				matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - 1);
-			}
-			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_living_force((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]))) {
+		else if (cheking) {
+			if (matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_living_force(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) >= matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) or (matrix_units_points[coord[0]][coord[1]]->get_supply(matrix_units_id[coord[0]][coord[1]]) < supply_for_defense)) {
 				matrix_units_points[coord[0]][coord[1]] = nullptr;
 				matrix_units_id[coord[0]][coord[1]] = ID_black_hole;
 				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
 			}
 			else {
 				matrix_units_points[coord[0]][coord[1]]->set_health(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_health(matrix_units_id[coord[0]][coord[1]]) - matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_damage_to_living_force((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]])));
+				matrix_units_points[coord[0]][coord[1]]->set_supply(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_supply(matrix_units_id[coord[0]][coord[1]]) - supply_for_defense);
 				start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
+			}
+			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->set_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_supply(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]) - supply_for_atack);
+			if (matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_tank or matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] == ID_motorised_infantry) {
+				player_resources.set_fuel(player_resources.get_fuel() - supply_for_atack);
 			}
 		}
 	}
@@ -3912,29 +3993,27 @@ void atack(vector <int>& coord, vector <int>& coord_saved_unit, Player_res& play
 void select_unit(vector <int>& coord, vector <int>& coord_saved_unit, Player_res& player_resources) {
 	int stri = 0;
 	
-	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_unit_mobility[coord[0]][coord[1]] != null) {
-		
-		if (matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
-			matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
-			matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
-			matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
-			matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
-			matrix_units_points[coord[0]][coord[1]]->set_mobility(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - matrix_unit_mobility[coord[0]][coord[1]]);
-			if (matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_motorised_infantry) {
-				player_resources.set_fuel(player_resources.get_fuel() - matrix_unit_mobility[coord[0]][coord[1]]);
-			}
-			coord_saved_unit[0] = coord[0];
-			coord_saved_unit[1] = coord[1];
-			start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
+	if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_unit_mobility[coord[0]][coord[1]] != null and ((matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] != ID_tank and matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] != ID_motorised_infantry) or player_resources.get_fuel() >= matrix_unit_mobility[coord[0]][coord[1]]) and matrix_units_id[coord[0]][coord[1]] == ID_black_hole) {
+		matrix_units_id[coord[0]][coord[1]] = matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]];
+		matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]] = ID_black_hole;
+		matrix_units_points[coord[0]][coord[1]] = matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]];
+		matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]] = nullptr;
+		matrix_units_points[coord[0]][coord[1]]->set_mobility(matrix_units_id[coord[0]][coord[1]], matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]) - matrix_unit_mobility[coord[0]][coord[1]]);
+		if (matrix_units_id[coord[0]][coord[1]] == ID_tank or matrix_units_id[coord[0]][coord[1]] == ID_motorised_infantry) {
+			player_resources.set_fuel(player_resources.get_fuel() - matrix_unit_mobility[coord[0]][coord[1]]);
 		}
+		matrix_control[coord[0]][coord[1]] = player;
+		coord_saved_unit[0] = coord[0];
+		coord_saved_unit[1] = coord[1];
+		start_check_unit_road(coord_saved_unit[0], coord_saved_unit[1], matrix_units_points[coord_saved_unit[0]][coord_saved_unit[1]]->get_mobility(matrix_units_id[coord_saved_unit[0]][coord_saved_unit[1]]), matrix_units_id[coord[0]][coord[1]], player_resources);
 	}
-	else if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_units_points[coord[0]][coord[1]]->get_player(matrix_units_id[coord[0]][coord[1]]) != player and (abs(coord[0] - coord_saved_unit[0]) <= 1) and (abs(coord[1] - coord_saved_unit[1]) <= 1)) {
+	else if (coord_saved_unit[0] != ID_no_select and coord_saved_unit[1] != ID_no_select and matrix_units_id[coord[0]][coord[1]] != ID_black_hole and matrix_units_points[coord[0]][coord[1]]->get_player(matrix_units_id[coord[0]][coord[1]]) != player and (abs(coord[0] - coord_saved_unit[0]) <= 1) and (abs(coord[1] - coord_saved_unit[1]) <= 1)) {
 		
 		atack(coord, coord_saved_unit, player_resources);
 	}
 	else {
 		
-		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole) {
+		if (matrix_units_id[coord[0]][coord[1]] != ID_black_hole and matrix_units_points[coord[0]][coord[1]]->get_player(matrix_units_id[coord[0]][coord[1]]) == player) {
 			coord_saved_unit[0] = coord[0];
 			coord_saved_unit[1] = coord[1];
 			int id = matrix_units_points[coord[0]][coord[1]]->get_mobility(matrix_units_id[coord[0]][coord[1]]);
@@ -3943,7 +4022,7 @@ void select_unit(vector <int>& coord, vector <int>& coord_saved_unit, Player_res
 			
 		}
 	}
-}//
+}
 // обновление юнитов
 void survivors_remember_the_fallen(Player_res& player_resources) {
 	start_check_supply_zones();
