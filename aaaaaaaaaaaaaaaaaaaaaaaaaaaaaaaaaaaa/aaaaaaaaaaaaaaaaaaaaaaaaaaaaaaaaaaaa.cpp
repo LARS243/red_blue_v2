@@ -2964,7 +2964,6 @@ void paint_unit_stat() {
 			buffer_text << matrix_units_points[unit_x][unit_y]->get_health(matrix_units_id[unit_x][unit_y]);
 			buffer_text << "/";
 			buffer_text << max_health(unit_x, unit_y);
-			
 		}
 		if (i == stat_eq) {
 			sprite_res.setTexture(textures_stats[stat_eq]);
